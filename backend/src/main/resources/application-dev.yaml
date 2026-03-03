@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/pymes?createDatabaseIfNotExist=true
+    username: root # modify given your username in mysql
+    password: chanochoca # modify given your password in mysql
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+cookie:
+  secure: false
+  domain: localhost
+  sameSite: Lax
