@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/pymes?createDatabaseIfNotExist=true
-    username: root # modify given your username in mysql
-    password: chanochoca # modify given your password in mysql
+    username: fran
+    password: 123
   jpa:
     hibernate:
       ddl-auto: update
