@@ -1,0 +1,5 @@
+export enum SaleStatus {
+  PENDING_PAYMENT = "PENDING_PAYMENT",
+  COMPLETED = "COMPLETED",
+  CANCELED = "CANCELED",
+}
