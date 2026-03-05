@@ -2,8 +2,9 @@
 
 import { procesarSkuAction } from "@/app/actions/product";
 import ProductList from "@/app/usuario/venta/ProductList";
-import QRScanner from "@/app/usuario/venta/QRScanner";
 import { useState, useTransition } from "react";
+import BarCodeScanner from "./BarCodeScanner";
+import PaymentQR from "./PaymentQR";
 
 export interface Product {
   id: number;
@@ -47,10 +48,17 @@ export default function Page() {
     });
   }
 
+  const total = cart.reduce(
+    (acc, item) =>
+      acc + Number(item.product.currentSalePrice ?? 0) * item.quantity,
+    0,
+  );
+
   return (
     <div className="space-y-8">
-      <QRScanner onScan={handleScan} loading={isPending} />
+      <BarCodeScanner onScan={handleScan} />
       <ProductList cart={cart} />
+      <PaymentQR amount={total} />
     </div>
   );
 }

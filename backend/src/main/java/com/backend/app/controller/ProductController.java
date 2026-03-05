@@ -41,7 +41,7 @@ public class ProductController {
 
     @GetMapping("/sku/{sku}")
     @ResponseStatus(HttpStatus.OK)
-    public Product getProductsBySku(@PathVariable String sku) {
+    public ProductResponse getProductsBySku(@PathVariable String sku) {
         return productService.getProductBySku(sku);
     }
 

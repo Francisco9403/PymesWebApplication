@@ -38,8 +38,9 @@ public class ProductService {
                 .orElseThrow(() -> new BusinessException(id));
     }
 
-    public Product getProductBySku(String sku) {
-        return productRepository.findBySku(sku).orElseThrow(() -> new BusinessException(0L));
+    public ProductResponse getProductBySku(String sku) {
+        Product product = productRepository.findBySku(sku).orElseThrow(() -> new BusinessException(0L));
+        return new ProductResponse(product.getId(), product.getSku(), product.getCurrentSalePrice());
     }
 
     public Product getProductByBarcode(String ean13) {

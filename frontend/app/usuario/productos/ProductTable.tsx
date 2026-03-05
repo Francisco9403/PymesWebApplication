@@ -1,6 +1,5 @@
 import { ProductResponse } from "@/app/actions/product";
 import { PageResponse } from "@/types/Page";
-import { Product } from "@/types/Product";
 
 import Link from "next/link";
 
