@@ -1,6 +1,6 @@
 "use client";
 
-import { crearQrMercadoPago } from "@/app/actions/payment";
+import { crearQrMercadoPago } from "@/app/actions/mercadolibre";
 import ProductList from "@/app/usuario/venta/ProductList";
 import QRScanner from "@/app/usuario/venta/QRScanner";
 
@@ -19,6 +19,9 @@ interface CartItem {
 }
 
 export default function Page() {
+  const [qrData, setQrData] = useState<{ string: string; ref: string } | null>(
+    null,
+  );
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isPending, startTransition] = useTransition();
 
@@ -62,17 +65,15 @@ export default function Page() {
     );
 
     startTransition(async () => {
-      const reference = await crearQrMercadoPago(total);
-      setExternalReference(reference);
+      const result = await crearQrMercadoPago(total);
+      setQrData({ string: result.qrString, ref: result.externalReference });
     });
   }
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto p-6">
       <QRScanner onScan={handleScan} loading={isPending} />
-
       <ProductList cart={cart} />
-
       {cart.length > 0 && (
         <button
           onClick={handleCobrar}
@@ -82,8 +83,7 @@ export default function Page() {
           {isPending ? "Generando QR..." : "Cobrar con QR"}
         </button>
       )}
-
-      <PaymentQR externalReference={externalReference} />
+      <PaymentQR qrString={qrData?.string} externalReference={qrData?.ref} />
     </div>
   );
 }

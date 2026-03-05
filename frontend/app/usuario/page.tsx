@@ -7,24 +7,9 @@ export default function Page() {
       <Link href="/usuario/finanzas">Ir a Finanzas</Link>
       <Link href="/usuario/productos">Ir a Productos</Link>
       <Link href="/usuario/venta">Ir a Venta</Link>
-      <Link
-        href="/usuario/sucursales"
-        className="text-gray-800 hover:text-black font-medium transition-colors"
-      >
-        Sucursales
-      </Link>
-      <Link
-        href="/usuario/inventario"
-        className="text-gray-800 hover:text-black font-medium transition-colors"
-      >
-        Sucursales
-      </Link>
-      <Link
-        href="/usuario/proveedores"
-        className="text-gray-800 hover:text-black font-medium transition-colors"
-      >
-        Sucursales
-      </Link>
+      <Link href="/usuario/sucursales">Sucursales</Link>
+      <Link href="/usuario/inventario">Inventario</Link>
+      <Link href="/usuario/proveedores">Proveedores</Link>
     </div>
   );
 }
