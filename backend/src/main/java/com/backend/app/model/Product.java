@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,9 +26,11 @@ public class Product extends SyncEntity {
     private String ean13; // Lectura Universal
     private String qrCode;
     
+    @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<ProductStock> stocks; // Multi-sucursal
+    private List<ProductStock> stocks;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AIProductDescription> aiDescriptions = new ArrayList<>();
 

@@ -1,122 +1,91 @@
-"use client";
+import { getBranches, getStockByBranch } from "@/app/actions/stock";
+import { getProducts } from "@/app/actions/product";
+import StockTable from "./StockTable";
+import AddStockForm from "./AddStockForm";
+import BranchSelector from "./BranchSelector"; // <-- Importamos el selector
+import Link from "next/link";
 
-import { PageResponse } from "@/types/Page";
-import { Product } from "@/types/Product";
-import { useEffect, useState } from "react";
+export default async function InventarioPage({
+  searchParams,
+}: {
+  searchParams: { branchId?: string };
+}) {
+  // Leemos los parámetros de la URL
+  const params = await searchParams;
 
-export default function Page() {
-  const [data, setData] = useState<PageResponse<Product> | null>(null);
-  const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const branches = await getBranches();
 
-  const size = 10;
-
-  useEffect(() => {
-    fetchProducts(page);
-  }, [page]);
-
-  async function fetchProducts(pageNumber: number) {
-    try {
-      setLoading(true);
-      const res = await fetch(
-        `http://localhost:8080/products?page=${pageNumber}&size=${size}`,
-      );
-      const json = await res.json();
-      setData(json);
-    } catch (error) {
-      console.error("Error loading products", error);
-    } finally {
-      setLoading(false);
-    }
+  if (!branches || branches.length === 0) {
+    return (
+      <div className="p-8 space-y-6">
+        <h1 className="text-3xl font-bold">Inventario</h1>
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
+          <p className="text-yellow-700">
+            Para ver el inventario, primero tenés que crear al menos una
+            Sucursal.
+          </p>
+        </div>
+      </div>
+    );
   }
 
-  const totalStock = (product: Product) =>
-    product.stocks?.reduce((acc, s) => acc + s.quantity, 0) ?? 0;
+  // LÓGICA DE SELECCIÓN: Si hay un branchId en la URL lo usamos, si no, agarramos el primero (ej: Depósito Junín)
+  const selectedId = params.branchId ? Number(params.branchId) : branches[0].id;
+
+  // Buscamos el objeto completo de la sucursal seleccionada
+  const activeBranch = branches.find((b) => b.id === selectedId) || branches[0];
+
+  const stockData = await getStockByBranch(activeBranch.id);
+  const productsPage = await getProducts(0, 500);
+  const productsList = productsPage?.content || [];
 
   return (
-    <div className="p-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Inventario y Catálogo
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Gestión omnicanal, escaneo OCR y generación de fichas IA.
-        </p>
-      </header>
-
-      {/* TABLA INVENTARIO */}
-      <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left">
-            <tr>
-              <th className="p-4">SKU</th>
-              <th className="p-4">EAN13</th>
-              <th className="p-4">Precio</th>
-              <th className="p-4">Stock Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
-              <tr>
-                <td colSpan={4} className="p-6 text-center">
-                  Cargando...
-                </td>
-              </tr>
-            )}
-
-            {!loading && data?.content.length === 0 && (
-              <tr>
-                <td colSpan={4} className="p-6 text-center text-gray-500">
-                  No hay productos registrados
-                </td>
-              </tr>
-            )}
-
-            {!loading &&
-              data?.content.map((product) => (
-                <tr
-                  key={product.id}
-                  className="border-t hover:bg-gray-50 transition"
-                >
-                  <td className="p-4">{product.sku}</td>
-                  <td className="p-4">{product.ean13}</td>
-                  <td className="p-4">
-                    ${Number(product.currentSalePrice ?? 0).toFixed(2)}
-                  </td>
-                  <td className="p-4 font-medium">{totalStock(product)}</td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-
-        {/* PAGINACIÓN */}
-        {data && (
-          <div className="flex items-center justify-between p-4 border-t bg-gray-50">
-            <span className="text-sm text-gray-600">
-              Página {data.page + 1} de {data.totalPages} — {data.totalElements}{" "}
-              productos
-            </span>
-
-            <div className="flex gap-2">
-              <button
-                disabled={page === 0}
-                onClick={() => setPage((p) => p - 1)}
-                className="px-3 py-1 border rounded disabled:opacity-40"
-              >
-                Anterior
-              </button>
-
-              <button
-                disabled={page + 1 >= data.totalPages}
-                onClick={() => setPage((p) => p + 1)}
-                className="px-3 py-1 border rounded disabled:opacity-40"
-              >
-                Siguiente
-              </button>
-            </div>
-          </div>
-        )}
+    <div className="p-8 space-y-6">
+      <div>
+        <Link
+          href="/usuario"
+          className="inline-flex items-center text-sm text-gray-500 hover:text-black transition-colors"
+        >
+          <svg
+            className="w-4 h-4 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Volver atrás
+        </Link>
       </div>
+
+      {/* Título a la izquierda y Selector a la derecha */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Inventario</h1>
+          <p className="text-gray-500 mt-1">
+            Mostrando stock de:{" "}
+            <span className="font-semibold text-gray-700">
+              {activeBranch.name}
+            </span>
+          </p>
+        </div>
+
+        {/* Agregamos el componente desplegable acá */}
+        <BranchSelector
+          branches={branches}
+          selectedBranchId={activeBranch.id}
+        />
+      </div>
+
+      {/* Le pasamos el ID de la sucursal activa al formulario para que guarde ahí */}
+      <AddStockForm branchId={activeBranch.id} products={productsList} />
+
+      <StockTable stockList={stockData} />
     </div>
   );
 }

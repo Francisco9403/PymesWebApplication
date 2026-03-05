@@ -60,7 +60,6 @@ export async function createProductAction(formData: FormData) {
   }
 
   const data = await response.json();
-  console.log("✅ Producto creado:", data);
 
   revalidatePath("/admin/products");
 }
@@ -88,7 +87,6 @@ export async function getProducts(
       },
     },
   );
-  console.log(res);
 
   if (!res.ok) {
     return {

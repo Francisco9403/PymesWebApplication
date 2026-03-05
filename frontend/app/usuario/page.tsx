@@ -5,9 +5,26 @@ export default function Page() {
     <div className="flex flex-col gap-5">
       <Link href="/usuario/cumplimiento">Ir a Clientes</Link>
       <Link href="/usuario/finanzas">Ir a Finanzas</Link>
-      <Link href="/usuario/inventario">Ir a Inventario</Link>
       <Link href="/usuario/productos">Ir a Productos</Link>
       <Link href="/usuario/venta">Ir a Venta</Link>
+      <Link
+        href="/usuario/sucursales"
+        className="text-gray-800 hover:text-black font-medium transition-colors"
+      >
+        Sucursales
+      </Link>
+      <Link
+        href="/usuario/inventario"
+        className="text-gray-800 hover:text-black font-medium transition-colors"
+      >
+        Sucursales
+      </Link>
+      <Link
+        href="/usuario/proveedores"
+        className="text-gray-800 hover:text-black font-medium transition-colors"
+      >
+        Sucursales
+      </Link>
     </div>
   );
 }
