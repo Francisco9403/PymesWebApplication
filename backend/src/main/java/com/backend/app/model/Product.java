@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.CascadeType;
@@ -23,10 +24,12 @@ public class Product extends SyncEntity {
     private String sku;
     private String ean13; // Lectura Universal
     private String qrCode;
-    
+
+    @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ProductStock> stocks; // Multi-sucursal
 
+    @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AIProductDescription> aiDescriptions = new ArrayList<>();
 

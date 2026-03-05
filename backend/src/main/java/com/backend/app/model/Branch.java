@@ -7,20 +7,22 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import com.fasterxml.jackson.annotation.JsonIgnore; // <-- IMPORTANTE: Agregamos este import
 
 @Entity
 public class Branch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String name;
     private String address;
     private String phone;
-    
+
     // Indica si es un depósito central o punto de venta
     private boolean isPointOfSale;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "branch")
     private List<ProductStock> inventory;
 
