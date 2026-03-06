@@ -1,6 +1,8 @@
 import { getProducts } from "@/app/actions/product";
 import CreateProductForm from "./CreateProductForm";
 import ProductTable from "./ProductTable";
+import { getBranches } from "@/app/actions/stock";
+import { redirect } from "next/navigation";
 
 export default async function Page({
   searchParams,
@@ -11,7 +13,17 @@ export default async function Page({
   const page = Number(params.page ?? 0);
   const size = 10;
 
+  const branches = await getBranches();
+
+  if (!branches || branches.length === 0) {
+    redirect("/usuario/sucursales");
+  }
+
   const data = await getProducts(page, size);
+
+  if (!data) {
+    return <div>No autorizado o sesión expirada</div>;
+  }
 
   return (
     <div className="p-8 space-y-8">
@@ -19,7 +31,7 @@ export default async function Page({
 
       <CreateProductForm />
 
-      <ProductTable pageData={data!} />
+      <ProductTable pageData={data} />
     </div>
   );
 }

@@ -23,7 +23,7 @@ public class CurrentAccountService {
         return currentAccountRepository.findByOwnerId(ownerId)
                 // Usamos 0L o un ID representativo si no la encuentra,
                 // o a futuro una AccountNotFoundException
-                .orElseThrow(() -> new BusinessException(ownerId));
+                .orElseThrow(() -> new BusinessException("Account not found with id: " + ownerId));
     }
 
     // A futuro: acá iría la lógica para sumar o restar saldo (balance)

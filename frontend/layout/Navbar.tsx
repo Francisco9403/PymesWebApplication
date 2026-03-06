@@ -27,28 +27,20 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo / Brand */}
         <div className="flex items-center gap-6">
-          <div>
+          <Link href="/usuario">
             <h1 className="text-lg font-bold text-gray-800">Comercio App</h1>
             <p className="text-xs text-green-600 font-medium -mt-1">Online</p>
-          </div>
+          </Link>
 
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center gap-2">
-            <Link href="/usuario/cumplimiento" className="nav-link">
-              Cumplimiento
-            </Link>
-            <Link href="/usuario/finanzas" className="nav-link">
-              Finanzas
-            </Link>
-            <Link href="/usuario/inventario" className="nav-link">
-              Inventario
-            </Link>
-            <Link href="/usuario/productos" className="nav-link">
-              Productos
-            </Link>
-            <Link href="/usuario/venta" className="nav-link">
-              Punto de Venta
-            </Link>
+            <Link href="/usuario/cumplimiento">Clientes</Link>
+            <Link href="/usuario/finanzas">Finanzas</Link>
+            <Link href="/usuario/productos">Productos</Link>
+            <Link href="/usuario/venta">Venta</Link>
+            <Link href="/usuario/sucursales">Sucursales</Link>
+            <Link href="/usuario/inventario">Inventario</Link>
+            <Link href="/usuario/proveedores">Proveedores</Link>
           </nav>
         </div>
 

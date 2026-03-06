@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/genai": "^1.44.0",
     "@types/pouchdb": "^6.4.2",
     "@zxing/browser": "^0.1.5",
     "lucide-react": "^0.576.0",

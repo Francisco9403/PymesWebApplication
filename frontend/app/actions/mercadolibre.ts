@@ -42,9 +42,8 @@ export async function crearQrMercadoPago(total: number) {
 
   const data = await res.json();
 
-  // IMPORTANTE: Devolvemos el qr_data para el componente y la referencia para el webhook
   return {
-    qrString: data.qr_data, // Este es el string largo para el QR
+    qrString: data.qr_data,
     externalReference: body.external_reference,
   };
 }
@@ -74,7 +73,6 @@ export interface LocationData {
   reference: string;
 }
 
-// Buscar sucursal por external_id
 export async function obtenerSucursalPorExternalId(externalId: string) {
   const res = await fetch(
     `https://api.mercadopago.com/users/${process.env.MP_USER_ID}/stores/search?external_id=${externalId}`,
@@ -90,11 +88,9 @@ export async function obtenerSucursalPorExternalId(externalId: string) {
   if (!res.ok) return null;
 
   const data = await res.json();
-  // La búsqueda devuelve un array en la propiedad 'results'
   return data.results && data.results.length > 0 ? data.results[0] : null;
 }
 
-// 1. Server Action para Crear Sucursal
 export async function crearSucursal(
   name: string,
   external_id: string,
@@ -104,8 +100,6 @@ export async function crearSucursal(
     name,
     external_id,
     location,
-    // business_hours es opcional, lo omitimos para mantenerlo simple,
-    // pero puedes agregarlo al payload si lo necesitas.
   };
 
   const res = await fetch(
@@ -126,10 +120,9 @@ export async function crearSucursal(
   }
 
   const data = await res.json();
-  return data; // Retorna el objeto de la sucursal, incluyendo su 'id' numérico
+  return data;
 }
 
-// 2. Server Action para Crear Caja (POS)
 export async function crearCaja(
   name: string,
   store_id: number,
@@ -159,5 +152,5 @@ export async function crearCaja(
   }
 
   const data = await res.json();
-  return data; // Retorna la caja, incluyendo el qr y el external_id
+  return data;
 }

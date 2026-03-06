@@ -18,7 +18,7 @@ public class PaymentService {
 
     public Payment processPaymentWebhook(String transactionId, PaymentStatus newStatus) {
         Payment payment = paymentRepository.findByTransactionId(transactionId)
-                .orElseThrow(() -> new BusinessException(0L)); // ID de transacción no encontrado
+                .orElseThrow(() -> new BusinessException("Transaction not found with id: " + transactionId));
 
         payment.setStatus(newStatus);
 

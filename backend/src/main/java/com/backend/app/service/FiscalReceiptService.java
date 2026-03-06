@@ -24,6 +24,6 @@ public class FiscalReceiptService {
 
     public FiscalReceipt getReceiptBySale(Long saleId) {
         return fiscalReceiptRepository.findBySaleId(saleId)
-                .orElseThrow(() -> new BusinessException(saleId));
+                .orElseThrow(() -> new BusinessException("Sale not found with id: " + saleId));
     }
 }

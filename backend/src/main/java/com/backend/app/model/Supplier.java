@@ -1,5 +1,8 @@
 package com.backend.app.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,6 +10,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -20,6 +24,9 @@ public class Supplier {
     
     @Enumerated(EnumType.STRING)
     private TaxCategory taxCategory; // Responsable Inscripto, Monotributo
+
+    @ManyToMany(mappedBy = "suppliers")
+    private List<Product> products = new ArrayList<>();
     
     @OneToOne(cascade = CascadeType.ALL)
     private CurrentAccount currentAccount; // Deudas y crédito
@@ -59,6 +66,14 @@ public class Supplier {
         this.taxCategory = taxCategory;
     }
 
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
+    
     public CurrentAccount getCurrentAccount() {
         return currentAccount;
     }

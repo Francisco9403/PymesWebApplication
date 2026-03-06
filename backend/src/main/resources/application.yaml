@@ -9,3 +9,7 @@ spring:
 jwt:
   secret: 37kpH3ylTLuefkx6zECe0M3FLb8Gd+BFIUHXlhO4H0w= # Base64 256-bit
   expirationHours: 2
+
+gemini:
+  api:
+    key: AIzaSyB6IQkACKpaK_xg7g5iOW202EQP5Z113qU

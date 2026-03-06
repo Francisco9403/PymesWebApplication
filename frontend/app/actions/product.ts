@@ -1,7 +1,7 @@
 "use server";
 
 import { PageResponse } from "@/types/Page";
-import { Product } from "@/types/Product";
+import { Product, ProductResponse } from "@/types/Product";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -31,7 +31,7 @@ export async function procesarSkuAction(sku: string): Promise<Product | null> {
   }
 }
 
-export async function createProductAction(formData: FormData) {
+export async function create(formData: FormData) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) return null;
@@ -52,7 +52,6 @@ export async function createProductAction(formData: FormData) {
     body: JSON.stringify(product),
   });
 
-  // Capturamos la respuesta real de Spring Boot
   if (!response.ok) {
     const errorText = await response.text();
     console.error("❌ Error de Spring Boot:", response.status, errorText);
@@ -62,12 +61,6 @@ export async function createProductAction(formData: FormData) {
   const data = await response.json();
 
   revalidatePath("/admin/products");
-}
-
-export interface ProductResponse {
-  id: number;
-  sku: string;
-  currentSalePrice: number;
 }
 
 export async function getProducts(

@@ -36,6 +36,6 @@ public class SaleService {
 
     public Sale getSaleById(Long id) {
         return saleRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(id));
+                .orElseThrow(() -> new BusinessException("Sale not found with id: " + id));
     }
 }

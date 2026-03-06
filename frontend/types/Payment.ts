@@ -1,11 +1,10 @@
 import { Currency } from "./Currency";
-import { PaymentStatus } from "./PaymentStatus";
 import { Sale } from "./Sale";
 
 export interface Payment {
   id: number;
   transactionId?: string;
-  amount?: string; // BigDecimal
+  amount?: string;
   status?: PaymentStatus;
 
   qrData?: string;
@@ -13,4 +12,14 @@ export interface Payment {
   exchangeRateAtTime?: string;
 
   sale: Sale;
+}
+
+export enum PaymentStatus {
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+  EXPIRED = "EXPIRED",
+  REFUNDED = "REFUNDED",
+  PARTIALLY_PAID = "PARTIALLY_PAID",
 }

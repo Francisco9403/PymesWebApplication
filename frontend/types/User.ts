@@ -1,6 +1,5 @@
 import { Branch } from "./Branch";
 import { SyncEntity } from "./SyncEntity";
-import { UserRole } from "./UserRole";
 
 export interface User extends SyncEntity {
   id: number;
@@ -9,7 +8,7 @@ export interface User extends SyncEntity {
   fullName?: string;
   email?: string;
 
-  role?: UserRole;
+  role?: Role;
   branch?: Branch;
 
   mfaEnabled?: boolean;
@@ -20,4 +19,12 @@ export interface User extends SyncEntity {
   active?: boolean;
   lastLogin?: string;
   activo?: boolean;
+}
+
+export enum Role {
+  ADMIN = "ADMIN",
+  MANAGER = "MANAGER",
+  SELLER = "SELLER",
+  WAREHOUSE_OP = "WAREHOUSE_OP",
+  AUDITOR = "AUDITOR",
 }

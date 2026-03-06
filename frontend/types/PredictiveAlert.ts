@@ -5,6 +5,6 @@ export interface PredictiveAlert {
   type?: AlertType;
   message?: string;
   probabilityScore?: string;
-  contextData?: string; // JSON string
+  contextData?: string;
   resolved?: boolean;
 }

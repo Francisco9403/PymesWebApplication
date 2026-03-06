@@ -1,13 +1,13 @@
 "use client";
 
-import { createProductAction } from "@/app/actions/product";
+import { create } from "@/app/actions/product";
 import { useFormStatus } from "react-dom";
 
 export default function CreateProductForm() {
   const { pending } = useFormStatus();
   return (
     <form
-      action={createProductAction}
+      action={create}
       className="bg-white p-6 rounded-xl border shadow-sm space-y-4"
     >
       <h2 className="text-xl font-semibold">Nuevo Producto</h2>

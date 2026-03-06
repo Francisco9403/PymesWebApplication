@@ -35,17 +35,17 @@ public class ProductService {
 
     public Product getProductById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(id));
+                .orElseThrow(() -> new BusinessException("Product not found with id: " + id));
     }
 
     public Product getProductBySku(String sku) {
-        return productRepository.findBySku(sku).orElseThrow(() -> new BusinessException(0L));
+        return productRepository.findBySku(sku).orElseThrow(() -> new BusinessException("Product not found with sku: " + sku));
     }
 
     public Product getProductByBarcode(String ean13) {
         // Podríamos hacer una excepción personalizada distinta luego,
         // por ahora reutilizamos la BusinessException genérica.
         return productRepository.findByEan13(ean13)
-                .orElseThrow(() -> new BusinessException(0L));
+                .orElseThrow(() -> new BusinessException("Product not found with ean13: " + ean13));
     }
 }

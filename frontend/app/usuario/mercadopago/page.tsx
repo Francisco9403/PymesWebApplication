@@ -7,7 +7,6 @@ import {
 } from "@/app/actions/mercadolibre";
 import { useState, useTransition } from "react";
 
-// Función auxiliar para esperar unos segundos
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export default function ConfigurarPOS() {
@@ -20,11 +19,9 @@ export default function ConfigurarPOS() {
         const storeExternalId = "SUC001";
         const posExternalId = "CAJA001SUC001";
 
-        // 1. Verificar si la sucursal ya existe
         let sucursal = await obtenerSucursalPorExternalId(storeExternalId);
 
         if (!sucursal) {
-          console.log("La sucursal no existe, creando...");
           sucursal = await crearSucursal("Sucursal Centro", storeExternalId, {
             street_number: "123",
             street_name: "Calle Principal",
@@ -34,15 +31,9 @@ export default function ConfigurarPOS() {
             longitude: -58.3816,
             reference: "Local a la calle",
           });
-          // Esperar solo si la acabamos de crear
           await delay(3000);
-        } else {
-          console.log("Sucursal encontrada:", sucursal.id);
         }
 
-        // 2. Crear Caja (Mercado Pago permite 'actualizar' o falla si el POS ya existe)
-        // Nota: Si el external_id de la caja ya existe, MP suele devolver 400.
-        // Podrías envolver esto en un try/catch similar si quieres que no falle.
         const caja = await crearCaja(
           "Caja 1",
           sucursal.id,
@@ -53,7 +44,6 @@ export default function ConfigurarPOS() {
         setResultado({ sucursal, caja });
       } catch (error: any) {
         console.error(error);
-        // Si el error es que la CAJA ya existe, podrías informar al usuario
         if (error.message.includes("already_exists")) {
           alert("Esta caja ya estaba configurada.");
         } else {

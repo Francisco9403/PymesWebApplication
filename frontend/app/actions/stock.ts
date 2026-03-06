@@ -1,9 +1,9 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { ProductStock } from "@/types/ProductStock";
 import { revalidatePath } from "next/cache";
 import { Branch } from "@/types/Branch";
+import { ProductStock } from "@/types/Product";
 
 export async function getBranches(): Promise<Branch[]> {
   const cookieStore = await cookies();
@@ -43,12 +43,11 @@ export async function addStockAction(formData: FormData) {
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) return { error: "No autorizado" };
 
-  // Armamos el objeto anidado tal como lo espera Hibernate en Java
   const stockPayload = {
     product: { id: Number(formData.get("productId")) },
     branch: { id: Number(formData.get("branchId")) },
     quantity: Number(formData.get("quantity")),
-    criticalThreshold: Number(formData.get("criticalThreshold") || 5), // 5 por defecto
+    criticalThreshold: Number(formData.get("criticalThreshold") || 5),
   };
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_API}/stock`, {
@@ -66,19 +65,14 @@ export async function addStockAction(formData: FormData) {
     return { error: "Falló la carga de stock" };
   }
 
-  // Refrescamos la página de inventario para ver la fila nueva al instante
   revalidatePath("/usuario/inventario");
 }
-
-// Acordate de importar revalidatePath arriba si no lo tenés
-// import { revalidatePath } from "next/cache";
 
 export async function createBranchAction(formData: FormData) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) return { error: "No autorizado" };
 
-  // El checkbox en los FormData de HTML llega como "on" si está marcado
   const isPointOfSale = formData.get("isPointOfSale") === "on";
 
   const branchPayload = {
@@ -103,7 +97,6 @@ export async function createBranchAction(formData: FormData) {
     return { error: "Falló la creación de la sucursal" };
   }
 
-  // Refrescamos tanto la vista de sucursales como la de inventario
   revalidatePath("/usuario/sucursales");
   revalidatePath("/usuario/inventario");
 }

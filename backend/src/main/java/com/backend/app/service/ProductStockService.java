@@ -34,6 +34,6 @@ public class ProductStockService {
     public ProductStock getSpecificStock(Long productId, Long branchId) {
         return productStockRepository.findByProductIdAndBranchId(productId, branchId)
                 // Usamos la misma excepción, después pueden crear una propia tipo "StockNotFoundException"
-                .orElseThrow(() -> new BusinessException(productId));
+                .orElseThrow(() -> new BusinessException("ProductStock not found with id: " + productId + " and branch id: " + branchId));
     }
 }

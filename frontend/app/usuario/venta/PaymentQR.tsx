@@ -17,12 +17,7 @@ export default function PaymentQR({
       <p className="text-blue-600 font-medium mb-4">Mercado Pago</p>
 
       <div className="flex justify-center bg-white p-4 rounded-lg border">
-        <QRCodeSVG
-          value={qrString}
-          size={256}
-          level="H" // Alta corrección de errores
-          includeMargin={true}
-        />
+        <QRCodeSVG value={qrString} size={256} level="H" includeMargin={true} />
       </div>
 
       <p className="text-xs text-gray-500 mt-4 italic">

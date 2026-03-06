@@ -19,7 +19,7 @@ public class SaleItemService {
 
     public SaleItem getSaleItemById(Long id) {
         return saleItemRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(id));
+                .orElseThrow(() -> new BusinessException("Sale not found with id: " + id));
     }
 
     public List<SaleItem> getHistoryByProduct(Long productId) {

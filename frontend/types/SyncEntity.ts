@@ -1,6 +1,6 @@
 export interface SyncEntity {
   localId?: string;
-  serverUpdatedAt?: string; // ISO date
+  serverUpdatedAt?: string;
   isDeleted?: boolean;
   version?: number;
 }

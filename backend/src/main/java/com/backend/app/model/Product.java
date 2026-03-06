@@ -14,6 +14,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -22,9 +26,10 @@ public class Product extends SyncEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String sku;
-    private String ean13; // Lectura Universal
+    private String sku; // not required
+    private String ean13; // por ahora no se usa
     private String qrCode;
+    private String name;
     
     @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
@@ -33,6 +38,18 @@ public class Product extends SyncEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AIProductDescription> aiDescriptions = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "product_supplier",
+        joinColumns = @JoinColumn(name = "product_id"),
+        inverseJoinColumns = @JoinColumn(name = "supplier_id")
+    )
+    private List<Supplier> suppliers = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn
+    private User user;
 
     private BigDecimal baseCostPrice;
     private BigDecimal currentSalePrice;
@@ -75,6 +92,14 @@ public class Product extends SyncEntity {
         this.qrCode = qrCode;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public List<ProductStock> getStocks() {
         return stocks;
     }
@@ -89,6 +114,22 @@ public class Product extends SyncEntity {
 
     public void setAiDescriptions(List<AIProductDescription> aiDescriptions) {
         this.aiDescriptions = aiDescriptions;
+    }
+
+    public List<Supplier> getSuppliers() {
+        return suppliers;
+    }
+
+    public void setSuppliers(List<Supplier> suppliers) {
+        this.suppliers = suppliers;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public BigDecimal getBaseCostPrice() {

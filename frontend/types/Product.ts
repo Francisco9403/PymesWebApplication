@@ -1,5 +1,5 @@
 import { AIProductDescription } from "./AIProductDescription";
-import { ProductStock } from "./ProductStock";
+import { Branch } from "./Branch";
 import { SyncEntity } from "./SyncEntity";
 
 export interface Product extends SyncEntity {
@@ -11,7 +11,23 @@ export interface Product extends SyncEntity {
   stocks?: ProductStock[];
   aiDescriptions?: AIProductDescription[];
 
-  baseCostPrice?: string; // BigDecimal
-  currentSalePrice?: string; // BigDecimal
-  lastSync?: string; // ISO date
+  baseCostPrice?: string;
+  currentSalePrice?: string;
+  lastSync?: string;
+}
+
+export interface ProductStock {
+  id: number;
+  product: Product;
+  branch: Branch;
+
+  quantity: number;
+  criticalThreshold?: number;
+  salesVelocity?: number;
+}
+
+export interface ProductResponse {
+  id: number;
+  sku: string;
+  currentSalePrice: number;
 }

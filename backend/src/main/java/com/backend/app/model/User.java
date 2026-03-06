@@ -1,6 +1,8 @@
 package com.backend.app.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class User extends SyncEntity {
@@ -36,6 +39,9 @@ public class User extends SyncEntity {
     @ManyToOne(optional = true)
     @JoinColumn(name = "branch_id", nullable = true)
     private Branch branch; // Sucursal asignada para filtrar stock y ventas
+
+    @OneToMany(mappedBy = "user")
+    private List<Product> products = new ArrayList<>();
 
     // --- Seguridad y MFA (Requerimiento 5) ---
     private boolean mfaEnabled = false;
@@ -101,6 +107,14 @@ public class User extends SyncEntity {
 
     public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 
     public Branch getBranch() {

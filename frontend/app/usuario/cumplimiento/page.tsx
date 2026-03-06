@@ -1,4 +1,13 @@
-export default function Page() {
+import { getBranches } from "@/app/actions/stock";
+import { redirect } from "next/navigation";
+
+export default async function Page() {
+  const branches = await getBranches();
+
+  if (!branches || branches.length === 0) {
+    redirect("/usuario/sucursales");
+  }
+
   return (
     <div className="p-8">
       <header className="mb-8">

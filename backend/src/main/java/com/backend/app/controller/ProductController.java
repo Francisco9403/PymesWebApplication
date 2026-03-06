@@ -1,6 +1,5 @@
 package com.backend.app.controller;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.model.Product;
+import com.backend.app.model.dto.PageResponse;
 import com.backend.app.model.dto.ProductResponse;
 import com.backend.app.service.ProductService;
 
@@ -35,8 +35,8 @@ public class ProductController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<ProductResponse> getAllProducts(Pageable pageable) {
-        return productService.getAllProducts(pageable);
+    public PageResponse<ProductResponse> getAllProducts(Pageable pageable) {
+        return PageResponse.from(productService.getAllProducts(pageable));
     }
 
     @GetMapping("/sku/{sku}")

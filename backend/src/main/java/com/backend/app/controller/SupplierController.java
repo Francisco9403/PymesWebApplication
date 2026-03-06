@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.model.Supplier;
+import com.backend.app.model.dto.SupplierImportDTO;
 import com.backend.app.service.SupplierService;
 
 @RestController
@@ -28,6 +30,12 @@ public class SupplierController {
     public ResponseEntity<Supplier> createSupplier(@RequestBody Supplier supplier) {
         Supplier createdSupplier = supplierService.createSupplier(supplier);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdSupplier);
+    }
+
+    @PostMapping("/import")
+    @ResponseStatus(HttpStatus.OK)
+    public void importFromOCR(@RequestBody SupplierImportDTO dto) {
+        supplierService.importFromOCR(dto);
     }
 
     @GetMapping
