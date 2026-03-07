@@ -50,7 +50,7 @@ export default function Page() {
               </div>
 
               <p className="text-xs text-indigo-200 mt-4 leading-relaxed italic">
-                "Tus precios de venta se ajustarán automáticamente si el MEP sube más del <span className="text-white font-black underline">2%</span>"
+                Tus precios de venta se ajustarán automáticamente si el MEP sube más del <span className="text-white font-black underline">2%</span>
               </p>
             </div>
           </div>
