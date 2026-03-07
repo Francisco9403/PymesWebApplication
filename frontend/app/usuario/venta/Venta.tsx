@@ -1,13 +1,13 @@
 "use client";
 
-import { crearQrMercadoPago } from "@/app/actions/mercadolibre";
+import { crearQrMercadoPago } from "@/app/actions/mercadopago";
 import ProductList from "@/app/usuario/venta/ProductList";
 import QRScanner from "@/app/usuario/venta/QRScanner";
 
 import { useState, useTransition } from "react";
 import PaymentQR from "./PaymentQR";
 
-export interface Product {
+interface Product {
   id: number;
   sku?: string;
   currentSalePrice?: string;
@@ -24,10 +24,6 @@ export default function Venta() {
   );
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isPending, startTransition] = useTransition();
-
-  const [externalReference, setExternalReference] = useState<string | null>(
-    null,
-  );
 
   function handleScan(sku: string) {
     startTransition(async () => {

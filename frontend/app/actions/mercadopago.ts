@@ -1,14 +1,23 @@
 "use server";
 
+import {
+  BranchRequest,
+  BranchResponse,
+  CreateQROrderInput,
+  PosRequest,
+  PosResponse,
+  Location,
+  BranchSearchResponse,
+} from "@/types/mercadopago";
 import { randomUUID } from "crypto";
 
 export async function crearQrMercadoPago(total: number) {
-  const body = {
+  const body: CreateQROrderInput = {
     external_reference: "sale_" + randomUUID(),
     title: "Venta POS",
     description: "Compra en tienda",
-    /* notification_url: `http://localhost:3000/api/mercadopago/webhook`, */
     total_amount: total,
+    notification_url: "", // por ahora opcional
     items: [
       {
         sku_number: "POS-SALE",
@@ -48,36 +57,12 @@ export async function crearQrMercadoPago(total: number) {
   };
 }
 
-export interface CrearSucursalInput {
-  name: string;
-  external_id: string;
-  business_hours?: any;
-  location: {
-    street_number: string;
-    street_name: string;
-    city_name: string;
-    state_name: string;
-    latitude: number;
-    longitude: number;
-    reference?: string;
-  };
-}
-
-export interface LocationData {
-  street_number: string;
-  street_name: string;
-  city_name: string;
-  state_name: string;
-  latitude: number;
-  longitude: number;
-  reference: string;
-}
-
-export async function obtenerSucursalPorExternalId(externalId: string) {
+export async function obtenerSucursalPorExternalId(
+  externalId: string,
+): Promise<BranchResponse | null> {
   const res = await fetch(
     `https://api.mercadopago.com/users/${process.env.MP_USER_ID}/stores/search?external_id=${externalId}`,
     {
-      method: "GET",
       headers: {
         Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
       },
@@ -87,16 +72,17 @@ export async function obtenerSucursalPorExternalId(externalId: string) {
 
   if (!res.ok) return null;
 
-  const data = await res.json();
-  return data.results && data.results.length > 0 ? data.results[0] : null;
+  const data: BranchSearchResponse = await res.json();
+
+  return data.results.length > 0 ? data.results[0] : null;
 }
 
 export async function crearSucursal(
   name: string,
   external_id: string,
-  location: LocationData,
-) {
-  const body = {
+  location: Location,
+): Promise<BranchResponse> {
+  const body: BranchRequest = {
     name,
     external_id,
     location,
@@ -119,7 +105,7 @@ export async function crearSucursal(
     throw new Error("Error de MercadoPago al crear sucursal: " + error);
   }
 
-  const data = await res.json();
+  const data: BranchResponse = await res.json();
   return data;
 }
 
@@ -128,10 +114,9 @@ export async function crearCaja(
   store_id: number,
   external_store_id: string,
   external_id: string,
-) {
-  const body = {
+): Promise<PosResponse> {
+  const body: PosRequest = {
     name,
-    fixed_amount: true,
     store_id,
     external_store_id,
     external_id,
@@ -151,6 +136,6 @@ export async function crearCaja(
     throw new Error("Error de MercadoPago al crear caja: " + error);
   }
 
-  const data = await res.json();
+  const data: PosResponse = await res.json();
   return data;
 }

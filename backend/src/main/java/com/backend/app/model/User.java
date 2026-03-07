@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,8 +12,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -36,9 +35,8 @@ public class User extends SyncEntity {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "branch_id", nullable = true)
-    private Branch branch; // Sucursal asignada para filtrar stock y ventas
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Branch> branches = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<Product> products = new ArrayList<>();
@@ -52,11 +50,9 @@ public class User extends SyncEntity {
     // --- Ley 25.326 (Cifrado de datos sensibles) ---
     private String phone;
 
+    @Column(nullable = false)
     private boolean active = true;
     private LocalDateTime lastLogin;
-
-    @Column(nullable = false)
-    private boolean activo = true;
 
     public User() {
     }
@@ -117,14 +113,14 @@ public class User extends SyncEntity {
         this.products = products;
     }
 
-    public Branch getBranch() {
-        return branch;
+    public List<Branch> getBranches() {
+        return branches;
     }
 
-    public void setBranch(Branch branch) {
-        this.branch = branch;
+    public void setBranches(List<Branch> branches) {
+        this.branches = branches;
     }
-
+    
     public boolean isMfaEnabled() {
         return mfaEnabled;
     }
@@ -163,13 +159,5 @@ public class User extends SyncEntity {
 
     public void setLastLogin(LocalDateTime lastLogin) {
         this.lastLogin = lastLogin;
-    }
-
-    public boolean isActivo() {
-        return activo;
-    }
-
-    public void setActivo(boolean activo) {
-        this.activo = activo;
     }
 }

@@ -1,4 +1,4 @@
-import { ProductStock } from "./ProductStock";
+import { ProductStock } from "./Product";
 
 export interface Branch {
   id: number;

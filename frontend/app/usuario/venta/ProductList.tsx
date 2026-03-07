@@ -7,11 +7,7 @@ interface CartItem {
   quantity: number;
 }
 
-interface Props {
-  cart: CartItem[];
-}
-
-export default function ProductList({ cart }: Props) {
+export default function ProductList({ cart }: { cart: CartItem[] }) {
   const total = cart.reduce(
     (acc, item) =>
       acc + Number(item.product.currentSalePrice ?? 0) * item.quantity,

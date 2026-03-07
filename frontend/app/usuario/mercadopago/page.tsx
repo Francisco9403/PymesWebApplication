@@ -4,14 +4,18 @@ import {
   crearCaja,
   crearSucursal,
   obtenerSucursalPorExternalId,
-} from "@/app/actions/mercadolibre";
+} from "@/app/actions/mercadopago";
+import { BranchResponse, PosResponse } from "@/types/mercadopago";
 import { useState, useTransition } from "react";
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export default function ConfigurarPOS() {
   const [isPending, startTransition] = useTransition();
-  const [resultado, setResultado] = useState<any>(null);
+  const [resultado, setResultado] = useState<{
+    sucursal: BranchResponse;
+    caja: PosResponse;
+  } | null>(null);
 
   const handleCrearEntorno = () => {
     startTransition(async () => {
@@ -31,6 +35,7 @@ export default function ConfigurarPOS() {
             longitude: -58.3816,
             reference: "Local a la calle",
           });
+
           await delay(3000);
         }
 
@@ -42,12 +47,15 @@ export default function ConfigurarPOS() {
         );
 
         setResultado({ sucursal, caja });
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error(error);
-        if (error.message.includes("already_exists")) {
-          alert("Esta caja ya estaba configurada.");
-        } else {
-          alert("Error: " + error.message);
+
+        if (error instanceof Error) {
+          if (error.message.includes("already_exists")) {
+            alert("Esta caja ya estaba configurada.");
+          } else {
+            alert("Error: " + error.message);
+          }
         }
       }
     });

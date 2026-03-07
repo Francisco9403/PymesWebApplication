@@ -1,21 +1,9 @@
 "use client";
 
 import { addStockAction } from "@/app/actions/stock";
-import { useFormStatus } from "react-dom";
-import { ProductResponse } from "@/app/actions/product";
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 disabled:bg-gray-400 w-full md:w-auto"
-    >
-      {pending ? "Guardando..." : "Ingresar Mercadería"}
-    </button>
-  );
-}
+import { useToast } from "@/layout/ToastProvider";
+import { ProductResponse } from "@/types/Product";
+import { useActionState, useEffect } from "react";
 
 export default function AddStockForm({
   branchId,
@@ -24,14 +12,23 @@ export default function AddStockForm({
   branchId: number;
   products: ProductResponse[];
 }) {
+  const [state, action, pending] = useActionState(addStockAction, null);
+  const { show } = useToast();
+
+  useEffect(() => {
+    if (!state) return;
+
+    if (state.error) show(state.error, "error");
+    if (state.success) show(state.success, "success");
+  }, [state, show]);
+
   return (
     <form
-      action={addStockAction}
+      action={action}
       className="bg-white p-6 rounded-xl border shadow-sm space-y-4 mb-6"
     >
       <h2 className="text-xl font-semibold">Cargar Inventario</h2>
 
-      {/* Input oculto para mandar el ID de la sucursal al backend sin que el usuario lo vea */}
       <input type="hidden" name="branchId" value={branchId} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -67,7 +64,13 @@ export default function AddStockForm({
       </div>
 
       <div className="flex justify-end pt-2">
-        <SubmitButton />
+        <button
+          type="submit"
+          disabled={pending}
+          className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 disabled:bg-gray-400 w-full md:w-auto"
+        >
+          {pending ? "Guardando..." : "Ingresar Mercadería"}
+        </button>
       </div>
     </form>
   );

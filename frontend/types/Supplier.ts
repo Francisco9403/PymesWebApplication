@@ -1,4 +1,4 @@
-import { CurrentAccount } from "./CurrencyAmount";
+import { CurrentAccount } from "./Currency";
 import { TaxCategory } from "./TaxCategory";
 
 export interface Supplier {

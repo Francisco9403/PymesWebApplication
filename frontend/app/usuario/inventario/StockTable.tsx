@@ -1,4 +1,4 @@
-import { ProductStock } from "@/types/ProductStock";
+import { ProductStock } from "@/types/Product";
 
 export default function StockTable({
   stockList,
@@ -32,7 +32,8 @@ export default function StockTable({
             )}
 
             {stockList?.map((stock) => {
-              const isLowStock = stock.quantity <= stock.criticalThreshold;
+              const isLowStock =
+                stock.quantity <= (stock.criticalThreshold ?? 5);
 
               return (
                 <tr

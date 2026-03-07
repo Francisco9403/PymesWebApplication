@@ -31,36 +31,49 @@ export async function procesarSkuAction(sku: string): Promise<Product | null> {
   }
 }
 
-export async function create(formData: FormData) {
+export async function create(
+  prevState: { error?: string; success?: string } | null,
+  formData: FormData,
+) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-  if (!jwt) return null;
 
-  const product = {
+  if (!jwt) return { error: "No autorizado" };
+
+  const rawData = {
     sku: formData.get("sku"),
     ean13: formData.get("ean13"),
-    baseCostPrice: formData.get("baseCostPrice"),
-    currentSalePrice: formData.get("currentSalePrice"),
+    baseCostPrice: Number(formData.get("baseCostPrice")),
+    currentSalePrice: Number(formData.get("currentSalePrice")),
   };
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API}/products`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${jwt}`,
-    },
-    body: JSON.stringify(product),
-  });
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/products`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwt}`,
+      },
+      body: JSON.stringify(rawData),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("❌ Error de Spring Boot:", response.status, errorText);
-    return { error: "Falló la creación en el backend" };
+    const data = await response.json();
+
+    if (!response.ok)
+      return {
+        error: data.message || "Error al crear el producto",
+      };
+
+    revalidatePath("/admin/products");
+
+    return { success: "Producto creado correctamente" };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+
+    return { error: "Error inesperado" };
   }
-
-  const data = await response.json();
-
-  revalidatePath("/admin/products");
 }
 
 export async function getProducts(

@@ -19,7 +19,7 @@ export default function Page() {
           <h3 className="font-semibold text-gray-500 mb-2">Dólar MEP</h3>
           <p className="text-3xl font-bold">$ 1050.00</p>
         </div>
-        <div className="bg-white p-6 rounded-xl border shadow-sm border-blue-200 bg-blue-50 text-blue-900">
+        <div className="p-6 rounded-xl border shadow-sm border-blue-200 bg-blue-50 text-blue-900">
           <h3 className="font-semibold mb-2">Markup Automático</h3>
           <p className="text-lg">
             Tus precios se actualizan si el MEP sube &gt; 2%

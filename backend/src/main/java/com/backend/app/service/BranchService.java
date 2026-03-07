@@ -6,48 +6,40 @@ import org.springframework.stereotype.Service;
 
 import com.backend.app.model.Branch;
 import com.backend.app.model.User;
+import com.backend.app.model.dto.BranchDTO;
 import com.backend.app.repository.BranchRepository;
-import com.backend.app.repository.UserRepository;
 import com.backend.app.exception.BusinessException;
+import com.backend.app.mapper.BranchMapper;
 
 @Service
 public class BranchService {
 
     private final BranchRepository repository;
-    private final UserRepository userRepository;
 
-    public BranchService(BranchRepository repository, UserRepository userRepository) {
+    public BranchService(BranchRepository repository) {
         this.repository = repository;
-        this.userRepository = userRepository;
     }
 
-    public Branch createBranch(Branch branch, String email) {
+    public Branch createBranch(Branch branch, User user) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException("User not found"));
-    
-        Branch savedBranch = repository.save(branch);
-    
-        user.setBranch(savedBranch);
-        userRepository.save(user);
-    
-        return savedBranch;
+        branch.setUser(user);
+
+        return repository.save(branch);
     }
 
-    public List<Branch> getBranchesByUser(String email) {
+    public List<BranchDTO> getBranchesByUser(User user) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException("User not found with email: " + email));
-    
-        if (user.getBranch() == null) {
-            return List.of();
-        }
-    
-        return List.of(user.getBranch());
+        return repository.findByUser(user)
+                .stream()
+                .map(BranchMapper::toDTO)
+                .toList();
     }
 
-    public Branch getBranchById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new BusinessException("Brand not found with id: " + id));
+    public BranchDTO getBranchById(Long id) {
+
+        Branch branch = repository.findById(id)
+                .orElseThrow(() -> new BusinessException("Branch not found with id: " + id));
+
+        return BranchMapper.toDTO(branch);
     }
 }

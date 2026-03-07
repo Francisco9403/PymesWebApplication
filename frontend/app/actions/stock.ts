@@ -38,9 +38,13 @@ export async function getStockByBranch(
   return res.json();
 }
 
-export async function addStockAction(formData: FormData) {
+export async function addStockAction(
+  prevState: { error?: string; success?: string } | null,
+  formData: FormData,
+) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
+
   if (!jwt) return { error: "No autorizado" };
 
   const stockPayload = {
@@ -50,53 +54,77 @@ export async function addStockAction(formData: FormData) {
     criticalThreshold: Number(formData.get("criticalThreshold") || 5),
   };
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API}/stock`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${jwt}`,
-    },
-    body: JSON.stringify(stockPayload),
-  });
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/stock`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwt}`,
+      },
+      body: JSON.stringify(stockPayload),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Error guardando stock:", response.status, errorText);
-    return { error: "Falló la carga de stock" };
+    const data = await response.json();
+
+    if (!response.ok)
+      return {
+        error: data.message || "Falló la carga de stock",
+      };
+
+    revalidatePath("/usuario/inventario");
+
+    return { success: "Stock ingresado correctamente" };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+
+    return { error: "Error inesperado" };
   }
-
-  revalidatePath("/usuario/inventario");
 }
 
-export async function createBranchAction(formData: FormData) {
-  const cookieStore = await cookies();
-  const jwt = cookieStore.get("token")?.value;
-  if (!jwt) return { error: "No autorizado" };
+export async function createBranchAction(
+  prevState: { error?: string } | null,
+  formData: FormData,
+) {
+  try {
+    const cookieStore = await cookies();
+    const jwt = cookieStore.get("token")?.value;
 
-  const isPointOfSale = formData.get("isPointOfSale") === "on";
+    if (!jwt) {
+      return { error: "No autorizado" };
+    }
 
-  const branchPayload = {
-    name: formData.get("name"),
-    address: formData.get("address"),
-    phone: formData.get("phone"),
-    isPointOfSale: isPointOfSale,
-  };
+    const branchPayload = {
+      name: formData.get("name"),
+      address: formData.get("address"),
+      phone: formData.get("phone"),
+      isPointOfSale: formData.get("isPointOfSale") === "on",
+    };
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API}/branches`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${jwt}`,
-    },
-    body: JSON.stringify(branchPayload),
-  });
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/branches`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwt}`,
+      },
+      body: JSON.stringify(branchPayload),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Error creando sucursal:", response.status, errorText);
-    return { error: "Falló la creación de la sucursal" };
+    if (!response.ok) {
+      const data = await response.json();
+      return { error: data.message ?? "Falló la creación de la sucursal" };
+    }
+
+    revalidatePath("/usuario/sucursales");
+    revalidatePath("/usuario/inventario");
+
+    return { success: "Sucursal creada correctamente" };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+
+    return { error: "Error inesperado" };
   }
-
-  revalidatePath("/usuario/sucursales");
-  revalidatePath("/usuario/inventario");
 }

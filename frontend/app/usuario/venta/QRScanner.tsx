@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader, IScannerControls } from "@zxing/browser";
 
-interface Props {
+export default function QRScanner({
+  onScan,
+  loading,
+}: {
   onScan: (sku: string) => void;
   loading: boolean;
-}
-
-export default function QRScanner({ onScan, loading }: Props) {
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
 

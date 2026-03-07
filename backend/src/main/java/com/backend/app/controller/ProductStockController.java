@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.model.ProductStock;
@@ -26,9 +27,9 @@ public class ProductStockController {
 
     // Crea o actualiza un registro de stock
     @PostMapping
-    public ResponseEntity<ProductStock> saveStock(@RequestBody ProductStock productStock) {
-        ProductStock savedStock = productStockService.saveOrUpdateStock(productStock);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedStock);
+    @ResponseStatus(HttpStatus.CREATED)
+    public void saveStock(@RequestBody ProductStock productStock) {
+        productStockService.saveOrUpdateStock(productStock);
     }
 
     // Trae el stock de un producto en todas las sucursales

@@ -8,6 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -22,6 +24,10 @@ public class Branch {
     
     // Indica si es un depósito central o punto de venta
     private boolean isPointOfSale;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @JsonIgnore
     @OneToMany(mappedBy = "branch")
@@ -68,6 +74,14 @@ public class Branch {
 
     public void setPointOfSale(boolean isPointOfSale) {
         this.isPointOfSale = isPointOfSale;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public List<ProductStock> getInventory() {

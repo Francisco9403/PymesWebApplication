@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.model.Branch;
 import com.backend.app.model.User;
+import com.backend.app.model.dto.BranchDTO;
 import com.backend.app.service.BranchService;
 
 @RestController
@@ -30,18 +30,20 @@ public class BranchController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createBranch(@RequestBody Branch branch, Authentication auth) {
-        branchService.createBranch(branch, auth.getName());
+        User user = (User) auth.getPrincipal();
+        branchService.createBranch(branch, user);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Branch> getAllBranches(Authentication authentication) {
-        return branchService.getBranchesByUser(authentication.getName());
+    public List<BranchDTO> getAllBranches(Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        return branchService.getBranchesByUser(user);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Branch getBranchById(@PathVariable Long id) {
+    public BranchDTO getBranchById(@PathVariable Long id) {
         return branchService.getBranchById(id);
     }
 }

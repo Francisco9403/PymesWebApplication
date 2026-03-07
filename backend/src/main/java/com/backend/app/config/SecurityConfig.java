@@ -64,7 +64,7 @@ public class SecurityConfig {
                 .username(user.getEmail())
                 .password(user.getPassword())
                 .roles(user.getRole().name())
-                .disabled(!user.isActivo())
+                .disabled(!user.isActive())
                 .build();
         };
     }

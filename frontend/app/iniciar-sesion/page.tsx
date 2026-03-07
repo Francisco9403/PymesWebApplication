@@ -48,21 +48,21 @@ export default function SignIn() {
       </div>
       <div className="items-center hidden w-full h-full lg:w-1/2 bg-brand-950 dark:bg-white/5 lg:grid">
         <div className="relative flex items-center justify-center z-1">
-          <div className="absolute right-0 top-0 -z-1 w-full max-w-[250px] xl:max-w-[450px]">
-            <img alt="grid" src="/images/shape/grid-01.svg" />
+          <div className="absolute right-0 top-0 -z-1 w-full max-w-62.5 xl:max-w-112.5">
+            {/* <img alt="grid" src="/images/shape/grid-01.svg" /> */}
           </div>
-          <div className="absolute bottom-0 left-0 -z-1 w-full max-w-[250px] rotate-180 xl:max-w-[450px]">
-            <img alt="grid" src="/images/shape/grid-01.svg" />
+          <div className="absolute bottom-0 left-0 -z-1 w-full max-w-62.5 rotate-180 xl:max-w-112.5">
+            {/* <img alt="grid" src="/images/shape/grid-01.svg" /> */}
           </div>
           <div className="flex flex-col items-center max-w-xs">
             <Link className="block mb-4" href="#" data-discover="true">
-              <img
+              {/* <img
                 width="231"
                 height="48"
                 alt="Logo"
-                /* src="/images/logo/auth-logo.svg" */
+                src="/images/logo/auth-logo.svg"
                 src="/images/logo/logo.png"
-              />
+              /> */}
             </Link>
           </div>
         </div>

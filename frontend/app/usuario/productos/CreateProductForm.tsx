@@ -1,13 +1,23 @@
 "use client";
 
 import { create } from "@/app/actions/product";
-import { useFormStatus } from "react-dom";
+import { useToast } from "@/layout/ToastProvider";
+import { useActionState, useEffect } from "react";
 
 export default function CreateProductForm() {
-  const { pending } = useFormStatus();
+  const [state, action, pending] = useActionState(create, null);
+  const { show } = useToast();
+
+  useEffect(() => {
+    if (!state) return;
+
+    if (state.error) show(state.error, "error");
+    if (state.success) show(state.success, "success");
+  }, [state, show]);
+
   return (
     <form
-      action={create}
+      action={action}
       className="bg-white p-6 rounded-xl border shadow-sm space-y-4"
     >
       <h2 className="text-xl font-semibold">Nuevo Producto</h2>

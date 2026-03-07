@@ -72,7 +72,7 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
     
-        if (token != null) {
+        if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 Claims claims = jwtService.validateToken(token);
                 String email = claims.getSubject();
@@ -80,7 +80,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 User user = repository.findByEmail(email)
                         .orElseThrow();
 
-                if (!user.isActivo()) {
+                if (!user.isActive()) {
                     throw new RuntimeException("Usuario inactivo");
                 }
     
