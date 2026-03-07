@@ -30,4 +30,6 @@ export interface ProductResponse {
   id: number;
   sku: string;
   currentSalePrice: number;
+  ean13: number;
+  baseCostPrice: number;
 }

@@ -38,13 +38,11 @@ export async function getStockByBranch(
   return res.json();
 }
 
-export async function addStockAction(
-  prevState: { error?: string; success?: string } | null,
-  formData: FormData,
-) {
+// app/actions/stock.ts
+
+export async function addStockAction(prevState: any, formData: FormData) { // <-- Agregamos prevState
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-
   if (!jwt) return { error: "No autorizado" };
 
   const stockPayload = {
@@ -64,22 +62,16 @@ export async function addStockAction(
       body: JSON.stringify(stockPayload),
     });
 
-    const data = await response.json();
-
-    if (!response.ok)
-      return {
-        error: data.message || "Falló la carga de stock",
-      };
-
-    revalidatePath("/usuario/inventario");
-
-    return { success: "Stock ingresado correctamente" };
-  } catch (error) {
-    if (error instanceof Error) {
-      return { error: error.message };
+    if (!response.ok) {
+      const errorText = await response.text();
+      return { error: `Error ${response.status}: ${errorText || 'Falló la carga'}` };
     }
 
-    return { error: "Error inesperado" };
+    revalidatePath("/usuario/inventario");
+    return { success: "¡Stock actualizado correctamente!" }; // <-- Importante devolver éxito
+
+  } catch (err) {
+    return { error: "Error de conexión con el servidor" };
   }
 }
 

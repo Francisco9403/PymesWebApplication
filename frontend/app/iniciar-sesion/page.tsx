@@ -1,75 +1,61 @@
 import Link from "next/link";
-import IniciarSesionForm from "./IniciarSesionForm";
+import IniciarSesionForm from "./IniciarSesionForm"; // Reincorporamos tu lógica
 
-export default function SignIn() {
+export default function LoginPage() {
   return (
-    <main className="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900 sm:p-0">
-      <div className="flex flex-col flex-1">
-        <div className="w-full max-w-md pt-10 mx-auto">
+      <main className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4">
+        {/* Botón de volver arriba a la izquierda del card */}
+        <div className="w-full max-w-md mb-4 text-left">
           <Link
-            className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-            href="/"
-            data-discover="true"
+              href="/"
+              className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors"
           >
             <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="1em"
-              height="1em"
-              viewBox="0 0 20 20"
-              fill="none"
-              className="size-5"
-            >
-              <path
-                d="M12.7083 5L7.5 10.2083L12.7083 15.4167"
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              ></path>
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
             </svg>
             Volver a la página principal
           </Link>
         </div>
-        <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
-          <div>
-            <div className="mb-5 sm:mb-8">
-              <h1 className="mb-2 font-semibold text-gray-800 text-3xl leading-9.5 dark:text-white/90 sm:text-4xl sm:leading-11">
-                Iniciar Sesión
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Introduce tu email y contraseña para iniciar sesión!
-              </p>
+
+        <div className="card-container max-w-md w-full p-8 space-y-8">
+          <div className="text-center">
+            <div className="mb-6">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                Comercio<span className="text-indigo-600">App</span>
+              </h2>
+              <div className="h-1 w-12 bg-indigo-600 mx-auto mt-1 rounded-full"></div>
             </div>
-            <div>
-              <IniciarSesionForm />
-            </div>
+
+            <h1 className="text-3xl font-extrabold text-slate-900">Iniciar Sesión</h1>
+            <p className="text-slate-500 text-sm mt-2 font-medium">
+              Introduce tu email y contraseña para acceder al sistema
+            </p>
+          </div>
+
+          {/* Aquí es donde sucede la magia: tu componente con toda la lógica */}
+          <div className="mt-8">
+            <IniciarSesionForm />
+          </div>
+
+          <div className="pt-6 border-t border-slate-100 text-center">
+            <p className="text-sm text-slate-500">
+              ¿Problemas con tu cuenta? <br />
+              <a href="#" className="text-indigo-600 font-bold hover:underline">
+                Contactá a soporte técnico
+              </a>
+            </p>
           </div>
         </div>
-      </div>
-      <div className="items-center hidden w-full h-full lg:w-1/2 bg-brand-950 dark:bg-white/5 lg:grid">
-        <div className="relative flex items-center justify-center z-1">
-          <div className="absolute right-0 top-0 -z-1 w-full max-w-62.5 xl:max-w-112.5">
-            {/* <img alt="grid" src="/images/shape/grid-01.svg" /> */}
-          </div>
-          <div className="absolute bottom-0 left-0 -z-1 w-full max-w-62.5 rotate-180 xl:max-w-112.5">
-            {/* <img alt="grid" src="/images/shape/grid-01.svg" /> */}
-          </div>
-          <div className="flex flex-col items-center max-w-xs">
-            <Link className="block mb-4" href="#" data-discover="true">
-              {/* <img
-                width="231"
-                height="48"
-                alt="Logo"
-                src="/images/logo/auth-logo.svg"
-                src="/images/logo/logo.png"
-              /> */}
-            </Link>
-          </div>
-        </div>
-      </div>
-      <div className="fixed z-50 hidden bottom-6 right-6 sm:block">
-        {/* <ToggleTheme /> */}
-      </div>
-    </main>
+
+        <footer className="mt-12 text-slate-400 text-xs font-semibold uppercase tracking-widest">
+          Junín • Buenos Aires • 2026
+        </footer>
+      </main>
   );
 }
