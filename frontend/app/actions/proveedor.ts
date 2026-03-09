@@ -4,47 +4,47 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { Supplier } from "@/types/Supplier";
 import { GoogleGenAI } from "@google/genai";
-import { EditableOCRData, OCRResult } from "@/types/OCR";
 
-export async function importSupplierData(
-  data: EditableOCRData & { branchId: number },
+export async function importSupplierDataAction(
+  prevState: { error?: string; success?: string } | null,
+  formData: FormData,
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
+
   if (!jwt) return { error: "No autorizado" };
 
-  const payload = {
-    businessName: data.businessName,
-    cuit: data.cuit,
-    taxCategory: data.taxCategory,
-    products: data.products?.map((p) => ({
-      name: p.name, // Enviamos el nombre
-      baseCostPrice: p.baseCostPrice,
-      quantity: p.quantity || 0,
-    })),
-    branchId: data.branchId,
-  };
+  const payload = JSON.parse(formData.get("payload") as string);
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API}/suppliers/import`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${jwt}`,
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/suppliers/import`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwt}`,
+        },
+        body: JSON.stringify(payload),
       },
-      body: JSON.stringify(payload),
-    },
-  );
+    );
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("❌ Error en backend /import:", response.status, errorText);
-    return { error: "Error al importar datos en el servidor" };
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { error: data.message || "Error al importar datos" };
+    }
+
+    revalidatePath("/usuario/proveedores");
+
+    return { success: "Proveedor cargado correctamente" };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+
+    return { error: "Error inesperado" };
   }
-
-  revalidatePath("/usuario/proveedores");
-  return { success: true };
 }
 
 const client = new GoogleGenAI({
@@ -89,9 +89,14 @@ export async function analyzeImage(formData: FormData) {
   }
 }
 
-export async function analyzeDocument(formData: FormData): Promise<OCRResult> {
+export async function analyzeDocumentAction(
+  prevState: { error?: string; success?: string } | null,
+  formData: FormData,
+) {
   const file = formData.get("file") as File;
-  if (!file) throw new Error("No se proporcionó archivo.");
+  if (!file) {
+    return { error: "No se proporcionó archivo" };
+  }
 
   const bytes = await file.arrayBuffer();
   const base64Data = Buffer.from(bytes).toString("base64");
@@ -104,10 +109,9 @@ export async function analyzeDocument(formData: FormData): Promise<OCRResult> {
           role: "user",
           parts: [
             {
-              text: `Analiza este documento (factura, remito o lista). 
-              Extrae: Razón Social, CUIT (solo números), Categoría Fiscal (mapea a: RESPONSABLE_INSCRIPTO, MONOTRIBUTO, EXENTO).
-              También extrae la lista de productos con: name (descripción del producto) y baseCostPrice.
-              Responde estrictamente en formato JSON.`,
+              text: `Analiza este documento (factura, remito o lista).
+Extrae razón social, CUIT, categoría fiscal y productos (name, baseCostPrice).
+Devuelve estrictamente JSON.`,
             },
             {
               inlineData: {
@@ -126,13 +130,18 @@ export async function analyzeDocument(formData: FormData): Promise<OCRResult> {
     const rawText = response.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!rawText) {
-      throw new Error("La IA no devolvió contenido.");
+      return {
+        error: "No se pudo analizar el documento",
+      };
     }
 
-    return JSON.parse(rawText) as OCRResult;
+    return { data: JSON.parse(rawText) };
   } catch (error) {
-    console.error("❌ Error en OCR Gemini:", error);
-    throw new Error("No se pudo procesar el documento.");
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+
+    return { error: "Error inesperado" };
   }
 }
 

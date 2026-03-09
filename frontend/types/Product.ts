@@ -29,7 +29,8 @@ export interface ProductStock {
 export interface ProductResponse {
   id: number;
   sku: string;
-  currentSalePrice: number;
-  ean13: number;
+  name: string;
+  ean13: string;
   baseCostPrice: number;
+  currentSalePrice: number;
 }

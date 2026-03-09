@@ -1,4 +1,4 @@
-import { getBranches } from "@/app/actions/stock";
+import { getBranches } from "@/app/actions/branch";
 import Proveedores from "./Proveedores";
 import { redirect } from "next/navigation";
 
