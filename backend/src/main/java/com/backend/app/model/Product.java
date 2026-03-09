@@ -39,6 +39,7 @@ public class Product extends SyncEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AIProductDescription> aiDescriptions = new ArrayList<>();
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
         name = "product_supplier",

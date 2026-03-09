@@ -29,6 +29,9 @@ public class ProductService {
             .map(p -> new ProductResponse(
                 p.getId(),
                 p.getSku(),
+                p.getName(),
+                p.getEan13(),
+                p.getBaseCostPrice(),
                 p.getCurrentSalePrice()
             ));
     }
