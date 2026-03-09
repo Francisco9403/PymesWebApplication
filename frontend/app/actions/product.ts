@@ -76,16 +76,28 @@ export async function create(
   }
 }
 
-export async function getProducts(
-  page: number,
-  size: number,
-): Promise<PageResponse<ProductResponse> | null> {
+export async function getProducts(params: {
+  page: number;
+  size: number;
+  name?: string;
+  belowMinStock?: string;
+  sort?: string;
+}): Promise<PageResponse<ProductResponse> | null> {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) return null;
 
+  const search = new URLSearchParams();
+
+  search.set("page", String(params.page));
+  search.set("size", String(params.size));
+
+  if (params.name) search.set("name", params.name);
+  if (params.belowMinStock) search.set("belowMinStock", params.belowMinStock);
+  if (params.sort) search.set("sort", params.sort);
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API}/products?page=${page}&size=${size}`,
+    `${process.env.NEXT_PUBLIC_API}/products?${search.toString()}`,
     {
       cache: "no-store",
       headers: {
@@ -98,7 +110,7 @@ export async function getProducts(
     return {
       content: [],
       page: 0,
-      size,
+      size: params.size,
       totalElements: 0,
       totalPages: 0,
     };

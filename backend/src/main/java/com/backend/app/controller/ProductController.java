@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.model.Product;
 import com.backend.app.model.dto.PageResponse;
-import com.backend.app.model.dto.ProductResponse;
+import com.backend.app.model.dto.ProductListResponse;
+import com.backend.app.model.dto.ProductSearchCriteria;
 import com.backend.app.service.ProductService;
 
 @RestController
@@ -35,8 +37,16 @@ public class ProductController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponse<ProductResponse> getAllProducts(Pageable pageable) {
-        return PageResponse.from(productService.getAllProducts(pageable));
+    public PageResponse<ProductListResponse> getAllProducts(
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) Boolean belowMinStock,
+        Pageable pageable
+    ) {
+        ProductSearchCriteria criteria = new ProductSearchCriteria(name, belowMinStock, null);
+
+        return PageResponse.from(
+            productService.searchProducts(criteria, pageable)
+        );
     }
 
     @GetMapping("/sku/{sku}")

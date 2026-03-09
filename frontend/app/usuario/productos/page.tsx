@@ -1,33 +1,40 @@
 import { getProducts } from "@/app/actions/product";
-import CreateProductForm from "./CreateProductForm";
 import ProductTable from "./ProductTable";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getBranches } from "@/app/actions/branch";
+import { ProductFilters } from "./ProductFilters";
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: {
+    page?: string;
+    size?: string;
+    name?: string;
+    belowMinStock?: string;
+    sort?: string;
+  };
 }) {
   const params = await searchParams;
-  const page = Number(params.page ?? 0);
-  const size = 10;
 
+  const page = Number(params.page ?? 0);
+  const size = Number(params.size ?? 10);
+  const name = params.name;
+  const belowMinStock = params.belowMinStock;
+  const sort = params.sort;
+
+  const data = await getProducts({
+    page,
+    size,
+    name,
+    belowMinStock,
+    sort,
+  });
   const branches = await getBranches();
 
   if (!branches || branches.length === 0) {
     redirect("/usuario/sucursales");
-  }
-
-  const data = await getProducts(page, size);
-
-  if (!data) {
-    return (
-      <div className="p-8 text-center bg-red-50 text-red-600 font-bold rounded-2xl border border-red-100">
-        ⚠️ Sesión expirada. Por favor, volvé a iniciar sesión.
-      </div>
-    );
   }
 
   return (
@@ -53,19 +60,14 @@ export default async function Page({
               Total Registrados
             </span>
             <span className="text-xl font-black text-slate-900">
-              {data.totalElements}
+              {data!.totalElements}
             </span>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          <div className="lg:col-span-1 sticky top-24">
-            <CreateProductForm />
-          </div>
-          <div className="lg:col-span-2">
-            <ProductTable pageData={data} />
-          </div>
-        </div>
+        <ProductFilters />
+
+        <ProductTable pageData={data!} />
       </div>
     </main>
   );

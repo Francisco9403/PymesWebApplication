@@ -3,17 +3,20 @@ package com.backend.app.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.app.model.AIProductDescription;
+import com.backend.app.model.Branch;
 import com.backend.app.model.CommunicationChannel;
 import com.backend.app.model.Product;
 import com.backend.app.model.ProductStock;
 import com.backend.app.model.Supplier;
 import com.backend.app.model.dto.ProductImportDTO;
 import com.backend.app.model.dto.SupplierImportDTO;
+import com.backend.app.repository.BranchRepository;
 import com.backend.app.repository.ProductRepository;
 import com.backend.app.repository.SupplierRepository;
 import com.backend.app.exception.BusinessException;
@@ -24,11 +27,14 @@ public class SupplierService {
 
     private final SupplierRepository repository;
     private final ProductRepository productRepository;
+    private final BranchRepository branchRepository;
     private final AIService aiService;
 
-    public SupplierService(SupplierRepository repository, ProductRepository productRepository, AIService aiService) {
+    public SupplierService(SupplierRepository repository, ProductRepository productRepository,
+            BranchRepository branchRepository, AIService aiService) {
         this.repository = repository;
         this.productRepository = productRepository;
+        this.branchRepository = branchRepository;
         this.aiService = aiService;
     }
 
@@ -64,60 +70,79 @@ public class SupplierService {
     
         // 2. Procesar Productos
         for (ProductImportDTO pDto : dto.products()) {
-            Product product = productRepository.findByName(pDto.name()) 
-                .orElseGet(() -> {
-                    Product newP = new Product();
-                    newP.setName(pDto.name());
-                    newP.setStocks(new ArrayList<>()); // Inicializar listas para evitar NullPointer
-                    return newP;
-                });
-    
+
+            Product product = findOrCreateProduct(pDto);
+        
             product.setBaseCostPrice(pDto.baseCostPrice());
-            product.setCurrentSalePrice(pDto.baseCostPrice().multiply(new BigDecimal("1.3")));
-    
-            // 3. ASOCIAR PRODUCTO CON PROVEEDOR (Bidireccional)
+            product.setCurrentSalePrice(
+                pDto.baseCostPrice().multiply(new BigDecimal("1.3"))
+            );
+        
             if (!product.getSuppliers().contains(supplier)) {
                 product.getSuppliers().add(supplier);
             }
+        
             if (!supplier.getProducts().contains(product)) {
                 supplier.getProducts().add(product);
             }
-    
-            // 4. Actualizar Stock
+        
             updateProductStock(product, dto.branchId(), pDto.quantity());
-    
-            // 5. Generar descripciones
+        
             if (product.getAiDescriptions() == null || product.getAiDescriptions().isEmpty()) {
                 generateAIDescriptions(product);
             }
-    
-            // Guardar el producto (esto persistirá la relación en product_supplier)
+        
             productRepository.save(product);
         }
     }
+
+    private Product findOrCreateProduct(ProductImportDTO pDto) {
+
+        // 1. Buscar por EAN si existe
+        if (pDto.ean13() != null && !pDto.ean13().isBlank()) {
+            Optional<Product> byEan = productRepository.findByEan13(pDto.ean13());
+            if (byEan.isPresent()) {
+                return byEan.get();
+            }
+        }
+    
+        // 2. Buscar por nombre
+        Optional<Product> byName = productRepository.findByName(pDto.name());
+        if (byName.isPresent()) {
+            return byName.get();
+        }
+    
+        // 3. Crear producto nuevo
+        Product newP = new Product();
+        newP.setName(pDto.name());
+        newP.setEan13(pDto.ean13());
+        newP.setStocks(new ArrayList<>());
+    
+        return newP;
+    }
     
     private void updateProductStock(Product product, Long branchId, Integer addedQuantity) {
-        // IMPORTANTE: Debes buscar la entidad Branch real
-        // Branch branch = branchRepository.findById(branchId).orElseThrow(); 
-        
+
+        Branch branch = branchRepository.findById(branchId)
+            .orElseThrow(() -> new RuntimeException("Branch not found"));
+    
         ProductStock stock = product.getStocks().stream()
             .filter(s -> s.getBranch() != null && s.getBranch().getId().equals(branchId))
             .findFirst()
             .orElseGet(() -> {
                 ProductStock newStock = new ProductStock();
                 newStock.setProduct(product);
-                // newStock.setBranch(branch); // <--- DEBES SETEAR LA ENTIDAD RAMA AQUÍ
+                newStock.setBranch(branch);
                 product.getStocks().add(newStock);
                 return newStock;
             });
     
-        int currentQty = (stock.getQuantity() != null) ? stock.getQuantity() : 0;
+        int currentQty = stock.getQuantity() != null ? stock.getQuantity() : 0;
         stock.setQuantity(currentQty + addedQuantity);
     }
 
     private void generateAIDescriptions(Product product) {
         for (CommunicationChannel channel : CommunicationChannel.values()) {
-            // Usamos product.getName() en lugar de SKU
             String content = aiService.generateDescription(product.getName(), channel);
             AIProductDescription desc = new AIProductDescription();
             desc.setChannel(channel);
@@ -127,3 +152,8 @@ public class SupplierService {
         }
     }
 }
+
+// Validaciones actuales antes de crear o actualizar:
+// validar proveedor por CUIT
+// validar producto por ean13 (preferente), sino por nombre
+// validar stock del producto por sucursal

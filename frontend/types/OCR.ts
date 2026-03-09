@@ -37,6 +37,7 @@ export interface RawOCRProduct {
   name?: string;
   descripcion?: string;
   baseCostPrice?: number;
+  ean13?: string;
   precio?: number;
 }
 
