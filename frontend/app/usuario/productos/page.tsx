@@ -14,6 +14,7 @@ export default async function Page({
     name?: string;
     belowMinStock?: string;
     sort?: string;
+    branchId?: string;
   };
 }) {
   const params = await searchParams;
@@ -36,6 +37,8 @@ export default async function Page({
   if (!branches || branches.length === 0) {
     redirect("/usuario/sucursales");
   }
+
+  const branchId = params.branchId ? Number(params.branchId) : branches[0].id;
 
   return (
     <main className="min-h-screen bg-slate-50 p-6 sm:p-10">
@@ -67,7 +70,7 @@ export default async function Page({
 
         <ProductFilters />
 
-        <ProductTable pageData={data!} />
+        <ProductTable pageData={data!} branchId={branchId} />
       </div>
     </main>
   );

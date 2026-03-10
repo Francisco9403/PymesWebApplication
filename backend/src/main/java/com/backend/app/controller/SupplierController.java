@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.model.Supplier;
+import com.backend.app.model.User;
 import com.backend.app.model.dto.SupplierImportDTO;
 import com.backend.app.service.SupplierService;
 
@@ -34,8 +36,9 @@ public class SupplierController {
 
     @PostMapping("/import")
     @ResponseStatus(HttpStatus.OK)
-    public void importFromOCR(@RequestBody SupplierImportDTO dto) {
-        supplierService.importFromOCR(dto);
+    public void importFromOCR(@RequestBody SupplierImportDTO dto, Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        supplierService.importFromOCR(dto, user.getId());
     }
 
     @GetMapping

@@ -57,12 +57,10 @@ export async function create(
       body: JSON.stringify(rawData),
     });
 
-    const data = await response.json();
-
-    if (!response.ok)
-      return {
-        error: data.message || "Error al crear el producto",
-      };
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      return { error: errorData?.message || "Error al crear el producto" };
+    }
 
     revalidatePath("/admin/products");
 
@@ -72,6 +70,47 @@ export async function create(
       return { error: error.message };
     }
 
+    return { error: "Error inesperado" };
+  }
+}
+
+export async function updateProduct(
+  prevState: { error?: string; success?: string } | null,
+  formData: FormData,
+) {
+  const cookieStore = await cookies();
+  const jwt = cookieStore.get("token")?.value;
+
+  if (!jwt) return { error: "No autorizado" };
+
+  const payload = {
+    id: Number(formData.get("id")),
+    name: formData.get("name"),
+    ean13: formData.get("ean13"),
+    baseCostPrice: Number(formData.get("baseCostPrice")),
+    currentSalePrice: Number(formData.get("currentSalePrice")),
+  };
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API}/products`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwt}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      return { error: data.message ?? "Error actualizando producto" };
+    }
+
+    revalidatePath("/admin/products");
+
+    return { success: "Producto actualizado correctamente" };
+  } catch (error) {
+    if (error instanceof Error) return { error: error.message };
     return { error: "Error inesperado" };
   }
 }
@@ -117,4 +156,39 @@ export async function getProducts(params: {
   }
 
   return res.json();
+}
+
+export async function deleteProduct(
+  prevState: { error?: string; success?: string } | null,
+  formData: FormData,
+) {
+  const cookieStore = await cookies();
+  const jwt = cookieStore.get("token")?.value;
+
+  if (!jwt) return { error: "No autorizado" };
+
+  const productId = formData.get("productId");
+  const branchId = formData.get("branchId");
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/products/${productId}?branchId=${branchId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      },
+    );
+
+    if (!res.ok) {
+      return { error: "No se pudo eliminar el producto" };
+    }
+
+    revalidatePath("/admin/products");
+
+    return { success: "Producto eliminado" };
+  } catch {
+    return { error: "Error inesperado" };
+  }
 }

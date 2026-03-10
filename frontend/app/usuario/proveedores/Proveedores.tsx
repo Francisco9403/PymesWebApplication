@@ -16,7 +16,7 @@ import {
 import { useToast } from "@/layout/ToastProvider";
 import { TaxCategory } from "@/types/TaxCategory";
 
-export default function Proveedores() {
+export default function Proveedores({ branchId }: { branchId: number }) {
   const [ocrState, analyzeAction, analyzing] = useActionState(
     analyzeDocumentAction,
     null,
@@ -58,18 +58,22 @@ export default function Proveedores() {
 
   const currentData = data ?? derivedData;
 
-  if (!currentData) {
-    return (
-      <SupplierFileUpload analyzeAction={analyzeAction} analyzing={analyzing} />
-    );
-  }
-
   return (
-    <SupplierDataReview
-      currentData={currentData}
-      setData={setData}
-      importAction={importAction}
-      importing={importing}
-    />
+    <>
+      {currentData ? (
+        <SupplierDataReview
+          currentData={currentData}
+          setData={setData}
+          importAction={importAction}
+          importing={importing}
+          branchId={branchId}
+        />
+      ) : (
+        <SupplierFileUpload
+          analyzeAction={analyzeAction}
+          analyzing={analyzing}
+        />
+      )}
+    </>
   );
 }

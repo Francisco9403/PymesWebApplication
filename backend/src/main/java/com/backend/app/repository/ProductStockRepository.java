@@ -19,4 +19,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, Long
 
     // Buscar el registro exacto de un producto en una sucursal específica (ideal para descontar stock al vender)
     Optional<ProductStock> findByProductIdAndBranchId(Long productId, Long branchId);
+
+    long countByProductId(Long productId);
 }

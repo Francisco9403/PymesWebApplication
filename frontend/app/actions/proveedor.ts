@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { Supplier } from "@/types/Supplier";
 import { GoogleGenAI } from "@google/genai";
@@ -11,7 +10,6 @@ export async function importSupplierDataAction(
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-
   if (!jwt) return { error: "No autorizado" };
 
   const payload = JSON.parse(formData.get("payload") as string);
@@ -29,21 +27,14 @@ export async function importSupplierDataAction(
       },
     );
 
-    const data = await response.json();
-
     if (!response.ok) {
-      return { error: data.message || "Error al importar datos" };
+      const errorData = await response.json().catch(() => null);
+      return { error: errorData?.message || "Error al importar datos" };
     }
-
-    revalidatePath("/usuario/proveedores");
 
     return { success: "Proveedor cargado correctamente" };
-  } catch (error) {
-    if (error instanceof Error) {
-      return { error: error.message };
-    }
-
-    return { error: "Error inesperado" };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Error inesperado" };
   }
 }
 

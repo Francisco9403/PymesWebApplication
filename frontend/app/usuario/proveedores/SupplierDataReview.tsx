@@ -5,11 +5,13 @@ export default function SupplierDataReview({
   setData,
   importAction,
   importing,
+  branchId,
 }: {
   currentData: EditableOCRData;
   setData: React.Dispatch<React.SetStateAction<EditableOCRData | null>>;
   importAction: (formData: FormData) => void;
   importing: boolean;
+  branchId: number;
 }) {
   return (
     <form
@@ -172,7 +174,7 @@ export default function SupplierDataReview({
       <input
         type="hidden"
         name="payload"
-        value={JSON.stringify({ ...currentData, branchId: 1 })}
+        value={JSON.stringify({ ...currentData, branchId })}
       />
       <div className="flex items-center justify-between px-2">
         <p className="text-xs text-slate-400 font-medium">

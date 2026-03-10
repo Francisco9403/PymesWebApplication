@@ -1,11 +1,15 @@
 import { PageResponse } from "@/types/Page";
 import { ProductResponse } from "@/types/Product";
 import Link from "next/link";
+import EditProductButton from "./EditProductButton";
+import DeleteProductButton from "./DeleteProductButton";
 
 export default function ProductTable({
   pageData,
+  branchId,
 }: {
   pageData: PageResponse<ProductResponse>;
+  branchId: number;
 }) {
   const { content, page, totalPages } = pageData;
 
@@ -27,6 +31,9 @@ export default function ProductTable({
                 </th>
                 <th className="p-4 font-black text-slate-400 uppercase text-[10px] tracking-widest text-right">
                   Venta
+                </th>
+                <th className="p-4 font-black text-slate-400 uppercase text-[10px] tracking-widest text-right">
+                  Operaciones
                 </th>
               </tr>
             </thead>
@@ -68,6 +75,14 @@ export default function ProductTable({
                     <span className="font-mono font-black text-slate-900 bg-slate-100 px-2 py-1 rounded-lg">
                       ${Number(product.currentSalePrice ?? 0).toFixed(2)}
                     </span>
+                  </td>
+                  <td className="p-4 text-right">
+                    <EditProductButton product={product} />
+
+                    <DeleteProductButton
+                      productId={product.id}
+                      branchId={branchId}
+                    />
                   </td>
                 </tr>
               ))}

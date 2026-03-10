@@ -14,6 +14,7 @@ import com.backend.app.model.CommunicationChannel;
 import com.backend.app.model.Product;
 import com.backend.app.model.ProductStock;
 import com.backend.app.model.Supplier;
+import com.backend.app.model.User;
 import com.backend.app.model.dto.ProductImportDTO;
 import com.backend.app.model.dto.SupplierImportDTO;
 import com.backend.app.repository.BranchRepository;
@@ -51,8 +52,7 @@ public class SupplierService {
                 .orElseThrow(() -> new BusinessException("Supplier not found with id: " + id));
     }
 
-
-    public void importFromOCR(SupplierImportDTO dto) {
+    public void importFromOCR(SupplierImportDTO dto, Long id) {
         // 1. Upsert del Proveedor (Actualizando si ya existe)
         Supplier supplier = repository.findByCuit(dto.cuit())
             .map(existing -> {
@@ -71,7 +71,7 @@ public class SupplierService {
         // 2. Procesar Productos
         for (ProductImportDTO pDto : dto.products()) {
 
-            Product product = findOrCreateProduct(pDto);
+            Product product = findOrCreateProduct(pDto, id);
         
             product.setBaseCostPrice(pDto.baseCostPrice());
             product.setCurrentSalePrice(
@@ -96,27 +96,26 @@ public class SupplierService {
         }
     }
 
-    private Product findOrCreateProduct(ProductImportDTO pDto) {
-
-        // 1. Buscar por EAN si existe
+    private Product findOrCreateProduct(ProductImportDTO pDto, Long userId) {
+        // buscar por EAN o nombre como antes
+        Optional<Product> byEan = Optional.empty();
         if (pDto.ean13() != null && !pDto.ean13().isBlank()) {
-            Optional<Product> byEan = productRepository.findByEan13(pDto.ean13());
-            if (byEan.isPresent()) {
-                return byEan.get();
-            }
+            byEan = productRepository.findByEan13(pDto.ean13());
+            if (byEan.isPresent()) return byEan.get();
         }
     
-        // 2. Buscar por nombre
         Optional<Product> byName = productRepository.findByName(pDto.name());
-        if (byName.isPresent()) {
-            return byName.get();
-        }
+        if (byName.isPresent()) return byName.get();
     
-        // 3. Crear producto nuevo
+        // Crear producto nuevo
         Product newP = new Product();
         newP.setName(pDto.name());
         newP.setEan13(pDto.ean13());
         newP.setStocks(new ArrayList<>());
+    
+        User user = new User();
+        user.setId(userId); // ⚠ solo setId para evitar fetch si no quieres cargarlo
+        newP.setUser(user);
     
         return newP;
     }

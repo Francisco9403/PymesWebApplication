@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.app.model.Product;
 import com.backend.app.model.ProductStock;
 import com.backend.app.model.dto.ProductListResponse;
+import com.backend.app.model.dto.ProductResponse;
 import com.backend.app.model.dto.ProductSearchCriteria;
 import com.backend.app.repository.ProductRepository;
+import com.backend.app.repository.ProductStockRepository;
 import com.backend.app.specification.ProductSpecification;
 import com.backend.app.exception.BusinessException;
 
@@ -20,21 +22,36 @@ import com.backend.app.exception.BusinessException;
 @Transactional
 public class ProductService {
 
-    private final ProductRepository productRepository;
+    private final ProductRepository repository;
+    private final ProductStockRepository stockRepository;
 
-    public ProductService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
+    public ProductService(ProductRepository repository, ProductStockRepository stockRepository) {
+        this.repository = repository;
+        this.stockRepository = stockRepository;
     }
 
     public Product createProduct(Product product) {
-        return productRepository.save(product);
+        return repository.save(product);
+    }
+
+    public void updateProduct(ProductResponse request) {
+        Product product = repository.findById(request.id())
+            .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        product.setSku(request.sku());
+        product.setEan13(request.ean13());
+        product.setName(request.name());
+        product.setBaseCostPrice(request.baseCostPrice());
+        product.setCurrentSalePrice(request.currentSalePrice());
+
+        repository.save(product);
     }
 
     public Page<ProductListResponse> searchProducts(ProductSearchCriteria criteria, Pageable pageable) {
 
         Specification<Product> spec = ProductSpecification.search(criteria);
     
-        return productRepository
+        return repository
             .findAll(spec, pageable)
             .map(product -> {
     
@@ -54,19 +71,45 @@ public class ProductService {
             });
     }
 
+    public void deleteProduct(Long productId, Long branchId, Long userId) {
+    
+        Product product = repository
+                .findByIdAndUserId(productId, userId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        ProductStock stock = stockRepository
+                .findByProductIdAndBranchId(productId, branchId)
+                .orElseThrow(() -> new RuntimeException("Stock no encontrado en sucursal"));
+
+        // eliminar stock de la sucursal
+        stockRepository.delete(stock);
+
+        // verificar si quedan stocks
+        long remainingStocks = stockRepository.countByProductId(productId);
+
+        if (remainingStocks == 0) {
+
+            // limpiar relación many-to-many
+            product.getSuppliers().clear();
+
+            // eliminar producto completo
+            repository.delete(product);
+        }
+    }
+
     public Product getProductById(Long id) {
-        return productRepository.findById(id)
+        return repository.findById(id)
                 .orElseThrow(() -> new BusinessException("Product not found with id: " + id));
     }
 
     public Product getProductBySku(String sku) {
-        return productRepository.findBySku(sku).orElseThrow(() -> new BusinessException("Product not found with sku: " + sku));
+        return repository.findBySku(sku).orElseThrow(() -> new BusinessException("Product not found with sku: " + sku));
     }
 
     public Product getProductByBarcode(String ean13) {
         // Podríamos hacer una excepción personalizada distinta luego,
         // por ahora reutilizamos la BusinessException genérica.
-        return productRepository.findByEan13(ean13)
+        return repository.findByEan13(ean13)
                 .orElseThrow(() -> new BusinessException("Product not found with ean13: " + ean13));
     }
 
