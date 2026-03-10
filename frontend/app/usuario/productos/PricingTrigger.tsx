@@ -1,23 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { analyzeStrategicPricing } from "@/app/actions/pricing";
+import { runFullAIPricingAnalysis } from "@/app/actions/pricing";
 import { ProductResponse } from "@/types/Product";
+
+// Definimos la interfaz para evitar el "any"
+interface PricingSuggestion {
+    name: string;
+    multiplier: number;
+    reason: string;
+}
 
 export default function PricingTrigger({ products }: { products: ProductResponse[] }) {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [suggestions, setSuggestions] = useState<any[]>([]);
+    const [suggestions, setSuggestions] = useState<PricingSuggestion[]>([]);
 
     const handleAnalyze = async () => {
         setIsAnalyzing(true);
         try {
-            // Mandamos los nombres y categorías actuales a Gemini
-            const result = await analyzeStrategicPricing(products);
-            setSuggestions(result);
-            console.log("Sugerencias de IA:", result);
-            // Aquí abriríamos un modal para confirmar (paso siguiente)
+            const result = await runFullAIPricingAnalysis(products);
+
+            if (result.success) {
+                alert("¡Análisis de IA completado con éxito!");
+                // Nota: runFullAIPricingAnalysis ya guarda en el backend
+            } else {
+                alert("Error: " + result.error);
+            }
         } catch (error) {
-            console.error(error);
+            console.error("Fallo en el Trigger:", error);
         } finally {
             setIsAnalyzing(false);
         }
@@ -27,7 +37,7 @@ export default function PricingTrigger({ products }: { products: ProductResponse
         <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6">
             <div>
                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Asistente de Precios Estratégicos</h3>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">IA detectando estacionalidad y reposición</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">IA detectando estacionalidad y reposición en Junín</p>
             </div>
 
             <button
