@@ -12,4 +12,4 @@ jwt:
 
 gemini:
   api:
-    key: AIzaSyDYGUUpLtVF7QmN36ejJOkhRQ0LCCFQJLw
+    key: ${GEMINI_API_KEY}

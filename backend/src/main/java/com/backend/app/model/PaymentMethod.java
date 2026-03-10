@@ -1,6 +1,6 @@
 package com.backend.app.model;
 
-public enum TaxCategory {
+public enum PaymentMethod {
     RESPONSABLE_INSCRIPTO, // Emite A o B, discrimina IVA
     MONOTRIBUTO,           // Emite C
     EXENTO,                // Instituciones exentas de IVA

@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.model.Sale;
+import com.backend.app.model.dto.CreateSaleRequest;
 import com.backend.app.service.SaleService;
 
 @RestController
@@ -41,5 +43,11 @@ public class SaleController {
     @GetMapping("/branch/{branchId}")
     public ResponseEntity<List<Sale>> getSalesByBranch(@PathVariable Long branchId) {
         return ResponseEntity.ok(saleService.getSalesByBranch(branchId));
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Sale createSale(@RequestBody CreateSaleRequest request) {
+        return saleService.createSale(request);
     }
 }

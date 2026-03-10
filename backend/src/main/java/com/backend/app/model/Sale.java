@@ -17,6 +17,7 @@ import jakarta.persistence.OneToOne;
 
 @Entity
 public class Sale {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,13 +26,13 @@ public class Sale {
     private Branch branch;
 
     @Enumerated(EnumType.STRING)
-    private CommunicationChannel channel; // De dónde vino la venta
+    private CommunicationChannel channel;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SaleItem> items;
 
     private BigDecimal totalAmount;
-    
+
     @Enumerated(EnumType.STRING)
     private SaleStatus status;
 
@@ -39,9 +40,18 @@ public class Sale {
     private Payment payment;
 
     @OneToOne(mappedBy = "sale", cascade = CascadeType.ALL)
-    private FiscalReceipt fiscalReceipt; // Conexión con ARCA
+    private FiscalReceipt fiscalReceipt;
 
     private LocalDateTime createdAt;
+
+    private Integer totalItems;
+
+    private BigDecimal totalCost;
+
+    private BigDecimal profit;
+
+    @ManyToOne
+    private Customer customer;
 
     public Sale() {
     }
@@ -116,5 +126,37 @@ public class Sale {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Integer getTotalItems() {
+        return totalItems;
+    }
+
+    public void setTotalItems(Integer totalItems) {
+        this.totalItems = totalItems;
+    }
+
+    public BigDecimal getTotalCost() {
+        return totalCost;
+    }
+
+    public void setTotalCost(BigDecimal totalCost) {
+        this.totalCost = totalCost;
+    }
+
+    public BigDecimal getProfit() {
+        return profit;
+    }
+
+    public void setProfit(BigDecimal profit) {
+        this.profit = profit;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 }

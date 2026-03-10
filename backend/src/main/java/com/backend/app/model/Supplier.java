@@ -23,7 +23,7 @@ public class Supplier {
     private String cuit; // Requerido para cumplimiento ARCA
     
     @Enumerated(EnumType.STRING)
-    private TaxCategory taxCategory; // Responsable Inscripto, Monotributo
+    private PaymentMethod paymentMethod; // Responsable Inscripto, Monotributo
 
     @ManyToMany(mappedBy = "suppliers")
     private List<Product> products = new ArrayList<>();
@@ -58,12 +58,12 @@ public class Supplier {
         this.cuit = cuit;
     }
 
-    public TaxCategory getTaxCategory() {
-        return taxCategory;
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
     }
 
-    public void setTaxCategory(TaxCategory taxCategory) {
-        this.taxCategory = taxCategory;
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
     public List<Product> getProducts() {

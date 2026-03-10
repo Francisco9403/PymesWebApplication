@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.backend.app.model.Branch;
+import com.backend.app.model.Product;
 import com.backend.app.model.ProductStock;
 
 @Repository
@@ -21,4 +23,6 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, Long
     Optional<ProductStock> findByProductIdAndBranchId(Long productId, Long branchId);
 
     long countByProductId(Long productId);
+
+    Optional<ProductStock> findByProductAndBranch(Product product, Branch branch);
 }

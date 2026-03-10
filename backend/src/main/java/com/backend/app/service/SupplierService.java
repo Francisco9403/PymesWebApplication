@@ -57,14 +57,14 @@ public class SupplierService {
         Supplier supplier = repository.findByCuit(dto.cuit())
             .map(existing -> {
                 existing.setBusinessName(dto.businessName());
-                existing.setTaxCategory(dto.taxCategory());
+                existing.setPaymentMethod(dto.paymentMethod());
                 return repository.save(existing);
             })
             .orElseGet(() -> {
                 Supplier newSupplier = new Supplier();
                 newSupplier.setCuit(dto.cuit());
                 newSupplier.setBusinessName(dto.businessName());
-                newSupplier.setTaxCategory(dto.taxCategory());
+                newSupplier.setPaymentMethod(dto.paymentMethod());
                 return repository.save(newSupplier);
             });
     
