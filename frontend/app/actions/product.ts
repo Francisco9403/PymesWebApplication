@@ -192,3 +192,25 @@ export async function deleteProduct(
     return { error: "Error inesperado" };
   }
 }
+
+export async function confirmStrategicPricesAction() {
+  const cookieStore = await cookies();
+  const jwt = cookieStore.get("token")?.value;
+
+  if (!jwt) return { error: "No autorizado" };
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/products/confirm-strategic`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
+
+    if (!response.ok) throw new Error("Error al aplicar precios");
+
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Error desconocido" };
+  }
+}

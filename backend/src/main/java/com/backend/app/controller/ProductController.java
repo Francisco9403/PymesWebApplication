@@ -23,6 +23,9 @@ import com.backend.app.model.dto.ProductResponse;
 import com.backend.app.model.dto.ProductSearchCriteria;
 import com.backend.app.service.ProductService;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -91,4 +94,24 @@ public class ProductController {
     public ResponseEntity<Product> getProductByBarcode(@PathVariable String ean13) {
         return ResponseEntity.ok(productService.getProductByBarcode(ean13));
     }
-}
+
+    @PostMapping("/confirm-strategic")
+    public ResponseEntity<String> confirmStrategicPrices(Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        productService.confirmStrategicPrices(user.getId());
+        return ResponseEntity.ok("Precios estratégicos aplicados con éxito");
+    }
+
+    // --- NUEVO ENDPOINT PARA RECIBIR LOS BORRADORES DE LA IA ---
+    @PostMapping("/strategic-drafts")
+    @ResponseStatus(HttpStatus.OK)
+    public void saveDrafts(@RequestBody List<Map<String, Object>> suggestions, Authentication auth) {
+        // Obtenemos el usuario logueado para que solo afecte a sus productos
+        User user = (User) auth.getPrincipal();
+
+        System.out.println("🤖 IA mandó " + suggestions.size() + " sugerencias para el usuario: " + user.getId());
+
+        // Llamamos al método del Service que procesa la lista
+        productService.saveAIStrategicDrafts(suggestions, user.getId());
+    }
+} // <--- Asegurate de cerrar la clase aquí

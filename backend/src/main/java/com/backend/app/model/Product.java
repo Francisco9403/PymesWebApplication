@@ -30,6 +30,11 @@ public class Product extends SyncEntity {
     private String ean13; // por ahora no se usa
     private String qrCode;
     private String name;
+
+
+    private BigDecimal strategicMultiplier = BigDecimal.ONE;
+    private String strategicReason;
+    private boolean ignoreStrategicRules = false;
     
     @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
@@ -156,4 +161,14 @@ public class Product extends SyncEntity {
     public void setLastSync(LocalDateTime lastSync) {
         this.lastSync = lastSync;
     }
+
+    public BigDecimal getStrategicMultiplier() { return strategicMultiplier; }
+    public void setStrategicMultiplier(BigDecimal strategicMultiplier) { this.strategicMultiplier = strategicMultiplier; }
+
+    public String getStrategicReason() { return strategicReason; }
+    public void setStrategicReason(String strategicReason) { this.strategicReason = strategicReason; }
+
+    public boolean isIgnoreStrategicRules() { return ignoreStrategicRules; }
+    public void setIgnoreStrategicRules(boolean ignoreStrategicRules) { this.ignoreStrategicRules = ignoreStrategicRules; }
+
 }

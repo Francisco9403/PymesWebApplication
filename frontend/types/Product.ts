@@ -7,6 +7,9 @@ export interface Product extends SyncEntity {
   sku?: string;
   ean13?: string;
   qrCode?: string;
+  strategicMultiplier?: number;
+  strategicReason?: string;
+  ignoreStrategicRules?: boolean;
 
   stocks?: ProductStock[];
   aiDescriptions?: AIProductDescription[];
@@ -33,4 +36,10 @@ export interface ProductResponse {
   ean13: string;
   baseCostPrice: number;
   currentSalePrice: number;
+
+  // ⚡ AGREGAR ESTOS CAMPOS NUEVOS:
+  // Los ponemos como opcionales (?) por si algún producto viejo no los trae
+  strategicMultiplier?: number;
+  strategicReason?: string;
+  ignoreStrategicRules?: boolean;
 }

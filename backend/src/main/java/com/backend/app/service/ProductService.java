@@ -1,5 +1,8 @@
 package com.backend.app.service;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.data.domain.Page;
@@ -57,16 +60,19 @@ public class ProductService {
     
                 Integer totalStock = calculateTotalStock(product);
                 Integer minStock = calculateMinStock(product);
-    
+
                 return new ProductListResponse(
-                    product.getId(),
-                    product.getSku(),
-                    product.getName(),
-                    product.getBaseCostPrice(),
-                    product.getCurrentSalePrice(),
-                    totalStock,
-                    minStock,
-                    totalStock < minStock
+                        product.getId(),
+                        product.getSku(),
+                        product.getName(),
+                        product.getBaseCostPrice(),
+                        product.getCurrentSalePrice(),
+                        totalStock,
+                        minStock,
+                        totalStock < minStock,
+                        product.getStrategicMultiplier(),
+                        product.getStrategicReason(),
+                        product.isIgnoreStrategicRules()
                 );
             });
     }
@@ -128,5 +134,73 @@ public class ProductService {
             .filter(Objects::nonNull)
             .min(Integer::compareTo)
             .orElse(0);
+    }
+
+
+    public void saveStrategicDraft(Long productId, BigDecimal multiplier, String reason) {
+        Product product = repository.findById(productId)
+                .orElseThrow(() -> new BusinessException("Producto no encontrado"));
+
+        if (!product.isIgnoreStrategicRules()) {
+            product.setStrategicMultiplier(multiplier);
+            product.setStrategicReason(reason);
+            repository.save(product);
+        }
+    }
+
+    // Método para que el usuario bloquee un producto (Alta rotación/Sobre stock)
+    public void toggleProtection(Long productId, boolean ignore) {
+        Product product = repository.findById(productId)
+                .orElseThrow(() -> new BusinessException("Producto no encontrado"));
+        product.setIgnoreStrategicRules(ignore);
+
+        // Si el usuario lo ignora, reseteamos la sugerencia de la IA
+        if (ignore) {
+            product.setStrategicMultiplier(BigDecimal.ONE);
+            product.setStrategicReason(null);
+        }
+        repository.save(product);
+    }
+    public void confirmStrategicPrices(Long userId) {
+        System.out.println("🚀 Iniciando confirmación para usuario ID: " + userId);
+
+        List<Product> productsToUpdate = repository.findByUserIdAndIgnoreStrategicRulesFalse(userId);
+
+        System.out.println("📦 Productos encontrados para procesar: " + productsToUpdate.size());
+
+        for (Product p : productsToUpdate) {
+            System.out.println("🔍 Procesando: " + p.getName() + " | Multiplicador: " + p.getStrategicMultiplier());
+
+            if (p.getStrategicMultiplier() != null && p.getStrategicMultiplier().compareTo(BigDecimal.ONE) > 0) {
+                BigDecimal oldPrice = p.getCurrentSalePrice();
+                BigDecimal newPrice = oldPrice.multiply(p.getStrategicMultiplier());
+
+                p.setCurrentSalePrice(newPrice);
+                p.setStrategicMultiplier(BigDecimal.ONE);
+                p.setStrategicReason(null);
+
+                repository.save(p);
+                System.out.println("✅ Precio actualizado: " + oldPrice + " -> " + newPrice);
+            } else {
+                System.out.println("⚠️ Saltado: El multiplicador es 1.0 o null");
+            }
+        }
+    }
+
+    public void saveAIStrategicDrafts(List<Map<String, Object>> suggestions, Long userId) {
+        for (Map<String, Object> suggestion : suggestions) {
+            String productName = (String) suggestion.get("name");
+            BigDecimal multiplier = new BigDecimal(suggestion.get("multiplier").toString());
+            String reason = (String) suggestion.get("reason");
+
+            // Buscamos el producto por nombre y usuario
+            repository.findByNameAndUserId(productName, userId).ifPresent(product -> {
+                if (!product.isIgnoreStrategicRules()) {
+                    product.setStrategicMultiplier(multiplier);
+                    product.setStrategicReason(reason);
+                    repository.save(product);
+                }
+            });
+        }
     }
 }
