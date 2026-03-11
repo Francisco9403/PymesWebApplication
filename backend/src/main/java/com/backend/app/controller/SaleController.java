@@ -26,13 +26,6 @@ public class SaleController {
         this.saleService = saleService;
     }
 
-    // El frontend manda el carrito de compras acá
-    @PostMapping
-    public ResponseEntity<Sale> createSale(@RequestBody Sale sale) {
-        Sale newSale = saleService.createSale(sale);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newSale);
-    }
-
     // Para ver el ticket/detalle de una venta
     @GetMapping("/{id}")
     public ResponseEntity<Sale> getSaleById(@PathVariable Long id) {
@@ -47,7 +40,7 @@ public class SaleController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Sale createSale(@RequestBody CreateSaleRequest request) {
-        return saleService.createSale(request);
+    public void createSale(@RequestBody CreateSaleRequest request) {
+        saleService.createSale(request);
     }
 }
