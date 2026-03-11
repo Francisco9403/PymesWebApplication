@@ -25,6 +25,7 @@ export interface OCRResult {
 
 export interface EditableProduct extends OCRProduct {
   quantity: number;
+  lastCostPrice?: number;
 }
 
 export interface EditableOCRData extends Omit<OCRResult, "products"> {

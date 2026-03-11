@@ -1,3 +1,4 @@
+
 package com.backend.app.controller;
 
 import org.springframework.data.domain.Pageable;
@@ -22,7 +23,11 @@ import com.backend.app.model.dto.ProductListResponse;
 import com.backend.app.model.dto.ProductResponse;
 import com.backend.app.model.dto.ProductSearchCriteria;
 import com.backend.app.service.ProductService;
+import com.backend.app.repository.ProductRepository;
 
+
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,8 +51,8 @@ public class ProductController {
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public void updateProduct(
-        @RequestBody ProductResponse request) {
-            productService.updateProduct(request);
+            @RequestBody ProductResponse request) {
+        productService.updateProduct(request);
     }
 
     @DeleteMapping("/{id}")
@@ -56,26 +61,26 @@ public class ProductController {
             @PathVariable Long id,
             @RequestParam Long branchId,
             Authentication auth
-        ) {
+    ) {
         User user = (User) auth.getPrincipal();
 
         System.out.println("productId: " + id);
-    System.out.println("branchId: " + branchId);
-    System.out.println("userId: " + user.getId());
+        System.out.println("branchId: " + branchId);
+        System.out.println("userId: " + user.getId());
         productService.deleteProduct(id, branchId, user.getId());
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public PageResponse<ProductListResponse> getAllProducts(
-        @RequestParam(required = false) String name,
-        @RequestParam(required = false) Boolean belowMinStock,
-        Pageable pageable
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Boolean belowMinStock,
+            Pageable pageable
     ) {
         ProductSearchCriteria criteria = new ProductSearchCriteria(name, belowMinStock, null);
 
         return PageResponse.from(
-            productService.searchProducts(criteria, pageable)
+                productService.searchProducts(criteria, pageable)
         );
     }
 
@@ -114,4 +119,14 @@ public class ProductController {
         // Llamamos al método del Service que procesa la lista
         productService.saveAIStrategicDrafts(suggestions, user.getId());
     }
-} // <--- Asegurate de cerrar la clase aquí
+
+    @PostMapping("/compare-costs")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, BigDecimal> compareCosts(@RequestBody List<String> names, Authentication auth) {
+        User user = (User) auth.getPrincipal();
+
+        // Llamamos al service para que haga el trabajo sucio
+        return productService.getCurrentPricesForComparison(names, user.getId());
+    }
+
+}

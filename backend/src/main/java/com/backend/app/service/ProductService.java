@@ -1,6 +1,7 @@
 package com.backend.app.service;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,11 +54,11 @@ public class ProductService {
     public Page<ProductListResponse> searchProducts(ProductSearchCriteria criteria, Pageable pageable) {
 
         Specification<Product> spec = ProductSpecification.search(criteria);
-    
+
         return repository
             .findAll(spec, pageable)
             .map(product -> {
-    
+
                 Integer totalStock = calculateTotalStock(product);
                 Integer minStock = calculateMinStock(product);
 
@@ -78,7 +79,7 @@ public class ProductService {
     }
 
     public void deleteProduct(Long productId, Long branchId, Long userId) {
-    
+
         Product product = repository
                 .findByIdAndUserId(productId, userId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
@@ -135,7 +136,7 @@ public class ProductService {
             .filter(Objects::nonNull)
             .reduce(0, Integer::sum);
     }
-    
+
     private Integer calculateMinStock(Product product) {
         return product.getStocks()
             .stream()
@@ -211,5 +212,18 @@ public class ProductService {
                 }
             });
         }
+    }
+    public Map<String, BigDecimal> getCurrentPricesForComparison(List<String> names, Long userId) {
+        Map<String, BigDecimal> priceMap = new HashMap<>();
+
+        for (String name : names) {
+            // Buscamos el producto por nombre y usuario
+            repository.findByNameAndUserId(name, userId).ifPresent(product -> {
+                // Guardamos el precio de costo actual como "referencia"
+                priceMap.put(name, product.getBaseCostPrice());
+            });
+        }
+
+        return priceMap;
     }
 }
