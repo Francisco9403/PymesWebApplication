@@ -20,7 +20,6 @@ export function ProductFilters() {
   return (
     <div className="card-container p-4">
       <div className="flex flex-col sm:flex-row gap-3">
-        {/* Buscador */}
         <div className="relative flex-1">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
@@ -43,10 +42,8 @@ export function ProductFilters() {
           />
         </div>
 
-        {/* Divider vertical (solo desktop) */}
         <div className="hidden sm:block w-px bg-slate-100 self-stretch" />
 
-        {/* Filtro stock */}
         <div className="relative">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
@@ -84,7 +81,6 @@ export function ProductFilters() {
           </svg>
         </div>
 
-        {/* Ordenar */}
         <div className="relative">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"

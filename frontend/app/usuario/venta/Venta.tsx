@@ -8,19 +8,10 @@ import { useToast } from "@/layout/ToastProvider"; // <-- Para avisar si no exis
 
 import { useState, useTransition } from "react";
 import PaymentQR from "./PaymentQR";
+import { crearVenta } from "@/app/actions/venta";
+import { CartItem, Product } from "@/types/Cart";
 
-interface Product {
-  id: number;
-  sku?: string;
-  currentSalePrice?: string;
-}
-
-interface CartItem {
-  product: Product;
-  quantity: number;
-}
-
-export default function Venta() {
+export default function Venta({ branchId }: { branchId: number }) {
   const { show } = useToast();
   const [qrData, setQrData] = useState<{ string: string; ref: string } | null>(
     null,
@@ -28,19 +19,15 @@ export default function Venta() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isPending, startTransition] = useTransition();
 
-  // Función corregida y validada
   function handleScan(sku: string) {
     startTransition(async () => {
-      // 1. Buscamos el producto real en el backend de Spring Boot
       const productFound = await procesarSkuAction(sku);
 
       if (!productFound) {
-        // 2. Si el API devuelve null, avisamos al cajero
         show(`El producto con SKU "${sku}" no existe en el sistema`, "error");
         return;
       }
 
-      // 3. Si existe, lo agregamos con sus datos reales (ID y Precio real)
       addToCart(productFound);
       show(`Agregado: ${productFound.sku}`, "success");
     });
@@ -48,7 +35,6 @@ export default function Venta() {
 
   function addToCart(product: Product) {
     setCart((prev) => {
-      // Buscamos por el ID real de la base de datos
       const existing = prev.find((p) => p.product.id === product.id);
 
       if (existing) {
@@ -62,16 +48,36 @@ export default function Venta() {
   }
 
   async function handleCobrar() {
-    const total = cart.reduce(
+    const totalRaw = cart.reduce(
       (acc, item) =>
         acc + Number(item.product.currentSalePrice ?? 0) * item.quantity,
       0,
     );
 
+    const total = Number(totalRaw.toFixed(2));
+
     startTransition(async () => {
+      await crearVenta(cart, branchId);
+
       const result = await crearQrMercadoPago(total);
-      setQrData({ string: result.qrString, ref: result.externalReference });
+
+      setQrData({
+        string: result.qrString,
+        ref: result.externalReference!,
+      });
     });
+  }
+
+  function removeFromCart(productId: number) {
+    setCart((prev) =>
+      prev
+        .map((item) =>
+          item.product.id === productId
+            ? { ...item, quantity: item.quantity - 1 }
+            : item,
+        )
+        .filter((item) => item.quantity > 0),
+    );
   }
 
   return (
@@ -79,13 +85,13 @@ export default function Venta() {
       <QRScanner onScan={handleScan} loading={isPending} />
 
       <div className="grid grid-cols-1 gap-6">
-        <ProductList cart={cart} />
+        <ProductList cart={cart} removeFromCart={removeFromCart} />
 
         {cart.length > 0 && !qrData && (
           <button
             onClick={handleCobrar}
             disabled={isPending}
-            className="btn-primary !bg-emerald-600 hover:!bg-emerald-700 py-6 text-xl shadow-xl shadow-emerald-200/50 flex items-center justify-center gap-3"
+            className="btn-primary bg-emerald-600! hover:bg-emerald-700! py-6 text-xl shadow-xl shadow-emerald-200/50 flex items-center justify-center gap-3"
           >
             {isPending ? (
               <span className="animate-pulse">Generando Orden...</span>

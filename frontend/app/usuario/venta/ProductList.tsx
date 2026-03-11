@@ -1,13 +1,12 @@
-interface CartItem {
-  product: {
-    id: number;
-    sku?: string;
-    currentSalePrice?: string;
-  };
-  quantity: number;
-}
+import { CartItem } from "@/types/Cart";
 
-export default function ProductList({ cart }: { cart: CartItem[] }) {
+export default function ProductList({
+  cart,
+  removeFromCart,
+}: {
+  cart: CartItem[];
+  removeFromCart: (productId: number) => void;
+}) {
   const total = cart.reduce(
     (acc, item) =>
       acc + Number(item.product.currentSalePrice ?? 0) * item.quantity,
@@ -51,6 +50,22 @@ export default function ProductList({ cart }: { cart: CartItem[] }) {
                     Number(item.product.currentSalePrice ?? 0) * item.quantity
                   ).toFixed(2)}
                 </span>
+
+                <div className="flex items-center gap-4">
+                  <span className="font-mono font-bold text-slate-700">
+                    $
+                    {(
+                      Number(item.product.currentSalePrice ?? 0) * item.quantity
+                    ).toFixed(2)}
+                  </span>
+
+                  <button
+                    onClick={() => removeFromCart(item.product.id)}
+                    className="text-red-500 hover:text-red-700 font-bold text-lg px-2"
+                  >
+                    −
+                  </button>
+                </div>
               </div>
             ))}
           </div>

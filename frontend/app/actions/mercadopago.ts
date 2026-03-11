@@ -17,7 +17,7 @@ export async function crearQrMercadoPago(total: number) {
     title: "Venta POS",
     description: "Compra en tienda",
     total_amount: total,
-    notification_url: "", // por ahora opcional
+    // notification_url: "", // por ahora opcional
     items: [
       {
         sku_number: "POS-SALE",

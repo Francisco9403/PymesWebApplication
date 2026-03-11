@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader, IScannerControls } from "@zxing/browser";
 
@@ -6,12 +7,13 @@ export default function QRScanner({
   onScan,
   loading,
 }: {
-  onScan: (sku: string) => void;
+  onScan: (sku: string, quantity: number) => void;
   loading: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
   const [sku, setSku] = useState("");
+  const [quantity, setQuantity] = useState(1);
   const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export default function QRScanner({
           if (result) {
             const scannedText = result.getText();
             setSku(scannedText);
-            onScan(scannedText);
+            onScan(scannedText, quantity);
             stopScanner();
           }
         },
@@ -42,8 +44,9 @@ export default function QRScanner({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && sku) {
-      onScan(sku);
+      onScan(sku, quantity);
       setSku("");
+      setQuantity(1);
     }
   };
 
@@ -96,16 +99,28 @@ export default function QRScanner({
       <div className="pt-4 border-t border-slate-100">
         <div className="flex gap-2">
           <input
+            type="number"
+            min={1}
+            value={quantity}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            className="w-24 p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 outline-none text-slate-900 font-medium"
+          />
+
+          <input
             type="text"
             placeholder="Escribir SKU manualmente..."
             value={sku}
             onChange={(e) => setSku(e.target.value)}
             onKeyDown={handleKeyDown}
-            autoFocus
             className="flex-1 p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 outline-none text-slate-900 font-medium"
           />
+
           <button
-            onClick={() => onScan(sku)}
+            onClick={() => {
+              onScan(sku, quantity);
+              setSku("");
+              setQuantity(1);
+            }}
             disabled={loading || !sku}
             className="btn-primary px-6 whitespace-nowrap"
           >

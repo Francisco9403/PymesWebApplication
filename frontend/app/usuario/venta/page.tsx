@@ -3,12 +3,19 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getBranches } from "@/app/actions/branch";
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: { branchId?: string };
+}) {
+  const params = await searchParams;
   const branches = await getBranches();
 
   if (!branches || branches.length === 0) {
     redirect("/usuario/sucursales");
   }
+
+  const branchId = params.branchId ? Number(params.branchId) : branches[0].id;
 
   return (
     <main className="min-h-screen bg-slate-50 p-6 sm:p-10">
@@ -28,7 +35,7 @@ export default async function Page() {
           </p>
         </header>
 
-        <Venta />
+        <Venta branchId={branchId} />
       </div>
     </main>
   );

@@ -108,8 +108,17 @@ public class ProductService {
                 .orElseThrow(() -> new BusinessException("Product not found with id: " + id));
     }
 
-    public Product getProductBySku(String sku) {
-        return repository.findBySku(sku).orElseThrow(() -> new BusinessException("Product not found with sku: " + sku));
+    public ProductResponse getProductBySku(String sku) {
+        Product p = repository.findBySku(sku).orElseThrow(() -> new BusinessException("Product not found with sku: " + sku));
+
+        return new ProductResponse(
+            p.getId(),
+            p.getSku(),
+            p.getName(),
+            p.getEan13(),
+            p.getBaseCostPrice(),
+            p.getCurrentSalePrice()
+        );
     }
 
     public Product getProductByBarcode(String ean13) {

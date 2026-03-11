@@ -105,11 +105,12 @@ export interface MPCashOut {
   amount: number;
 }
 
+// external_reference, title, description, notification_url son opcionales
 export interface CreateQROrderInput {
-  external_reference: string;
-  title: string;
-  description: string;
-  notification_url: string;
+  external_reference?: string;
+  title?: string;
+  description?: string;
+  notification_url?: string;
   total_amount: number;
   items: MPOrderItem[];
   sponsor?: MPSponsor;

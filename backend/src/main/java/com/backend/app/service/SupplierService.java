@@ -111,6 +111,7 @@ public class SupplierService {
         Product newP = new Product();
         newP.setName(pDto.name());
         newP.setEan13(pDto.ean13());
+        newP.setSku(generateSku(pDto));
         newP.setStocks(new ArrayList<>());
     
         User user = new User();
@@ -149,6 +150,25 @@ public class SupplierService {
             desc.setProduct(product);
             product.getAiDescriptions().add(desc);
         }
+    }
+
+    private String generateSku(ProductImportDTO dto) {
+
+        if (dto.ean13() != null && !dto.ean13().isBlank())
+            return dto.ean13();
+
+        String base = dto.name()
+            .toUpperCase()
+            .replaceAll("[^A-Z0-9 ]", "")
+            .trim()
+            .replaceAll("\\s+", "-");
+
+        if (base.length() > 15)
+            base = base.substring(0, 15);
+
+        long count = productRepository.countBySkuStartingWith(base);
+
+        return base + "-" + String.format("%04d", count + 1);
     }
 }
 

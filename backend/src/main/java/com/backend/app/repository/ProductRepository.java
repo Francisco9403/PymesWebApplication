@@ -30,4 +30,5 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     Optional<Product> findByNameAndUserId(String name, Long userId);
 
+    long countBySkuStartingWith(String base);
 }
