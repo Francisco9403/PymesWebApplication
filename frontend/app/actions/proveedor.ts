@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { Supplier } from "@/types/Supplier";
 import { GoogleGenAI } from "@google/genai";
+import {revalidatePath} from "next/cache";
 
 export async function importSupplierDataAction(
   prevState: { error?: string; success?: string } | null,
@@ -30,6 +31,11 @@ export async function importSupplierDataAction(
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       return { error: errorData?.message || "Error al importar datos" };
+    }
+    if (response.ok) {
+      // ⚡ Esto fuerza a Next.js a volver a pedir la lista de proveedores
+      revalidatePath("/usuario/proveedores");
+      return { success: "Proveedor cargado correctamente" };
     }
 
     return { success: "Proveedor cargado correctamente" };

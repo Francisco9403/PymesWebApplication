@@ -97,27 +97,30 @@ public class SupplierService {
     }
 
     private Product findOrCreateProduct(ProductImportDTO pDto, Long userId) {
-        // buscar por EAN o nombre como antes
-        Optional<Product> byEan = Optional.empty();
+        // 1. Buscamos primero por EAN (siempre filtrando por el usuario logueado)
         if (pDto.ean13() != null && !pDto.ean13().isBlank()) {
-            byEan = productRepository.findByEan13(pDto.ean13());
-            if (byEan.isPresent()) return byEan.get();
+            Optional<Product> byEan = productRepository.findByEan13(pDto.ean13());
+            // Nota: Si el EAN es global, verificamos que pertenezca al usuario
+            if (byEan.isPresent() && byEan.get().getUser().getId().equals(userId)) {
+                return byEan.get();
+            }
         }
-    
-        Optional<Product> byName = productRepository.findByName(pDto.name());
+
+        // 2. Buscamos por nombre pero SOLO los productos de este usuario
+        Optional<Product> byName = productRepository.findByNameAndUserId(pDto.name(), userId);
         if (byName.isPresent()) return byName.get();
-    
-        // Crear producto nuevo
+
+        // 3. Si no existe, creamos uno nuevo vinculado al usuario
         Product newP = new Product();
         newP.setName(pDto.name());
         newP.setEan13(pDto.ean13());
         newP.setSku(generateSku(pDto));
         newP.setStocks(new ArrayList<>());
-    
+
         User user = new User();
-        user.setId(userId); // ⚠ solo setId para evitar fetch si no quieres cargarlo
+        user.setId(userId);
         newP.setUser(user);
-    
+
         return newP;
     }
     

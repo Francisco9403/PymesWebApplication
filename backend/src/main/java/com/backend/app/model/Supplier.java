@@ -3,6 +3,7 @@ package com.backend.app.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -25,6 +26,7 @@ public class Supplier {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod; // Responsable Inscripto, Monotributo
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "suppliers")
     private List<Product> products = new ArrayList<>();
     

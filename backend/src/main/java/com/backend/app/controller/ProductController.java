@@ -126,4 +126,10 @@ public class ProductController {
         return productService.getCurrentPricesForComparison(names, user.getId());
     }
 
+    @GetMapping("/supplier/{supplierId}")
+    public ResponseEntity<List<Product>> getProductsBySupplier(@PathVariable Long supplierId) {
+        List<Product> products = productService.getProductsBySupplier(supplierId);
+        return ResponseEntity.ok(products);
+    }
+
 }

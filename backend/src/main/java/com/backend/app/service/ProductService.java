@@ -226,4 +226,11 @@ public class ProductService {
 
         return priceMap;
     }
+    public List<Product> getProductsBySupplier(Long supplierId) {
+        // 🚀 Llamamos al nuevo método con la @Query
+        return repository.findBySupplierId(supplierId);
+    }
+
+
 }
+

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,10 +35,10 @@ public class User extends SyncEntity {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Branch> branches = new ArrayList<>();
-
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Product> products = new ArrayList<>();
 
