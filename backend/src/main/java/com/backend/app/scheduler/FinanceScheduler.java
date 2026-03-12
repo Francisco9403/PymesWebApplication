@@ -2,11 +2,15 @@ package com.backend.app.scheduler;
 
 import com.backend.app.service.FinanceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -20,12 +24,21 @@ public class FinanceScheduler {
     @Scheduled(fixedRate = 3600000) // Una vez por hora
     public void checkMepAndApplyMarkup() {
         try {
-            // 1. Consultamos el MEP real de la API
-            Map<String, Object>[] response = restTemplate.getForObject("https://dolarapi.com/v1/dolares", Map[].class);
+            ResponseEntity<List<Map<String, Object>>> response =
+                    restTemplate.exchange(
+                            "https://dolarapi.com/v1/dolares",
+                            HttpMethod.GET,
+                            null,
+                            new ParameterizedTypeReference<List<Map<String, Object>>>() {}
+                    );
 
-            if (response != null) {
-                for (Map<String, Object> casa : response) {
-                    if ("mep".equals(casa.get("casa").toString().toLowerCase()) || "bolsa".equals(casa.get("casa").toString().toLowerCase())) {
+            List<Map<String, Object>> casas = response.getBody();
+
+            if (casas != null) {
+                for (Map<String, Object> casa : casas) {
+                    String nombre = casa.get("casa").toString().toLowerCase();
+
+                    if ("mep".equals(nombre) || "bolsa".equals(nombre)) {
                         BigDecimal currentMep = new BigDecimal(casa.get("venta").toString());
 
                         System.out.println("🤖 Bot Financiero: Cotización real MEP detectada: $" + currentMep);

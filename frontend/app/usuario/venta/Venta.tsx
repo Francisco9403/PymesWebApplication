@@ -1,21 +1,24 @@
 "use client";
 
 import { crearQrMercadoPago } from "@/app/actions/mercadopago";
-import { procesarSkuAction } from "@/app/actions/product"; // <-- Importamos la validación
+import { procesarSkuAction } from "@/app/actions/product";
 import ProductList from "@/app/usuario/venta/ProductList";
 import QRScanner from "@/app/usuario/venta/QRScanner";
-import { useToast } from "@/layout/ToastProvider"; // <-- Para avisar si no existe
+import { useToast } from "@/layout/ToastProvider";
 
 import { useState, useTransition } from "react";
 import PaymentQR from "./PaymentQR";
 import { crearVenta } from "@/app/actions/venta";
 import { CartItem, Product } from "@/types/Cart";
+import { CustomerSelector } from "./CustomerSelector";
 
 export default function Venta({ branchId }: { branchId: number }) {
   const { show } = useToast();
   const [qrData, setQrData] = useState<{ string: string; ref: string } | null>(
     null,
   );
+  const [customerId, setCustomerId] = useState<number | null>(null);
+  const [customerName, setCustomerName] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isPending, startTransition] = useTransition();
 
@@ -57,7 +60,16 @@ export default function Venta({ branchId }: { branchId: number }) {
     const total = Number(totalRaw.toFixed(2));
 
     startTransition(async () => {
-      await crearVenta(cart, branchId);
+      const formData = new FormData();
+
+      formData.append("branchId", String(branchId));
+      formData.append("cart", JSON.stringify(cart));
+
+      if (customerId) {
+        formData.append("customerId", String(customerId));
+      }
+
+      await crearVenta(null, formData);
 
       const result = await crearQrMercadoPago(total);
 
@@ -83,6 +95,13 @@ export default function Venta({ branchId }: { branchId: number }) {
   return (
     <div className="flex flex-col gap-6 pb-20">
       <QRScanner onScan={handleScan} loading={isPending} />
+
+      <CustomerSelector
+        customerId={customerId}
+        customerName={customerName}
+        setCustomerId={setCustomerId}
+        setCustomerName={setCustomerName}
+      />
 
       <div className="grid grid-cols-1 gap-6">
         <ProductList cart={cart} removeFromCart={removeFromCart} />

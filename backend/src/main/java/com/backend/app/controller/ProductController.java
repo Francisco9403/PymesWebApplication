@@ -23,11 +23,8 @@ import com.backend.app.model.dto.ProductListResponse;
 import com.backend.app.model.dto.ProductResponse;
 import com.backend.app.model.dto.ProductSearchCriteria;
 import com.backend.app.service.ProductService;
-import com.backend.app.repository.ProductRepository;
-
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

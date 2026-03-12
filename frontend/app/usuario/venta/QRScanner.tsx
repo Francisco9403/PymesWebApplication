@@ -40,7 +40,7 @@ export default function QRScanner({
     }
     if (scanning) startScanner();
     return () => controlsRef.current?.stop();
-  }, [scanning, onScan]);
+  }, [scanning, quantity, onScan]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && sku) {
