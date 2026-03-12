@@ -13,7 +13,7 @@ export type CustomerListResponse = {
   phone: string;
   currentDebt: number;
   creditLimit: number | null;
-  tag: string | null;
+  tags: string[];
   lastPurchase: string;
 };
 

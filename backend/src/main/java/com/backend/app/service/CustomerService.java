@@ -3,6 +3,7 @@ package com.backend.app.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,19 +34,22 @@ public class CustomerService {
         this.saleRepository = saleRepository;
     }
 
+    public void updateCustomerTags(Long customerId, Set<String> newTags) {
+        Customer customer = repository.findById(customerId).orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+        customer.setTags(newTags);
+        repository.save(customer);
+    }
+
     public Page<CustomerListResponse> getCustomers(Long userId, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
     
         return repository.findByUserId(userId, pageable)
                 .map(c -> {
-    
-                    String tag = null;
-    
                     if (c.getCurrentDebt() != null &&
                         c.getCreditLimit() != null &&
                         c.getCurrentDebt().compareTo(c.getCreditLimit().multiply(BigDecimal.valueOf(0.8))) > 0) {
-                        tag = "Cliente en riesgo";
                     }
     
                     return new CustomerListResponse(
@@ -54,7 +58,7 @@ public class CustomerService {
                             c.getPhone(),
                             c.getCurrentDebt(),
                             c.getCreditLimit(),
-                            tag,
+                            c.getTags(), 
                             null
                     );
                 });

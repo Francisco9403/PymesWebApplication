@@ -1,8 +1,11 @@
 package com.backend.app.controller;
 
+import java.util.Set;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,7 +30,17 @@ public class CustomerController {
         this.service = service;
     }
 
+    @PatchMapping("/{customerId}/tags")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateTags(
+        @PathVariable Long customerId,
+        @RequestBody Set<String> tags
+    ) {
+        service.updateCustomerTags(customerId, tags);
+    }
+
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public PageResponse<CustomerListResponse> getCustomers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -41,6 +54,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{customerId}/sales")
+    @ResponseStatus(HttpStatus.OK)
     public PageResponse<CustomerSaleResponse> getCustomerSales(
             @PathVariable Long customerId,
             @RequestParam(defaultValue = "0") int page,

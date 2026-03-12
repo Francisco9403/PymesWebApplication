@@ -21,7 +21,7 @@ export default function CustomerTable({
             <th className="p-3 text-left">Teléfono</th>
             <th className="p-3 text-left">Saldo</th>
             <th className="p-3 text-left">Límite de crédito</th>
-            {/* <th className="p-3 text-left">Etiquetas</th> */}
+            <th className="p-3 text-left">Etiquetas</th>
             <th className="p-3 text-left">Acciones</th>
           </tr>
         </thead>
@@ -47,16 +47,22 @@ export default function CustomerTable({
 
               <td className="p-3">${customer.creditLimit ?? "Sin límite"}</td>
 
-              {/* <td className="p-3 flex gap-2">
-                {customer.tags?.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2 py-1 text-xs rounded bg-gray-200"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </td> */}
+              <td className="p-3">
+                <div className="flex gap-2 flex-wrap">
+                  {customer.tags && customer.tags.length > 0 ? (
+                    customer.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-1 text-xs rounded bg-gray-200"
+                      >
+                        {tag}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-gray-400 text-xs">Sin etiquetas</span>
+                  )}
+                </div>
+              </td>
 
               <td className="p-3 flex gap-2">
                 <button

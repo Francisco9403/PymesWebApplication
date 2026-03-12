@@ -2,7 +2,80 @@
 
 import { CustomerListResponse, CustomerSaleResponse } from "@/types/Customer";
 import { PageResponse } from "@/types/Page";
+import { GoogleGenAI } from "@google/genai";
 import { cookies } from "next/headers";
+
+export async function updateCustomerTags(customerId: number, tags: string[]) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/customers/${customerId}/tags`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(tags),
+        credentials: "include",
+      },
+    );
+
+    if (!res.ok)
+      throw new Error("No se pudo actualizar las etiquetas del cliente");
+
+    return tags;
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Error inesperado",
+    };
+  }
+}
+
+const client = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+});
+
+export async function generateCustomerTag(
+  customerId: number,
+  salesHistory: CustomerSaleResponse[],
+) {
+  const historyText = salesHistory
+    .map((s) => `Compra: $${s.totalAmount} el ${s.createdAt}`)
+    .join("\n");
+
+  const prompt = `
+    Analiza el historial de compras y deuda del cliente y asigna etiquetas según:
+    - "Cliente recurrente" si tiene compras frecuentes.
+    - "Cliente en riesgo de abandono" si hace tiempo que no compra.
+    - "Mayorista" si suele comprar grandes cantidades.
+    Devuelve solo un array JSON de etiquetas.
+  `;
+
+  try {
+    const response = await client.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: `${prompt}\nHistorial:\n${historyText}` }],
+        },
+      ],
+      config: { responseMimeType: "application/json" },
+    });
+
+    const tags: string[] = JSON.parse(
+      response.candidates![0].content!.parts![0].text!,
+    );
+
+    // Guardar etiquetas en el backend
+    await updateCustomerTags(customerId, tags);
+
+    return tags;
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Error inesperado",
+    };
+  }
+}
 
 export async function getCustomers(page = 0, size = 20) {
   const cookieStore = await cookies();

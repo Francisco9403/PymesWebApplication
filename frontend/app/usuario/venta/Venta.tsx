@@ -11,6 +11,7 @@ import PaymentQR from "./PaymentQR";
 import { crearVenta } from "@/app/actions/venta";
 import { CartItem, Product } from "@/types/Cart";
 import { CustomerSelector } from "./CustomerSelector";
+import { generateCustomerTag, getCustomerSales } from "@/app/actions/cliente";
 
 export default function Venta({ branchId }: { branchId: number }) {
   const { show } = useToast();
@@ -65,11 +66,14 @@ export default function Venta({ branchId }: { branchId: number }) {
       formData.append("branchId", String(branchId));
       formData.append("cart", JSON.stringify(cart));
 
-      if (customerId) {
-        formData.append("customerId", String(customerId));
-      }
+      if (customerId) formData.append("customerId", String(customerId));
 
       await crearVenta(null, formData);
+
+      if (customerId) {
+        const customerSales = await getCustomerSales(customerId);
+        await generateCustomerTag(customerId, customerSales.content);
+      }
 
       const result = await crearQrMercadoPago(total);
 
