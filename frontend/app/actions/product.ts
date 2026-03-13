@@ -5,6 +5,61 @@ import { Product, ProductResponse } from "@/types/Product";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
+export async function getSupplierProductsAction(supplierId: number) {
+  const cookieStore = await cookies();
+  const jwt = cookieStore.get("token")?.value;
+
+  if (!jwt) return [];
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/products/supplier/${supplierId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+        cache: "no-store",
+      },
+    );
+
+    if (!res.ok) return [];
+
+    return await res.json();
+  } catch (error) {
+    console.error("Error obteniendo productos del proveedor:", error);
+    return [];
+  }
+}
+
+export async function compareCostsAction(productNames: string[]) {
+  const cookieStore = await cookies();
+  const jwt = cookieStore.get("token")?.value;
+
+  if (!jwt) return {};
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/products/compare-costs`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwt}`,
+        },
+        body: JSON.stringify(productNames),
+        cache: "no-store",
+      },
+    );
+
+    if (!res.ok) return {};
+
+    return await res.json();
+  } catch (error) {
+    console.error("Error comparando precios:", error);
+    return {};
+  }
+}
+
 export async function procesarSkuAction(sku: string): Promise<Product | null> {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
@@ -200,17 +255,22 @@ export async function confirmStrategicPricesAction() {
   if (!jwt) return { error: "No autorizado" };
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/products/confirm-strategic`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${jwt}`,
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/products/confirm-strategic`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
       },
-    });
+    );
 
     if (!response.ok) throw new Error("Error al aplicar precios");
 
     return { success: true };
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "Error desconocido" };
+    return {
+      error: error instanceof Error ? error.message : "Error desconocido",
+    };
   }
 }

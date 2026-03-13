@@ -5,6 +5,6 @@ export interface Supplier {
   id: number;
   businessName?: string;
   cuit?: string;
-  taxCategory?: TaxCategory;
-  currentAccount?: CurrentAccount;
+  taxCategory?: TaxCategory | null;
+  currentAccount?: CurrentAccount | null;
 }

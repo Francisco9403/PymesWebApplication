@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { Supplier } from "@/types/Supplier";
 import { GoogleGenAI } from "@google/genai";
-import {revalidatePath} from "next/cache";
+import { revalidatePath } from "next/cache";
 
 export async function importSupplierDataAction(
   prevState: { error?: string; success?: string } | null,
@@ -14,6 +14,7 @@ export async function importSupplierDataAction(
   if (!jwt) return { error: "No autorizado" };
 
   const payload = JSON.parse(formData.get("payload") as string);
+  console.log("payload:", payload);
 
   try {
     const response = await fetch(
@@ -27,6 +28,8 @@ export async function importSupplierDataAction(
         body: JSON.stringify(payload),
       },
     );
+
+    console.log("response: ", response);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);

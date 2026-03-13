@@ -7,6 +7,7 @@ export interface Product extends SyncEntity {
   sku?: string;
   ean13?: string;
   qrCode?: string;
+  name: string;
   strategicMultiplier?: number;
   strategicReason?: string;
   ignoreStrategicRules?: boolean;
