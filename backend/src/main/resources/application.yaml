@@ -7,7 +7,7 @@ spring:
     open-in-view: false
 
 jwt:
-  secret: 37kpH3ylTLuefkx6zECe0M3FLb8Gd+BFIUHXlhO4H0w= # Base64 256-bit
+  secret: ${JWT_SECRET}
   expirationHours: 2
 
 gemini:
