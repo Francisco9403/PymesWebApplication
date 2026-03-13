@@ -1,5 +1,6 @@
 package com.backend.app.service;
 
+import com.backend.app.exception.BusinessException;
 import com.backend.app.model.Sale;
 import com.backend.app.model.FiscalReceipt;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,9 @@ public class IvaExportService {
     private final DateTimeFormatter afipDate = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     public String generateVentasTxt(List<Sale> sales) {
+        if (sales == null || sales.isEmpty()) {
+            throw new BusinessException("No hay ventas para exportar en el período seleccionado.");
+        }
         StringBuilder sb = new StringBuilder();
 
         for (Sale sale : sales) {

@@ -2,15 +2,12 @@ package com.backend.app.service;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import com.backend.app.model.ProductStock;
 import com.backend.app.repository.ProductStockRepository;
-
-import jakarta.transaction.Transactional;
-
-import com.backend.app.exception.BusinessException;
+import com.backend.app.exception.BusinessException; // 🚀 Para datos incompletos
+import com.backend.app.exception.ResourceNotFoundException; // 🚀 Para búsquedas fallidas
 
 @Service
 @Transactional
@@ -24,36 +21,40 @@ public class ProductStockService {
 
     public ProductStock updateStockQuantity(ProductStock incomingData) {
         if (incomingData.getProduct() == null || incomingData.getBranch() == null) {
-            throw new RuntimeException("Datos de producto o sucursal incompletos");
+            throw new BusinessException("No se puede actualizar el stock: faltan datos del producto o sucursal");
         }
 
-        // 1. Buscar si ya existe el stock para ese producto en esa sucursal
         Optional<ProductStock> existingStock = productStockRepository.findByProductIdAndBranchId(
-            incomingData.getProduct().getId(), 
-            incomingData.getBranch().getId()
+                incomingData.getProduct().getId(),
+                incomingData.getBranch().getId()
         );
 
         ProductStock stockToSave;
 
         if (existingStock.isPresent()) {
-            // Caso PATCH: Actualizamos el registro existente
             stockToSave = existingStock.get();
-            
-            // Sumamos la cantidad nueva a la actual
             int newTotal = stockToSave.getQuantity() + incomingData.getQuantity();
+
+            // Validación extra: No permitir stock negativo por ajuste manual
+            if (newTotal < 0) {
+                throw new BusinessException("La operación resultaría en stock negativo para " + stockToSave.getProduct().getName());
+            }
+
             stockToSave.setQuantity(newTotal);
-            
-            // Actualizamos el umbral crítico si viene en el payload
             if (incomingData.getCriticalThreshold() != null) {
                 stockToSave.setCriticalThreshold(incomingData.getCriticalThreshold());
             }
         } else {
-            // Caso Upsert: Si no existe, lo creamos de cero
             stockToSave = incomingData;
         }
 
-        // Aquí podrías disparar la lógica de "Alerta Predictiva" si newTotal <= criticalThreshold
         return productStockRepository.save(stockToSave);
+    }
+
+    public ProductStock getSpecificStock(Long productId, Long branchId) {
+        // 🚀 Ahora retorna 404 con detalle exacto
+        return productStockRepository.findByProductIdAndBranchId(productId, branchId)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró stock para el producto " + productId + " en la sucursal " + branchId));
     }
 
     public List<ProductStock> getStockByProduct(Long productId) {
@@ -62,11 +63,5 @@ public class ProductStockService {
 
     public List<ProductStock> getStockByBranch(Long branchId) {
         return productStockRepository.findByBranchId(branchId);
-    }
-
-    public ProductStock getSpecificStock(Long productId, Long branchId) {
-        return productStockRepository.findByProductIdAndBranchId(productId, branchId)
-                // Usamos la misma excepción, después pueden crear una propia tipo "StockNotFoundException"
-                .orElseThrow(() -> new BusinessException("ProductStock not found with id: " + productId + " and branch id: " + branchId));
     }
 }

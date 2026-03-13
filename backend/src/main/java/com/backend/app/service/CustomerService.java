@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
+import com.backend.app.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +36,8 @@ public class CustomerService {
     }
 
     public void updateCustomerTags(Long customerId, Set<String> newTags) {
-        Customer customer = repository.findById(customerId).orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        Customer customer = repository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + customerId));
 
         customer.setTags(newTags);
         repository.save(customer);
@@ -77,12 +79,13 @@ public class CustomerService {
 
     public Long createCustomer(CreateCustomerRequest request, Long id) {
 
-        User user = userRepository.findById(id).orElseThrow();
-    
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
+
         Optional<Customer> existing = repository.findByPhoneAndUserId(request.phone(), id);
 
         if (existing.isPresent()) {
-            return existing.get().getId();
+            return existing.get().getId(); // Evita duplicados por teléfono
         }
     
         Customer customer = new Customer();

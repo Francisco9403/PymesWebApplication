@@ -6,6 +6,9 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.backend.app.exception.InsufficientStockException;
+import com.backend.app.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,15 +49,19 @@ public class SaleService {
 
     @Transactional
     public Sale createSale(CreateSaleRequest request) {
+        // 1. Validar que la venta no venga vacía
+        if (request.items() == null || request.items().isEmpty()) {
+            throw new BusinessException("No se puede registrar una venta sin productos");
+        }
 
+        // 2. Buscar Sucursal (404 si no existe)
         Branch branch = branchRepository.findById(request.branchId())
-                .orElseThrow();
+                .orElseThrow(() -> new ResourceNotFoundException("Sucursal no encontrada con ID: " + request.branchId()));
 
         Customer customer = null;
-
         if (request.customerId() != null) {
             customer = customerRepository.findById(request.customerId())
-                    .orElseThrow();
+                    .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + request.customerId()));
         }
 
         Sale sale = new Sale();
@@ -64,21 +71,32 @@ public class SaleService {
         sale.setCustomer(customer);
 
         List<SaleItem> items = new ArrayList<>();
-
         BigDecimal totalAmount = BigDecimal.ZERO;
         BigDecimal totalCost = BigDecimal.ZERO;
         int totalItems = 0;
 
         for (CreateSaleItemRequest itemRequest : request.items()) {
-
+            // 3. Buscar Producto
             Product product = productRepository.findById(itemRequest.productId())
-                    .orElseThrow();
+                    .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + itemRequest.productId()));
 
             int quantity = itemRequest.quantity();
+            if (quantity <= 0) {
+                throw new BusinessException("La cantidad del producto " + product.getName() + " debe ser mayor a cero");
+            }
+
+            // 4. Validar Stock 🚀
+            ProductStock stock = productStockRepository
+                    .findByProductAndBranch(product, branch)
+                    .orElseThrow(() -> new BusinessException("El producto " + product.getName() + " no tiene registro de stock en esta sucursal"));
+
+            if (stock.getQuantity() < quantity) {
+                // 🚀 Pasamos los 3 datos: Nombre, Pedido, Disponible
+                throw new InsufficientStockException(product.getName(), quantity, stock.getQuantity());
+            }
 
             BigDecimal price = product.getCurrentSalePrice();
             BigDecimal cost = product.getBaseCostPrice();
-
             BigDecimal subtotal = price.multiply(BigDecimal.valueOf(quantity));
 
             SaleItem item = new SaleItem();
@@ -97,11 +115,7 @@ public class SaleService {
             totalCost = totalCost.add(cost.multiply(BigDecimal.valueOf(quantity)));
             totalItems += quantity;
 
-            // descontar stock
-            ProductStock stock = productStockRepository
-                    .findByProductAndBranch(product, branch)
-                    .orElseThrow();
-
+            // Descontar stock de forma segura
             stock.setQuantity(stock.getQuantity() - quantity);
         }
 
@@ -112,16 +126,13 @@ public class SaleService {
         sale.setTotalItems(totalItems);
         sale.setStatus(SaleStatus.COMPLETED);
 
-        Sale savedSale = repository.save(sale);
-
-        // actualizar deuda si es fiado
+        // 5. Actualizar deuda del cliente si corresponde
         if (customer != null) {
-            customer.setCurrentDebt(
-                    customer.getCurrentDebt().add(totalAmount)
-            );
+            BigDecimal currentDebt = customer.getCurrentDebt() != null ? customer.getCurrentDebt() : BigDecimal.ZERO;
+            customer.setCurrentDebt(currentDebt.add(totalAmount));
         }
 
-        return savedSale;
+        return repository.save(sale);
     }
 
     // Nuevo método para el reporte de Finanzas
@@ -146,7 +157,7 @@ public class SaleService {
 
     public Sale getSaleById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new BusinessException("Sale not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la venta con ID: " + id));
     }
 
     // En SaleService.java

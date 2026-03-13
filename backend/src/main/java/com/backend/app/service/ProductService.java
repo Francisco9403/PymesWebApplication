@@ -21,6 +21,7 @@ import com.backend.app.repository.ProductRepository;
 import com.backend.app.repository.ProductStockRepository;
 import com.backend.app.specification.ProductSpecification;
 import com.backend.app.exception.BusinessException;
+import com.backend.app.exception.ResourceNotFoundException;
 
 @Service
 @Transactional
@@ -35,12 +36,19 @@ public class ProductService {
     }
 
     public Product createProduct(Product product) {
+        if (product.getBaseCostPrice() != null && product.getBaseCostPrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("El precio de costo no puede ser negativo");
+        }
         return repository.save(product);
     }
 
     public void updateProduct(ProductResponse request) {
         Product product = repository.findById(request.id())
-            .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + request.id()));
+
+        if (request.currentSalePrice().compareTo(request.baseCostPrice()) < 0) {
+            throw new BusinessException("Alerta en Junín: El precio de venta no puede ser menor al costo");
+        }
 
         product.setSku(request.sku());
         product.setEan13(request.ean13());
@@ -78,55 +86,42 @@ public class ProductService {
             });
     }
 
+    // 3. Borrado con mensajes específicos por fallo
     public void deleteProduct(Long productId, Long branchId, Long userId) {
-
         Product product = repository
                 .findByIdAndUserId(productId, userId)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado o no pertenece al usuario"));
 
         ProductStock stock = stockRepository
                 .findByProductIdAndBranchId(productId, branchId)
-                .orElseThrow(() -> new RuntimeException("Stock no encontrado en sucursal"));
+                .orElseThrow(() -> new ResourceNotFoundException("No hay registros de stock para este producto en la sucursal seleccionada"));
 
-        // eliminar stock de la sucursal
         stockRepository.delete(stock);
 
-        // verificar si quedan stocks
         long remainingStocks = stockRepository.countByProductId(productId);
-
         if (remainingStocks == 0) {
-
-            // limpiar relación many-to-many
             product.getSuppliers().clear();
-
-            // eliminar producto completo
             repository.delete(product);
         }
     }
 
     public Product getProductById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new BusinessException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto con ID " + id + " no existe"));
     }
 
     public ProductResponse getProductBySku(String sku) {
-        Product p = repository.findBySku(sku).orElseThrow(() -> new BusinessException("Product not found with sku: " + sku));
+        Product p = repository.findBySku(sku)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró producto con SKU: " + sku));
 
         return new ProductResponse(
-            p.getId(),
-            p.getSku(),
-            p.getName(),
-            p.getEan13(),
-            p.getBaseCostPrice(),
-            p.getCurrentSalePrice()
+                p.getId(), p.getSku(), p.getName(), p.getEan13(), p.getBaseCostPrice(), p.getCurrentSalePrice()
         );
     }
 
     public Product getProductByBarcode(String ean13) {
-        // Podríamos hacer una excepción personalizada distinta luego,
-        // por ahora reutilizamos la BusinessException genérica.
         return repository.findByEan13(ean13)
-                .orElseThrow(() -> new BusinessException("Product not found with ean13: " + ean13));
+                .orElseThrow(() -> new ResourceNotFoundException("Código de barras " + ean13 + " no registrado"));
     }
 
     private Integer calculateTotalStock(Product product) {
@@ -149,7 +144,11 @@ public class ProductService {
 
     public void saveStrategicDraft(Long productId, BigDecimal multiplier, String reason) {
         Product product = repository.findById(productId)
-                .orElseThrow(() -> new BusinessException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("No se puede guardar borrador: Producto no encontrado"));
+
+        if (multiplier.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("El multiplicador estratégico debe ser mayor a cero");
+        }
 
         if (!product.isIgnoreStrategicRules()) {
             product.setStrategicMultiplier(multiplier);
@@ -161,16 +160,16 @@ public class ProductService {
     // Método para que el usuario bloquee un producto (Alta rotación/Sobre stock)
     public void toggleProtection(Long productId, boolean ignore) {
         Product product = repository.findById(productId)
-                .orElseThrow(() -> new BusinessException("Producto no encontrado"));
-        product.setIgnoreStrategicRules(ignore);
+                .orElseThrow(() -> new ResourceNotFoundException("Error al cambiar protección: Producto inexistente"));
 
-        // Si el usuario lo ignora, reseteamos la sugerencia de la IA
+        product.setIgnoreStrategicRules(ignore);
         if (ignore) {
             product.setStrategicMultiplier(BigDecimal.ONE);
             product.setStrategicReason(null);
         }
         repository.save(product);
     }
+
     public void confirmStrategicPrices(Long userId) {
         System.out.println("🚀 Iniciando confirmación para usuario ID: " + userId);
 
@@ -190,9 +189,9 @@ public class ProductService {
                 p.setStrategicReason(null);
 
                 repository.save(p);
-                System.out.println("✅ Precio actualizado: " + oldPrice + " -> " + newPrice);
+                System.out.println("Precio actualizado: " + oldPrice + " -> " + newPrice);
             } else {
-                System.out.println("⚠️ Saltado: El multiplicador es 1.0 o null");
+                System.out.println("Saltado: El multiplicador es 1.0 o null");
             }
         }
     }

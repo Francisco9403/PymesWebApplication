@@ -1,5 +1,6 @@
 package com.backend.app.service;
 
+import com.backend.app.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.model.CurrentAccount;
@@ -21,9 +22,7 @@ public class CurrentAccountService {
 
     public CurrentAccount getAccountByOwner(Long ownerId) {
         return currentAccountRepository.findByOwnerId(ownerId)
-                // Usamos 0L o un ID representativo si no la encuentra,
-                // o a futuro una AccountNotFoundException
-                .orElseThrow(() -> new BusinessException("Account not found with id: " + ownerId));
+                .orElseThrow(() -> new ResourceNotFoundException("Cuenta corriente no encontrada para el dueño ID: " + ownerId));
     }
 
     // A futuro: acá iría la lógica para sumar o restar saldo (balance)

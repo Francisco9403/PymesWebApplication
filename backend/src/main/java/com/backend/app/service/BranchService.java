@@ -2,6 +2,7 @@ package com.backend.app.service;
 
 import java.util.List;
 
+import com.backend.app.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.model.Branch;
@@ -36,9 +37,8 @@ public class BranchService {
     }
 
     public BranchDTO getBranchById(Long id) {
-
         Branch branch = repository.findById(id)
-                .orElseThrow(() -> new BusinessException("Branch not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Sucursal no encontrada con ID: " + id));
 
         return BranchMapper.toDTO(branch);
     }

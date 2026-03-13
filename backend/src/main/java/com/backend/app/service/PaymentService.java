@@ -1,5 +1,6 @@
 package com.backend.app.service;
 
+import com.backend.app.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.model.Payment;
@@ -17,14 +18,11 @@ public class PaymentService {
     }
 
     public Payment processPaymentWebhook(String transactionId, PaymentStatus newStatus) {
+        // 🚀 Cambio: ResourceNotFoundException (404) en lugar de BusinessException
         Payment payment = paymentRepository.findByTransactionId(transactionId)
-                .orElseThrow(() -> new BusinessException("Transaction not found with id: " + transactionId));
+                .orElseThrow(() -> new ResourceNotFoundException("Pago no encontrado con transacción: " + transactionId));
 
         payment.setStatus(newStatus);
-
-        // Futuro: Si el status es APPROVED, acá se dispara la lógica para generar
-        // el FiscalReceipt (Factura) conectándose a ARCA.
-
         return paymentRepository.save(payment);
     }
 }

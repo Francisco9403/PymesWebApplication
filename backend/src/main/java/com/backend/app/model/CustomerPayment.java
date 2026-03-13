@@ -24,7 +24,7 @@ public class CustomerPayment {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    private PaymentMethod method;
+    private TaxCategory method;
 
     private LocalDateTime createdAt;
 
@@ -45,7 +45,7 @@ public class CustomerPayment {
         return amount;
     }
 
-    public PaymentMethod getMethod() {
+    public TaxCategory getMethod() {
         return method;
     }
 

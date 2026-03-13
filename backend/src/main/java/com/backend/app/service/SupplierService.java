@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.backend.app.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,49 +50,60 @@ public class SupplierService {
 
     public Supplier getSupplierById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new BusinessException("Supplier not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Proveedor no encontrado con ID: " + id));
     }
 
-    public void importFromOCR(SupplierImportDTO dto, Long id) {
-        // 1. Upsert del Proveedor (Actualizando si ya existe)
-        Supplier supplier = repository.findByCuit(dto.cuit())
-            .map(existing -> {
-                existing.setBusinessName(dto.businessName());
-                existing.setPaymentMethod(dto.paymentMethod());
-                return repository.save(existing);
-            })
-            .orElseGet(() -> {
-                Supplier newSupplier = new Supplier();
-                newSupplier.setCuit(dto.cuit());
-                newSupplier.setBusinessName(dto.businessName());
-                newSupplier.setPaymentMethod(dto.paymentMethod());
-                return repository.save(newSupplier);
-            });
-    
+    public void importFromOCR(SupplierImportDTO dto, Long userId) {
+        // Limpiamos to do lo que no sea número o letra para que sea consistente
+        String cleanCuit = dto.cuit().replaceAll("[^a-zA-Z0-9]", "");
+
+        if (cleanCuit.isEmpty()) {
+            throw new BusinessException("El CUIT detectado está vacío o es inválido");
+        }
+
+        // 1. Upsert del Proveedor
+        Supplier supplier = repository.findByCuit(cleanCuit)
+                .map(existing -> {
+                    existing.setBusinessName(dto.businessName());
+                    existing.setPaymentMethod(dto.taxCategory());
+                    return repository.save(existing);
+                })
+                .orElseGet(() -> {
+                    Supplier newSupplier = new Supplier();
+                    newSupplier.setCuit(cleanCuit);
+                    newSupplier.setBusinessName(dto.businessName());
+                    newSupplier.setPaymentMethod(dto.taxCategory());
+                    return repository.save(newSupplier);
+                });
+
         // 2. Procesar Productos
         for (ProductImportDTO pDto : dto.products()) {
+            // Validamos que el precio no sea cero o negativo
+            if (pDto.baseCostPrice().compareTo(BigDecimal.ZERO) <= 0) {
+                continue; // O podrías lanzar BusinessException si quieres frenar to do
+            }
 
-            Product product = findOrCreateProduct(pDto, id);
-        
+            Product product = findOrCreateProduct(pDto, userId);
+
             product.setBaseCostPrice(pDto.baseCostPrice());
             product.setCurrentSalePrice(
-                pDto.baseCostPrice().multiply(new BigDecimal("1.3"))
+                    pDto.baseCostPrice().multiply(new BigDecimal("1.3"))
             );
-        
+
+            // Sincronización de la relación Many-to-Many
             if (!product.getSuppliers().contains(supplier)) {
                 product.getSuppliers().add(supplier);
             }
-        
             if (!supplier.getProducts().contains(product)) {
                 supplier.getProducts().add(product);
             }
-        
+
             updateProductStock(product, dto.branchId(), pDto.quantity());
-        
+
             if (product.getAiDescriptions() == null || product.getAiDescriptions().isEmpty()) {
                 generateAIDescriptions(product);
             }
-        
+
             productRepository.save(product);
         }
     }
@@ -123,23 +135,23 @@ public class SupplierService {
 
         return newP;
     }
-    
-    private void updateProductStock(Product product, Long branchId, Integer addedQuantity) {
 
+    private void updateProductStock(Product product, Long branchId, Integer addedQuantity) {
+        // 🚀 CAMBIO: Usamos ResourceNotFoundException en lugar de RuntimeException
         Branch branch = branchRepository.findById(branchId)
-            .orElseThrow(() -> new RuntimeException("Branch not found"));
-    
+                .orElseThrow(() -> new ResourceNotFoundException("La sucursal con ID " + branchId + " no existe en el sistema"));
+
         ProductStock stock = product.getStocks().stream()
-            .filter(s -> s.getBranch() != null && s.getBranch().getId().equals(branchId))
-            .findFirst()
-            .orElseGet(() -> {
-                ProductStock newStock = new ProductStock();
-                newStock.setProduct(product);
-                newStock.setBranch(branch);
-                product.getStocks().add(newStock);
-                return newStock;
-            });
-    
+                .filter(s -> s.getBranch() != null && s.getBranch().getId().equals(branchId))
+                .findFirst()
+                .orElseGet(() -> {
+                    ProductStock newStock = new ProductStock();
+                    newStock.setProduct(product);
+                    newStock.setBranch(branch);
+                    product.getStocks().add(newStock);
+                    return newStock;
+                });
+
         int currentQty = stock.getQuantity() != null ? stock.getQuantity() : 0;
         stock.setQuantity(currentQty + addedQuantity);
     }

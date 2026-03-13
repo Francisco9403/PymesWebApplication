@@ -1,5 +1,6 @@
 package com.backend.app.service;
 
+import com.backend.app.exception.BusinessException;
 import com.backend.app.model.FinanceSettings;
 import com.backend.app.model.Product;
 import com.backend.app.repository.FinanceSettingsRepository;
@@ -34,10 +35,10 @@ public class FinanceService {
     public void applyAutomaticMarkup(BigDecimal currentMepValue) {
         FinanceSettings settings = getSettings();
 
-        if (!settings.isAutomaticMarkupEnabled() || settings.getLastMepValue() == null || settings.getLastMepValue().compareTo(BigDecimal.ZERO) == 0) {
-            return;
+        if (settings.getLastMepValue() == null || settings.getLastMepValue().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("No se puede calcular el aumento: El valor anterior del dólar MEP es inválido.");
         }
-
+        if (!settings.isAutomaticMarkupEnabled()) return;
         // Calculamos la variación: ((Actual - Anterior) / Anterior) * 100
         // Usamos RoundingMode.HALF_UP para que el IDE no proteste
         BigDecimal variation = currentMepValue.subtract(settings.getLastMepValue())
@@ -46,6 +47,11 @@ public class FinanceService {
 
         if (variation.compareTo(settings.getThresholdPercentage()) >= 0) {
             List<Product> products = productRepository.findAll();
+
+            if (products.isEmpty()) {
+                throw new BusinessException("No hay productos cargados en Junín para actualizar precios.");
+            }
+
             BigDecimal multiplier = variation.divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP).add(BigDecimal.ONE);
 
             for (Product p : products) {

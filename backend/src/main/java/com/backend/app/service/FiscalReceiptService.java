@@ -1,5 +1,6 @@
 package com.backend.app.service;
 
+import com.backend.app.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.model.FiscalReceipt;
@@ -23,7 +24,8 @@ public class FiscalReceiptService {
     }
 
     public FiscalReceipt getReceiptBySale(Long saleId) {
+        // 🚀 Cambio: ResourceNotFoundException
         return fiscalReceiptRepository.findBySaleId(saleId)
-                .orElseThrow(() -> new BusinessException("Sale not found with id: " + saleId));
+                .orElseThrow(() -> new ResourceNotFoundException("Comprobante fiscal no encontrado para la venta: " + saleId));
     }
 }
