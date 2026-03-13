@@ -64,7 +64,7 @@ public class Supplier {
         return taxCategory;
     }
 
-    public void setPaymentMethod(TaxCategory taxCategory) {
+    public void setTaxCategory(TaxCategory taxCategory) {
         this.taxCategory = taxCategory;
     }
 

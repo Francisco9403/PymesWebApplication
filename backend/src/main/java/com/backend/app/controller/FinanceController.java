@@ -3,8 +3,11 @@ package com.backend.app.controller;
 import com.backend.app.model.Sale;
 import com.backend.app.service.IvaExportService;
 import com.backend.app.service.SaleService;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -14,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/finance")
 @CrossOrigin(origins = "*")
+@Validated
 public class FinanceController {
 
     @Autowired
@@ -24,8 +28,8 @@ public class FinanceController {
 
     @GetMapping("/export/iva-ventas")
     public ResponseEntity<byte[]> downloadIvaVentas(
-            @RequestParam int month,
-            @RequestParam int year) {
+            @Min(1) @Max(12) @RequestParam int month,
+            @Min(2000) @RequestParam int year) {
 
         // 1. Usamos el SaleService para buscar las ventas fiscalizadas
         List<Sale> sales = saleService.getSalesByMonth(month, year);
@@ -48,7 +52,9 @@ public class FinanceController {
     // FinanceController.java
 
     @GetMapping("/export/retenciones")
-    public ResponseEntity<byte[]> downloadRetenciones(@RequestParam int month, @RequestParam int year) {
+    public ResponseEntity<byte[]> downloadRetenciones(
+            @Min(1) @Max(12) @RequestParam int month,
+            @Min(2000) @RequestParam int year) {
         // 1. Buscamos las ventas con percepciones de ese mes
         List<Sale> sales = saleService.getSalesByMonth(month, year);
 

@@ -2,6 +2,7 @@ package com.backend.app.controller;
 
 import java.util.Set;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,9 +68,8 @@ public class CustomerController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Long createCustomer(@RequestBody CreateCustomerRequest request, Authentication auth) {
+    public Long createCustomer(@Valid @RequestBody CreateCustomerRequest request, Authentication auth) {
         User user = (User) auth.getPrincipal();
-
         return service.createCustomer(request, user.getId());
     }
 }

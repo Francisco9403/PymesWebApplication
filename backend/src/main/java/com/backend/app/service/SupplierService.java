@@ -6,16 +6,10 @@ import java.util.List;
 import java.util.Optional;
 
 import com.backend.app.exception.ResourceNotFoundException;
+import com.backend.app.model.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.backend.app.model.AIProductDescription;
-import com.backend.app.model.Branch;
-import com.backend.app.model.CommunicationChannel;
-import com.backend.app.model.Product;
-import com.backend.app.model.ProductStock;
-import com.backend.app.model.Supplier;
-import com.backend.app.model.User;
 import com.backend.app.model.dto.ProductImportDTO;
 import com.backend.app.model.dto.SupplierImportDTO;
 import com.backend.app.repository.BranchRepository;
@@ -53,47 +47,43 @@ public class SupplierService {
                 .orElseThrow(() -> new ResourceNotFoundException("Proveedor no encontrado con ID: " + id));
     }
 
-    public void importFromOCR(SupplierImportDTO dto, Long userId) {
-        // Limpiamos to do lo que no sea número o letra para que sea consistente
-        String cleanCuit = dto.cuit().replaceAll("[^a-zA-Z0-9]", "");
-
-        if (cleanCuit.isEmpty()) {
-            throw new BusinessException("El CUIT detectado está vacío o es inválido");
-        }
-
-        // 1. Upsert del Proveedor
-        Supplier supplier = repository.findByCuit(cleanCuit)
+    public void importFromOCR(SupplierImportDTO dto, Long id) {
+        // 1. Upsert del Proveedor (Actualizando si ya existe)
+        Supplier supplier = repository.findByCuit(dto.cuit())
                 .map(existing -> {
                     existing.setBusinessName(dto.businessName());
-                    existing.setPaymentMethod(dto.taxCategory());
+                    existing.setTaxCategory(dto.taxCategory());
                     return repository.save(existing);
                 })
                 .orElseGet(() -> {
                     Supplier newSupplier = new Supplier();
-                    newSupplier.setCuit(cleanCuit);
+                    newSupplier.setCuit(dto.cuit());
                     newSupplier.setBusinessName(dto.businessName());
-                    newSupplier.setPaymentMethod(dto.taxCategory());
+                    newSupplier.setTaxCategory(dto.taxCategory());
+
+                    CurrentAccount account = new CurrentAccount();
+                    account.setBalance(BigDecimal.ZERO);
+                    account.setCreditLimit(BigDecimal.ZERO);
+
+                    newSupplier.setCurrentAccount(account);
+
                     return repository.save(newSupplier);
                 });
 
         // 2. Procesar Productos
         for (ProductImportDTO pDto : dto.products()) {
-            // Validamos que el precio no sea cero o negativo
-            if (pDto.baseCostPrice().compareTo(BigDecimal.ZERO) <= 0) {
-                continue; // O podrías lanzar BusinessException si quieres frenar to do
-            }
 
-            Product product = findOrCreateProduct(pDto, userId);
+            Product product = findOrCreateProduct(pDto, id);
 
             product.setBaseCostPrice(pDto.baseCostPrice());
             product.setCurrentSalePrice(
                     pDto.baseCostPrice().multiply(new BigDecimal("1.3"))
             );
 
-            // Sincronización de la relación Many-to-Many
             if (!product.getSuppliers().contains(supplier)) {
                 product.getSuppliers().add(supplier);
             }
+
             if (!supplier.getProducts().contains(product)) {
                 supplier.getProducts().add(product);
             }
@@ -107,6 +97,7 @@ public class SupplierService {
             productRepository.save(product);
         }
     }
+
 
     private Product findOrCreateProduct(ProductImportDTO pDto, Long userId) {
         // 1. Buscamos primero por EAN (siempre filtrando por el usuario logueado)

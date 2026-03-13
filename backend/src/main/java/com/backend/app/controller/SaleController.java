@@ -1,16 +1,10 @@
 package com.backend.app.controller;
 
 import java.util.List;
-
+import jakarta.validation.Valid; // 🚀 Importación necesaria
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.backend.app.model.Sale;
 import com.backend.app.model.dto.CreateSaleRequest;
@@ -26,13 +20,11 @@ public class SaleController {
         this.saleService = saleService;
     }
 
-    // Para ver el ticket/detalle de una venta
     @GetMapping("/{id}")
     public ResponseEntity<Sale> getSaleById(@PathVariable Long id) {
         return ResponseEntity.ok(saleService.getSaleById(id));
     }
 
-    // Para armar el cierre de caja de una sucursal
     @GetMapping("/branch/{branchId}")
     public ResponseEntity<List<Sale>> getSalesByBranch(@PathVariable Long branchId) {
         return ResponseEntity.ok(saleService.getSalesByBranch(branchId));
@@ -40,7 +32,7 @@ public class SaleController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void createSale(@RequestBody CreateSaleRequest request) {
+    public void createSale(@Valid @RequestBody CreateSaleRequest request) { // 🚀 Agregado @Valid
         saleService.createSale(request);
     }
 }

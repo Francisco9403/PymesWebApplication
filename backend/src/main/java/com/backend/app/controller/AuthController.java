@@ -3,6 +3,7 @@ package com.backend.app.controller;
 import java.io.IOException;
 import java.util.Map;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -36,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public void login(@RequestBody LoginRequest request, HttpServletResponse response) throws IOException {
+    public void login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) throws IOException {
         try {
             Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())

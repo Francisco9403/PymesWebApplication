@@ -2,6 +2,7 @@ package com.backend.app.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +30,7 @@ public class BranchController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void createBranch(@RequestBody Branch branch, Authentication auth) {
+    public void createBranch(@Valid @RequestBody Branch branch, Authentication auth) { // 🚀 Agregado @Valid
         User user = (User) auth.getPrincipal();
         branchService.createBranch(branch, user);
     }

@@ -1,5 +1,6 @@
 package com.backend.app.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ public class CurrentAccountController {
     }
 
     @PostMapping
-    public ResponseEntity<CurrentAccount> createAccount(@RequestBody CurrentAccount account) {
+    public ResponseEntity<CurrentAccount> createAccount(@Valid @RequestBody CurrentAccount account) { // 🚀 Agregado @Valid
         CurrentAccount createdAccount = currentAccountService.createAccount(account);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAccount);
     }

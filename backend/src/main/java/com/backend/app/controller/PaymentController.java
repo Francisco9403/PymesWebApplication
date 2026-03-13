@@ -1,6 +1,8 @@
 package com.backend.app.controller;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,6 +14,7 @@ import com.backend.app.service.PaymentService;
 
 @RestController
 @RequestMapping("/api/payments")
+@Validated
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -23,7 +26,7 @@ public class PaymentController {
     // Este es el endpoint "fantasma" que van a llamar MODO/MercadoPago desde sus servidores
     @PostMapping("/webhook")
     public ResponseEntity<Payment> handleWebhook(
-            @RequestParam String transactionId,
+            @NotBlank @RequestParam String transactionId, // 🚀 Validamos que no sea vacío
             @RequestParam PaymentStatus status) {
 
         Payment updatedPayment = paymentService.processPaymentWebhook(transactionId, status);

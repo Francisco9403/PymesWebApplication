@@ -1,5 +1,6 @@
 package com.backend.app.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,7 @@ public class FiscalReceiptController {
 
     // Endpoint para emitir el comprobante (A, B o C)
     @PostMapping
-    public ResponseEntity<FiscalReceipt> createReceipt(@RequestBody FiscalReceipt receipt) {
+    public ResponseEntity<FiscalReceipt> createReceipt(@Valid @RequestBody FiscalReceipt receipt) {
         FiscalReceipt newReceipt = fiscalReceiptService.createReceipt(receipt);
         return ResponseEntity.status(HttpStatus.CREATED).body(newReceipt);
     }

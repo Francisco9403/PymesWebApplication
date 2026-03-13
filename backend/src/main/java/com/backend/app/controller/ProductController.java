@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
+import jakarta.validation.Valid;
 import com.backend.app.model.Product;
 import com.backend.app.model.User;
 import com.backend.app.model.dto.PageResponse;
@@ -40,15 +40,14 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product createProduct(@RequestBody Product product) {
+    public Product createProduct(@Valid @RequestBody Product product) {
         System.out.println(product);
         return productService.createProduct(product);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public void updateProduct(
-            @RequestBody ProductResponse request) {
+    public void updateProduct(@Valid @RequestBody ProductResponse request) {
         productService.updateProduct(request);
     }
 

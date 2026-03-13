@@ -2,6 +2,7 @@ package com.backend.app.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,7 @@ public class ProductStockController {
     // Actualiza un registro de stock
     @PatchMapping
     @ResponseStatus(HttpStatus.OK)
-    public void saveStock(@RequestBody ProductStock productStock) {
+    public void saveStock(@Valid @RequestBody ProductStock productStock) {
         productStockService.updateStockQuantity(productStock);
     }
 

@@ -3,11 +3,26 @@ package com.backend.app.model.dto;
 import java.util.List;
 
 import com.backend.app.model.TaxCategory;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 public record SupplierImportDTO(
-    String businessName,
-    String cuit,
-    TaxCategory taxCategory,
-    List<ProductImportDTO> products,
-    Long branchId // Para saber a qué sucursal sumar el stock
+        @NotBlank(message = "La razón social es obligatoria")
+        String businessName,
+
+        @NotBlank(message = "El CUIT es obligatorio")
+        @Pattern(regexp = "^[0-9]{11}$", message = "El CUIT debe tener 11 dígitos")
+        String cuit,
+
+        @NotNull(message = "La categoría fiscal es obligatoria")
+        TaxCategory taxCategory,
+
+        @NotEmpty(message = "La lista de productos no puede estar vacía")
+        List<@Valid ProductImportDTO> products, // 🚀 @Valid es vital para validar cada item
+
+        @NotNull(message = "La sucursal de destino es obligatoria")
+        Long branchId
 ) {}
