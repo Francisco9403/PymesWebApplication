@@ -1,11 +1,20 @@
-// layout/Navbar.tsx
 "use client";
 
 import { useToast } from "./ToastProvider";
-import { useRouter, usePathname } from "next/navigation"; // Agregamos usePathname
+import { useRouter, usePathname } from "next/navigation";
 import { AuthService } from "@/lib/auth";
 import Link from "next/link";
 import { Branch } from "@/types/Branch";
+
+const navLinks = [
+  { name: "Clientes", href: "cumplimiento", scoped: true },
+  { name: "Finanzas", href: "finanzas", scoped: true },
+  { name: "Productos", href: "productos", scoped: true },
+  { name: "Venta", href: "venta", scoped: true },
+  { name: "Inventario", href: "inventario", scoped: true },
+  { name: "Proveedores", href: "proveedores", scoped: true },
+  { name: "Sucursales", href: "/usuario/sucursales", scoped: false },
+];
 
 export default function Navbar({
   branches,
@@ -14,6 +23,7 @@ export default function Navbar({
   branches: Branch[];
   selectedBranchId: number;
 }) {
+  console.log(selectedBranchId);
   const { show } = useToast();
   const router = useRouter();
   const pathname = usePathname();
@@ -22,7 +32,7 @@ export default function Navbar({
     try {
       await AuthService.logout();
       show("Sesión cerrada correctamente", "success");
-      router.replace("/");
+      router.replace("/usuario");
     } catch (error) {
       show(
         error instanceof Error ? error.message : "Error inesperado",
@@ -31,15 +41,11 @@ export default function Navbar({
     }
   };
 
-  const navLinks = [
-    { name: "Clientes", href: "/usuario/cumplimiento" },
-    { name: "Finanzas", href: "/usuario/finanzas" },
-    { name: "Productos", href: "/usuario/productos" },
-    { name: "Venta", href: "/usuario/venta" },
-    { name: "Sucursales", href: "/usuario/sucursales" },
-    { name: "Inventario", href: "/usuario/inventario" },
-    { name: "Proveedores", href: "/usuario/proveedores" },
-  ];
+  const handleBranchChange = (id: string) => {
+    const segments = pathname.split("/");
+    segments[2] = id;
+    router.push(segments.join("/"));
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
@@ -61,19 +67,29 @@ export default function Navbar({
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
-                  pathname === link.href
-                    ? "bg-slate-100 text-slate-900"
-                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
+            <nav className="hidden lg:flex items-center gap-1">
+              {navLinks.map((link) => {
+                const href = link.scoped
+                  ? `/usuario/${selectedBranchId}/${link.href}`
+                  : link.href;
+
+                const active = pathname.startsWith(href);
+
+                return (
+                  <Link
+                    key={link.name}
+                    href={href}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                      active
+                        ? "bg-slate-100 text-slate-900"
+                        : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                );
+              })}
+            </nav>
           </nav>
         </div>
 
@@ -82,7 +98,7 @@ export default function Navbar({
             <select
               id="branch-select"
               value={selectedBranchId}
-              onChange={(e) => router.push(`?branchId=${e.target.value}`)}
+              onChange={(e) => handleBranchChange(e.target.value)}
               className="bg-slate-50 border-none text-sm font-bold text-slate-900 rounded-xl px-6 py-2 focus:ring-2 focus:ring-indigo-500/20 cursor-pointer transition-all"
             >
               {branches.map((branch) => (

@@ -1,21 +1,12 @@
 import Venta from "./Venta";
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getBranches } from "@/app/actions/branch";
 
 export default async function Page({
-  searchParams,
+  params,
 }: {
-  searchParams: { branchId?: string };
+  params: { branchId: string };
 }) {
-  const params = await searchParams;
-  const branches = await getBranches();
-
-  if (!branches || branches.length === 0) {
-    redirect("/usuario/sucursales");
-  }
-
-  const branchId = params.branchId ? Number(params.branchId) : branches[0].id;
+  const { branchId } = await params;
 
   return (
     <main className="min-h-screen bg-slate-50 p-6 sm:p-10">
@@ -35,7 +26,7 @@ export default async function Page({
           </p>
         </header>
 
-        <Venta branchId={branchId} />
+        <Venta branchId={Number(branchId)} />
       </div>
     </main>
   );

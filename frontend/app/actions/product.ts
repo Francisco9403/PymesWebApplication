@@ -117,7 +117,7 @@ export async function create(
       return { error: errorData?.message || "Error al crear el producto" };
     }
 
-    revalidatePath("/admin/products");
+    // revalidatePath("/admin/products");
 
     return { success: "Producto creado correctamente" };
   } catch (error) {
@@ -161,7 +161,7 @@ export async function updateProduct(
       return { error: data.message ?? "Error actualizando producto" };
     }
 
-    revalidatePath("/admin/products");
+    // revalidatePath("/admin/products");
 
     return { success: "Producto actualizado correctamente" };
   } catch (error) {
@@ -240,7 +240,7 @@ export async function deleteProduct(
       return { error: "No se pudo eliminar el producto" };
     }
 
-    revalidatePath("/admin/products");
+    // revalidatePath("/admin/products");
 
     return { success: "Producto eliminado" };
   } catch {

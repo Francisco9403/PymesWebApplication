@@ -1,12 +1,11 @@
 import { getProducts } from "@/app/actions/product";
 import ProductTable from "./ProductTable";
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getBranches } from "@/app/actions/branch";
 import { ProductFilters } from "./ProductFilters";
 
 export default async function Page({
   searchParams,
+  params,
 }: {
   searchParams: {
     page?: string;
@@ -14,16 +13,17 @@ export default async function Page({
     name?: string;
     belowMinStock?: string;
     sort?: string;
-    branchId?: string;
   };
+  params: { branchId: string };
 }) {
-  const params = await searchParams;
+  const search = await searchParams;
+  const { branchId } = await params;
 
-  const page = Number(params.page ?? 0);
-  const size = Number(params.size ?? 10);
-  const name = params.name;
-  const belowMinStock = params.belowMinStock;
-  const sort = params.sort;
+  const page = Number(search.page ?? 0);
+  const size = Number(search.size ?? 10);
+  const name = search.name;
+  const belowMinStock = search.belowMinStock;
+  const sort = search.sort;
 
   const data = await getProducts({
     page,
@@ -32,13 +32,6 @@ export default async function Page({
     belowMinStock,
     sort,
   });
-  const branches = await getBranches();
-
-  if (!branches || branches.length === 0) {
-    redirect("/usuario/sucursales");
-  }
-
-  const branchId = params.branchId ? Number(params.branchId) : branches[0].id;
 
   return (
     <main className="min-h-screen bg-slate-50 p-6 sm:p-10">
@@ -70,7 +63,7 @@ export default async function Page({
 
         <ProductFilters />
 
-        <ProductTable pageData={data!} branchId={branchId} />
+        <ProductTable pageData={data!} branchId={Number(branchId)} />
       </div>
     </main>
   );

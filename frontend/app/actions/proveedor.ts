@@ -5,7 +5,7 @@ import { Supplier } from "@/types/Supplier";
 import { GoogleGenAI } from "@google/genai";
 import { revalidatePath } from "next/cache";
 
-export async function importSupplierDataAction(
+export async function importSupplierData(
   prevState: { error?: string; success?: string } | null,
   formData: FormData,
 ) {
@@ -14,7 +14,7 @@ export async function importSupplierDataAction(
   if (!jwt) return { error: "No autorizado" };
 
   const payload = JSON.parse(formData.get("payload") as string);
-  console.log("payload:", payload);
+  const branchId = Number(formData.get("branchId"));
 
   try {
     const response = await fetch(
@@ -29,18 +29,15 @@ export async function importSupplierDataAction(
       },
     );
 
-    console.log("response: ", response);
-
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       return { error: errorData?.message || "Error al importar datos" };
     }
-    if (response.ok) {
-      // ⚡ Esto fuerza a Next.js a volver a pedir la lista de proveedores
-      revalidatePath("/usuario/proveedores");
-      return { success: "Proveedor cargado correctamente" };
-    }
 
+    // hacemos que la próxima renderización del server component traiga datos nuevos
+    // Eso significa que la próxima vez que el cliente haga router.refresh() o navegue, el servidor vuelve a ejecutar
+    //   const suppliers = await getSuppliers();
+    revalidatePath(`/usuario/${branchId}/proveedores`);
     return { success: "Proveedor cargado correctamente" };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Error inesperado" };
@@ -51,7 +48,10 @@ const client = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-export async function analyzeImage(formData: FormData) {
+export async function analyzeImage(
+  prevState: { error?: string; success?: string } | null,
+  formData: FormData,
+) {
   const file = formData.get("image") as File;
   if (!file) throw new Error("No se proporcionó ninguna imagen.");
 
@@ -82,14 +82,26 @@ export async function analyzeImage(formData: FormData) {
       },
     });
 
-    return JSON.parse(response.candidates![0].content!.parts![0].text!);
-  } catch (error) {
-    console.error("Error en OCR:", error);
-    throw new Error("No se pudo procesar la imagen");
+    const rawText = response.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!rawText) {
+      return {
+        error: "No se pudo analizar la imagen",
+      };
+    }
+
+    const cleaned = rawText
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    return JSON.parse(cleaned);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Error inesperado" };
   }
 }
 
-export async function analyzeDocumentAction(
+export async function analyzeDocument(
   prevState: { error?: string; success?: string } | null,
   formData: FormData,
 ) {
@@ -135,31 +147,43 @@ Devuelve estrictamente JSON.`,
       };
     }
 
-    return { data: JSON.parse(rawText) };
-  } catch (error) {
-    if (error instanceof Error) {
-      return { error: error.message };
-    }
+    const cleaned = rawText
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
 
-    return { error: "Error inesperado" };
+    return { data: JSON.parse(cleaned) };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Error inesperado" };
   }
 }
 
-export async function getSuppliers(): Promise<Supplier[]> {
+export async function getSuppliers(): Promise<{
+  data?: Supplier[];
+  error?: string;
+}> {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-  if (!jwt) return [];
+  if (!jwt) return { error: "No autorizado" };
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API}/suppliers`, {
-    cache: "no-store",
-    headers: {
-      Authorization: `Bearer ${jwt}`,
-    },
-  });
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API}/suppliers`, {
+      cache: "no-store",
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
 
-  if (!res.ok) {
-    return [];
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => null);
+      return { error: errorData?.message || "Error al obtener proveedores" };
+    }
+
+    const data = await res.json();
+    return { data };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Error inesperado",
+    };
   }
-
-  return res.json();
 }

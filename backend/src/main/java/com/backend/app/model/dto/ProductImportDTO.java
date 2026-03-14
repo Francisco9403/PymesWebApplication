@@ -1,5 +1,4 @@
 package com.backend.app.model.dto;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
@@ -16,6 +15,6 @@ public record ProductImportDTO(
         @Min(value = 1, message = "La cantidad mínima debe ser 1")
         Integer quantity,
 
-        @Size(min = 8, max = 13, message = "El EAN debe tener entre 8 y 13 caracteres")
+        /* @Size(min = 8, max = 13, message = "El EAN debe tener entre 8 y 13 caracteres") */
         String ean13
 ) {}

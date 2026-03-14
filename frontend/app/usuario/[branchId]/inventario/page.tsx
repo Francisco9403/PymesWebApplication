@@ -3,25 +3,15 @@ import { getProducts } from "@/app/actions/product";
 import StockTable from "./StockTable";
 import AddStockForm from "./AddStockForm";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getBranches } from "@/app/actions/branch";
 
 export default async function InventarioPage({
-  searchParams,
+  params,
 }: {
-  searchParams: { branchId?: string };
+  params: { branchId: string };
 }) {
-  const params = await searchParams;
-  const branches = await getBranches();
+  const { branchId } = await params;
 
-  if (!branches || branches.length === 0) {
-    redirect("/usuario/sucursales");
-  }
-
-  const selectedId = params.branchId ? Number(params.branchId) : branches[0].id;
-  const activeBranch = branches.find((b) => b.id === selectedId) || branches[0];
-
-  const stockData = await getStockByBranch(activeBranch.id);
+  const stockData = await getStockByBranch(Number(branchId));
   const productsPage = await getProducts({
     page: 0,
     size: 500,
@@ -31,7 +21,6 @@ export default async function InventarioPage({
   return (
     <main className="min-h-screen bg-slate-50 p-6 sm:p-10">
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header con Navegación y Título */}
         <header>
           <div className="space-y-2">
             <Link
@@ -56,19 +45,11 @@ export default async function InventarioPage({
             <h1 className="text-4xl font-black text-slate-900 tracking-tight">
               Control de Inventario
             </h1>
-            <p className="text-slate-500 text-sm font-medium">
-              Gestionando existencias en:{" "}
-              <span className="text-indigo-600 font-bold">
-                {activeBranch.name}
-              </span>
-            </p>
           </div>
         </header>
 
-        {/* Formulario de Carga */}
-        <AddStockForm branchId={activeBranch.id} products={productsList} />
+        <AddStockForm branchId={branchId} products={productsList} />
 
-        {/* Listado de Stock */}
         <div className="space-y-4">
           <div className="flex items-center justify-between px-2">
             <h2 className="text-lg font-bold text-slate-800 uppercase tracking-tight">

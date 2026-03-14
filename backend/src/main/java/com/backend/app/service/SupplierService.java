@@ -15,7 +15,6 @@ import com.backend.app.model.dto.SupplierImportDTO;
 import com.backend.app.repository.BranchRepository;
 import com.backend.app.repository.ProductRepository;
 import com.backend.app.repository.SupplierRepository;
-import com.backend.app.exception.BusinessException;
 
 @Service
 @Transactional
@@ -60,13 +59,16 @@ public class SupplierService {
                     newSupplier.setCuit(dto.cuit());
                     newSupplier.setBusinessName(dto.businessName());
                     newSupplier.setTaxCategory(dto.taxCategory());
-
+                    
+                    newSupplier = repository.save(newSupplier);
+                    
                     CurrentAccount account = new CurrentAccount();
                     account.setBalance(BigDecimal.ZERO);
                     account.setCreditLimit(BigDecimal.ZERO);
-
+                    account.setOwnerId(newSupplier.getId());
+                    
                     newSupplier.setCurrentAccount(account);
-
+                    
                     return repository.save(newSupplier);
                 });
 

@@ -31,6 +31,8 @@ export async function addStockAction(
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) return { error: "No autorizado" };
 
+  const branchId = Number(formData.get("branchId"));
+
   const stockPayload = {
     product: { id: Number(formData.get("productId")) },
     branch: { id: Number(formData.get("branchId")) },
@@ -55,7 +57,7 @@ export async function addStockAction(
         error: data.message || "Error al cargar stock",
       };
 
-    revalidatePath("/usuario/inventario");
+    revalidatePath(`/usuario/${branchId}/inventario`);
     return { success: "¡Stock actualizado correctamente!" };
   } catch (error) {
     if (error instanceof Error) {

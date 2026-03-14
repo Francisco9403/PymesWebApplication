@@ -2,8 +2,6 @@
 
 import { crearQrMercadoPago } from "@/app/actions/mercadopago";
 import { procesarSkuAction } from "@/app/actions/product";
-import ProductList from "@/app/usuario/venta/ProductList";
-import QRScanner from "@/app/usuario/venta/QRScanner";
 import { useToast } from "@/layout/ToastProvider";
 
 import { useState, useTransition } from "react";
@@ -12,6 +10,8 @@ import { crearVenta } from "@/app/actions/venta";
 import { CartItem, Product } from "@/types/Cart";
 import { CustomerSelector } from "./CustomerSelector";
 import { generateCustomerTag, getCustomerSales } from "@/app/actions/cliente";
+import QRScanner from "./QRScanner";
+import ProductList from "./ProductList";
 
 export default function Venta({ branchId }: { branchId: number }) {
   const { show } = useToast();

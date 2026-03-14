@@ -6,10 +6,6 @@ import SupplierFileUpload from "./SupplierFileUpload";
 import SupplierList from "./SupplierList";
 import SupplierProductList from "./SupplierProductList";
 import {
-  analyzeDocumentAction,
-  importSupplierDataAction,
-} from "@/app/actions/proveedor";
-import {
   EditableOCRData,
   EditableProduct,
   RawOCRProduct,
@@ -23,15 +19,17 @@ import {
   getSupplierProductsAction,
 } from "@/app/actions/product";
 import { Product } from "@/types/Product";
+import { analyzeDocument, importSupplierData } from "@/app/actions/proveedor";
 
 export default function Proveedores({
   branchId,
   initialSuppliers,
+  suppliersError,
 }: {
   branchId: number;
   initialSuppliers: Supplier[];
+  suppliersError?: string;
 }) {
-  console.log(branchId);
   const [view, setView] = useState<"list" | "import">("list");
   const [data, setData] = useState<EditableOCRData | null>(null);
   const [isEnriching, setIsEnriching] = useState(false);
@@ -45,12 +43,12 @@ export default function Proveedores({
   const { show } = useToast();
 
   const [ocrState, analyzeAction, analyzing] = useActionState(
-    analyzeDocumentAction,
+    analyzeDocument,
     null,
   );
 
   const [importState, importAction, importing] = useActionState(
-    importSupplierDataAction,
+    importSupplierData,
     null,
   );
 
@@ -58,12 +56,11 @@ export default function Proveedores({
     setSelectedSupplier(supplier);
     setIsLoadingProducts(true);
 
-    try {
-      const products = await getSupplierProductsAction(supplier.id);
-      setSupplierProducts(products);
-    } finally {
-      setIsLoadingProducts(false);
-    }
+    const products = await getSupplierProductsAction(supplier.id).catch(
+      () => [],
+    );
+    setSupplierProducts(products);
+    setIsLoadingProducts(false);
   };
 
   const derivedData = useMemo<EditableOCRData | null>(() => {
@@ -83,42 +80,58 @@ export default function Proveedores({
         }),
       ),
     };
-  }, [ocrState]);
+  }, [ocrState?.data]);
 
   useEffect(() => {
-    async function enrichProducts() {
-      if (!derivedData) return;
+    if (!derivedData) return;
 
+    const enrichProducts = async () => {
       setIsEnriching(true);
 
-      const productNames = derivedData.products.map((p) => p.name);
+      try {
+        const productNames = derivedData.products.map((p) => p.name);
+        const lastPricesMap = await compareCostsAction(productNames);
 
-      const lastPricesMap = await compareCostsAction(productNames);
-
-      const enrichedProducts = derivedData.products.map((p) => ({
-        ...p,
-        lastCostPrice: lastPricesMap[p.name],
-      }));
-
-      setData({
-        ...derivedData,
-        products: enrichedProducts,
-      });
+        setData({
+          ...derivedData,
+          products: derivedData.products.map((p) => ({
+            ...p,
+            lastCostPrice: lastPricesMap[p.name],
+          })),
+        });
+      } catch {
+        show("No se pudieron comparar precios anteriores", "error");
+        setData(derivedData);
+      }
 
       setIsEnriching(false);
-    }
+    };
 
     enrichProducts();
-  }, [derivedData]);
+  }, [derivedData, show]);
 
   useEffect(() => {
-    if (importState?.success) {
-      show(importState.success, "success");
+    const error = suppliersError || ocrState?.error || importState?.error;
+
+    if (error) show(error, "error");
+  }, [suppliersError, ocrState?.error, importState?.error, show]);
+
+  useEffect(() => {
+    if (!importState?.success) return;
+
+    show(importState.success, "success");
+
+    let cancelled = false;
+    Promise.resolve().then(() => {
+      if (cancelled) return;
       setData(null);
       setView("list");
-      setTimeout(() => window.location.reload(), 500);
-    }
-  }, [importState, show]);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [importState?.success, show]);
 
   const currentData = data ?? derivedData;
 

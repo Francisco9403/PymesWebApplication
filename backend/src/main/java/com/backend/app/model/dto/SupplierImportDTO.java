@@ -7,14 +7,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 
 public record SupplierImportDTO(
         @NotBlank(message = "La razón social es obligatoria")
         String businessName,
 
-        @NotBlank(message = "El CUIT es obligatorio")
-        @Pattern(regexp = "^[0-9]{11}$", message = "El CUIT debe tener 11 dígitos")
+        /* @NotBlank(message = "El CUIT es obligatorio")
+        @Pattern(regexp = "^[0-9]{11}$", message = "El CUIT debe tener 11 dígitos") */
         String cuit,
 
         @NotNull(message = "La categoría fiscal es obligatoria")

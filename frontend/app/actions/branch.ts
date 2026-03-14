@@ -54,8 +54,8 @@ export async function createBranchAction(
       return { error: data.message ?? "Falló la creación de la sucursal" };
     }
 
-    revalidatePath("/usuario/sucursales");
-    revalidatePath("/usuario/inventario");
+    // revalidatePath("/usuario/sucursales");
+    // revalidatePath("/usuario/inventario");
 
     return { success: "Sucursal creada correctamente" };
   } catch (error) {

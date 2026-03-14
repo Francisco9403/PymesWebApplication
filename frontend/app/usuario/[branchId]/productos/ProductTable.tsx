@@ -8,7 +8,6 @@ import DeleteProductButton from "./DeleteProductButton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { confirmStrategicPricesAction } from "@/app/actions/product";
-// --- NUEVA IMPORTACIÓN PARA LA IA ---
 import { runFullAIPricingAnalysis } from "@/app/actions/pricing";
 
 export default function ProductTable({
