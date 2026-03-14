@@ -1,7 +1,7 @@
 "use client";
 
 import { crearQrMercadoPago } from "@/app/actions/mercadopago";
-import { procesarSkuAction } from "@/app/actions/product";
+import { procesarSku } from "@/app/actions/product";
 import { useToast } from "@/layout/ToastProvider";
 
 import { useState, useTransition } from "react";
@@ -12,12 +12,13 @@ import { CustomerSelector } from "./CustomerSelector";
 import { generateCustomerTag, getCustomerSales } from "@/app/actions/cliente";
 import QRScanner from "./QRScanner";
 import ProductList from "./ProductList";
+import { QrData } from "@/types/QrData";
+import { PageResponse } from "@/types/Page";
+import { CustomerSaleResponse } from "@/types/Customer";
 
 export default function Venta({ branchId }: { branchId: number }) {
   const { show } = useToast();
-  const [qrData, setQrData] = useState<{ string: string; ref: string } | null>(
-    null,
-  );
+  const [qrData, setQrData] = useState<QrData | null>(null);
   const [customerId, setCustomerId] = useState<number | null>(null);
   const [customerName, setCustomerName] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -25,74 +26,108 @@ export default function Venta({ branchId }: { branchId: number }) {
 
   function handleScan(sku: string) {
     startTransition(async () => {
-      const productFound = await procesarSkuAction(sku);
+      const result = await procesarSku(sku);
 
-      if (!productFound) {
-        show(`El producto con SKU "${sku}" no existe en el sistema`, "error");
+      if (!result || "error" in result) {
+        show(
+          result?.error || `El producto con SKU "${sku}" no existe`,
+          "error",
+        );
         return;
       }
 
-      addToCart(productFound);
-      show(`Agregado: ${productFound.sku}`, "success");
+      addToCart(result);
+      show(`Agregado: ${result.sku}`, "success");
     });
   }
 
   function addToCart(product: Product) {
     setCart((prev) => {
-      const existing = prev.find((p) => p.product.id === product.id);
+      const index = prev.findIndex((p) => p.product.id === product.id);
 
-      if (existing) {
-        return prev.map((p) =>
-          p.product.id === product.id ? { ...p, quantity: p.quantity + 1 } : p,
-        );
+      if (index !== -1) {
+        const updated = [...prev];
+        updated[index].quantity += 1;
+        return updated;
       }
 
       return [...prev, { product, quantity: 1 }];
     });
   }
 
-  async function handleCobrar() {
-    const totalRaw = cart.reduce(
-      (acc, item) =>
-        acc + Number(item.product.currentSalePrice ?? 0) * item.quantity,
-      0,
+  function calculateTotal(cart: CartItem[]) {
+    return Number(
+      cart
+        .reduce(
+          (acc, item) =>
+            acc + Number(item.product.currentSalePrice ?? 0) * item.quantity,
+          0,
+        )
+        .toFixed(2),
     );
+  }
 
-    const total = Number(totalRaw.toFixed(2));
+  async function handleCobrar() {
+    const total = calculateTotal(cart);
 
     startTransition(async () => {
       const formData = new FormData();
-
       formData.append("branchId", String(branchId));
       formData.append("cart", JSON.stringify(cart));
-
       if (customerId) formData.append("customerId", String(customerId));
 
       await crearVenta(null, formData);
 
+      let customerSales: PageResponse<CustomerSaleResponse> | null = null;
       if (customerId) {
-        const customerSales = await getCustomerSales(customerId);
-        await generateCustomerTag(customerId, customerSales.content);
+        try {
+          customerSales = await getCustomerSales(customerId);
+        } catch (err) {
+          show(
+            err instanceof Error
+              ? err.message
+              : "No se pudieron obtener las ventas del cliente",
+            "error",
+          );
+        }
+
+        if (customerSales) {
+          const tagsResult = await generateCustomerTag(
+            customerId,
+            customerSales.content,
+          );
+          if ("error" in tagsResult) {
+            show(tagsResult.error, "error");
+          } else {
+            show("Etiquetas de cliente actualizadas correctamente", "success");
+          }
+        }
       }
 
-      const result = await crearQrMercadoPago(total);
+      const qrResult = await crearQrMercadoPago(total);
+      if ("error" in qrResult) {
+        show(qrResult.error, "error");
+        return;
+      }
 
       setQrData({
-        string: result.qrString,
-        ref: result.externalReference!,
+        qrString: qrResult.qrString,
+        externalReference: qrResult.externalReference!,
       });
     });
   }
 
   function removeFromCart(productId: number) {
     setCart((prev) =>
-      prev
-        .map((item) =>
-          item.product.id === productId
-            ? { ...item, quantity: item.quantity - 1 }
-            : item,
-        )
-        .filter((item) => item.quantity > 0),
+      prev.flatMap((item) => {
+        if (item.product.id !== productId) return item;
+
+        if (item.quantity > 1) {
+          return { ...item, quantity: item.quantity - 1 };
+        }
+
+        return [];
+      }),
     );
   }
 
@@ -141,7 +176,10 @@ export default function Venta({ branchId }: { branchId: number }) {
         )}
       </div>
 
-      <PaymentQR qrString={qrData?.string} externalReference={qrData?.ref} />
+      <PaymentQR
+        qrString={qrData?.qrString}
+        externalReference={qrData?.externalReference}
+      />
     </div>
   );
 }

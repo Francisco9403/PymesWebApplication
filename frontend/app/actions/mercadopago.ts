@@ -32,29 +32,34 @@ export async function crearQrMercadoPago(total: number) {
     ],
   };
 
-  const res = await fetch(
-    `https://api.mercadopago.com/instore/orders/qr/seller/collectors/${process.env.MP_USER_ID}/pos/${process.env.MP_POS_ID}/qrs`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+  try {
+    const res = await fetch(
+      `https://api.mercadopago.com/instore/orders/qr/seller/collectors/${process.env.MP_USER_ID}/pos/${process.env.MP_POS_ID}/qrs`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+        },
+        body: JSON.stringify(body),
       },
-      body: JSON.stringify(body),
-    },
-  );
+    );
 
-  if (!res.ok) {
-    const error = await res.text();
-    throw new Error("MercadoPago error: " + error);
+    const data = await res.json();
+
+    if (!res.ok) {
+      return { error: data?.message || "Error inesperado de MercadoPago" };
+    }
+
+    return {
+      qrString: data.qr_data,
+      externalReference: body.external_reference,
+    };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Error inesperado",
+    };
   }
-
-  const data = await res.json();
-
-  return {
-    qrString: data.qr_data,
-    externalReference: body.external_reference,
-  };
 }
 
 export async function obtenerSucursalPorExternalId(

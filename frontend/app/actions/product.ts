@@ -60,29 +60,30 @@ export async function compareCostsAction(productNames: string[]) {
   }
 }
 
-export async function procesarSkuAction(sku: string): Promise<Product | null> {
+export async function procesarSku(sku: string) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-  if (!jwt) return null;
+  if (!jwt) return { error: "No autorizado" };
 
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API}/products/sku/${sku}`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
+        headers: { Authorization: `Bearer ${jwt}` },
         cache: "no-store",
       },
     );
 
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      return { error: data?.message || "No se encontró el producto" };
+    }
 
-    return await res.json();
-  } catch (error) {
-    console.error("Error procesando SKU:", error);
-    return null;
+    const product = await res.json();
+    return product;
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Error desconocido" };
   }
 }
 
@@ -236,9 +237,7 @@ export async function deleteProduct(
       },
     );
 
-    if (!res.ok) {
-      return { error: "No se pudo eliminar el producto" };
-    }
+    if (!res.ok) return { error: "No se pudo eliminar el producto" };
 
     // revalidatePath("/admin/products");
 
@@ -251,7 +250,6 @@ export async function deleteProduct(
 export async function confirmStrategicPricesAction() {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-
   if (!jwt) return { error: "No autorizado" };
 
   try {
@@ -265,12 +263,15 @@ export async function confirmStrategicPricesAction() {
       },
     );
 
-    if (!response.ok) throw new Error("Error al aplicar precios");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      return { error: errorData?.message || "Error asdasda" };
+    }
 
-    return { success: true };
+    return { success: "asdasd" };
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "Error desconocido",
+      error: error instanceof Error ? error.message : "Error inesperado",
     };
   }
 }

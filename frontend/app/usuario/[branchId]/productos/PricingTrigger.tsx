@@ -3,20 +3,15 @@
 import { useState } from "react";
 import { runFullAIPricingAnalysis } from "@/app/actions/pricing";
 import { ProductResponse } from "@/types/Product";
-
-interface PricingSuggestion {
-  name: string;
-  multiplier: number;
-  reason: string;
-}
+import { useToast } from "@/layout/ToastProvider";
 
 export default function PricingTrigger({
   products,
 }: {
   products: ProductResponse[];
 }) {
+  const { show } = useToast();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [suggestions, setSuggestions] = useState<PricingSuggestion[]>([]);
 
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
@@ -24,13 +19,12 @@ export default function PricingTrigger({
       const result = await runFullAIPricingAnalysis(products);
 
       if (result.success) {
-        alert("¡Análisis de IA completado con éxito!");
-        // Nota: runFullAIPricingAnalysis ya guarda en el backend
+        show(result.success, "success");
       } else {
-        alert("Error: " + result.error);
+        show(result.error || "Error inesperado", "error");
       }
-    } catch (error) {
-      console.error("Fallo en el Trigger:", error);
+    } catch {
+      show("Error inesperado", "error");
     } finally {
       setIsAnalyzing(false);
     }

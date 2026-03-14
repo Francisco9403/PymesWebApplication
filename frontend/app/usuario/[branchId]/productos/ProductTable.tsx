@@ -3,76 +3,54 @@
 import { PageResponse } from "@/types/Page";
 import { ProductResponse } from "@/types/Product";
 import Link from "next/link";
-import EditProductButton from "./EditProductButton";
-import DeleteProductButton from "./DeleteProductButton";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { confirmStrategicPricesAction } from "@/app/actions/product";
 import { runFullAIPricingAnalysis } from "@/app/actions/pricing";
+import { ActionButton } from "@/components/ActionButton";
+import { useToast } from "@/layout/ToastProvider";
 
 export default function ProductTable({
   pageData,
-  branchId,
 }: {
   pageData: PageResponse<ProductResponse>;
-  branchId: number;
 }) {
   const { content, page, totalPages } = pageData;
+  const { show } = useToast();
+  const [status] = useState({ loading: false, analyzing: false });
 
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false); // Estado para el botón de IA
-
-  // Lógica para aplicar los cambios finales
-  const handleConfirmPrices = async () => {
-    if (
-      !confirm(
-        "¿Deseas aplicar todos los aumentos sugeridos por la IA? Los productos protegidos no serán afectados.",
-      )
-    )
+  const handleConfirmPrices = () => {
+    if (!confirm("¿Deseas aplicar todos los aumentos sugeridos por la IA?"))
       return;
 
-    setLoading(true);
-    try {
-      const result = await confirmStrategicPricesAction();
-      if (result.success) {
-        alert("¡Precios actualizados correctamente!");
-        router.refresh();
-      } else {
-        alert("Error: " + result.error);
-      }
-    } catch (err) {
-      alert("Error inesperado en la conexión.");
-    } finally {
-      setLoading(false);
-    }
+    runActionWithFeedback(confirmStrategicPricesAction, show);
   };
 
-  // --- NUEVA LÓGICA PARA DISPARAR EL ANÁLISIS DE IA ---
-  const handleAIAnalysis = async () => {
-    setAnalyzing(true);
+  const handleAIAnalysis = () => {
+    runActionWithFeedback(() => runFullAIPricingAnalysis(content), show);
+  };
+
+  const runActionWithFeedback = async (
+    action: () => Promise<{ success?: string; error?: string; count?: number }>,
+    show: (
+      message: string,
+      type?: "success" | "info" | "warn" | "error",
+    ) => void,
+  ) => {
     try {
-      // Mandamos la lista de productos actual a Gemini
-      const result = await runFullAIPricingAnalysis(content);
+      const result = await action();
 
       if (result.success) {
-        alert(
-          `¡Análisis completado! Se generaron ${result.count} sugerencias estratégicas.`,
-        );
-        router.refresh(); // Esto hará que aparezcan los badges ⚡
+        show(result.success, "success");
       } else {
-        alert("Error en IA: " + result.error);
+        show(result.error || "Error inesperado", "error");
       }
-    } catch (err) {
-      alert("Error al conectar con el servicio de IA.");
-    } finally {
-      setAnalyzing(false);
+    } catch {
+      show("Error inesperado", "error");
     }
   };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
-      {/* --- PANEL DE CONTROL DE PRECIOS --- */}
       <div className="flex flex-col md:flex-row justify-end items-center gap-3 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
         <div className="mr-auto">
           <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">
@@ -84,37 +62,23 @@ export default function ProductTable({
         </div>
 
         <div className="flex gap-2">
-          {/* BOTÓN 1: GENERA LAS SUGERENCIAS (BADGES) */}
-          <button
+          <ActionButton
             onClick={handleAIAnalysis}
-            disabled={analyzing || loading}
-            className="bg-white border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all flex items-center gap-2 disabled:opacity-50"
+            loading={status.analyzing}
+            icon={<span>🪄</span>}
+            className="bg-white border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50"
           >
-            {analyzing ? (
-              <span className="animate-pulse">IA Analizando...</span>
-            ) : (
-              <>
-                <span className="text-base">🪄</span>
-                Sugerir con IA
-              </>
-            )}
-          </button>
+            Sugerir con IA
+          </ActionButton>
 
-          {/* BOTÓN 2: APLICA LOS CAMBIOS A LOS PRECIOS REALES */}
-          <button
+          <ActionButton
             onClick={handleConfirmPrices}
-            disabled={loading || analyzing}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all shadow-lg shadow-indigo-100 flex items-center gap-2 disabled:opacity-50"
+            loading={status.loading}
+            icon={<span>🚀</span>}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100"
           >
-            {loading ? (
-              <span className="animate-pulse">Aplicando...</span>
-            ) : (
-              <>
-                <span className="text-base">🚀</span>
-                Aplicar Cambios
-              </>
-            )}
-          </button>
+            Aplicar Cambios
+          </ActionButton>
         </div>
       </div>
 
@@ -222,11 +186,22 @@ export default function ProductTable({
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-1">
-                        <EditProductButton product={product} />
-                        <DeleteProductButton
-                          productId={product.id}
-                          branchId={branchId}
-                        />
+                        <ActionButton
+                          onClick={handleAIAnalysis}
+                          loading={status.analyzing || status.loading}
+                          icon={<span>🪄</span>}
+                          className="bg-white border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+                        >
+                          Sugerir con IA
+                        </ActionButton>
+                        <ActionButton
+                          onClick={handleConfirmPrices}
+                          loading={status.loading || status.analyzing}
+                          icon={<span>🚀</span>}
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100"
+                        >
+                          Aplicar Cambios
+                        </ActionButton>
                       </div>
                     </td>
                   </tr>

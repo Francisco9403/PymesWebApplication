@@ -48,7 +48,7 @@ export default async function InventarioPage({
           </div>
         </header>
 
-        <AddStockForm branchId={branchId} products={productsList} />
+        <AddStockForm branchId={Number(branchId)} products={productsList} />
 
         <div className="space-y-4">
           <div className="flex items-center justify-between px-2">

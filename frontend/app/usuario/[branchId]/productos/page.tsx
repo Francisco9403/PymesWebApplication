@@ -4,8 +4,7 @@ import Link from "next/link";
 import { ProductFilters } from "./ProductFilters";
 
 export default async function Page({
-  searchParams,
-  params,
+  searchParams: { page, size, name, belowMinStock, sort },
 }: {
   searchParams: {
     page?: string;
@@ -14,20 +13,10 @@ export default async function Page({
     belowMinStock?: string;
     sort?: string;
   };
-  params: { branchId: string };
 }) {
-  const search = await searchParams;
-  const { branchId } = await params;
-
-  const page = Number(search.page ?? 0);
-  const size = Number(search.size ?? 10);
-  const name = search.name;
-  const belowMinStock = search.belowMinStock;
-  const sort = search.sort;
-
   const data = await getProducts({
-    page,
-    size,
+    page: Number(page ?? 0),
+    size: Number(size ?? 10),
     name,
     belowMinStock,
     sort,
@@ -63,7 +52,7 @@ export default async function Page({
 
         <ProductFilters />
 
-        <ProductTable pageData={data!} branchId={Number(branchId)} />
+        <ProductTable pageData={data!} />
       </div>
     </main>
   );

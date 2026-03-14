@@ -11,16 +11,19 @@ export async function updateCustomerTags(customerId: number, tags: string[]) {
       `${process.env.NEXT_PUBLIC_API}/customers/${customerId}/tags`,
       {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(tags),
         credentials: "include",
       },
     );
 
-    if (!res.ok)
-      throw new Error("No se pudo actualizar las etiquetas del cliente");
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      return {
+        error:
+          data?.message || "No se pudo actualizar las etiquetas del cliente",
+      };
+    }
 
     return tags;
   } catch (error) {
@@ -62,12 +65,20 @@ export async function generateCustomerTag(
       config: { responseMimeType: "application/json" },
     });
 
-    const tags: string[] = JSON.parse(
-      response.candidates![0].content!.parts![0].text!,
-    );
+    // 🚨 Limpiar texto antes de parsear
+    const rawText = response.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) return { error: "No se pudo generar etiquetas del cliente" };
 
-    // Guardar etiquetas en el backend
-    await updateCustomerTags(customerId, tags);
+    const cleaned = rawText
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    const tags: string[] = JSON.parse(cleaned);
+
+    // Guardar etiquetas en backend
+    const updated = await updateCustomerTags(customerId, tags);
+    if ("error" in updated) return { error: updated.error };
 
     return tags;
   } catch (error) {

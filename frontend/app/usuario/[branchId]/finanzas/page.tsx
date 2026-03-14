@@ -65,7 +65,6 @@ export default async function Page() {
           />
         </div>
 
-        {/* Nueva Sección Legal */}
         <TaxReports />
       </div>
     </main>

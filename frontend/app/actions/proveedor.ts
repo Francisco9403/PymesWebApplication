@@ -84,11 +84,10 @@ export async function analyzeImage(
 
     const rawText = response.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if (!rawText) {
+    if (!rawText)
       return {
         error: "No se pudo analizar la imagen",
       };
-    }
 
     const cleaned = rawText
       .replace(/```json/g, "")
@@ -141,11 +140,10 @@ Devuelve estrictamente JSON.`,
 
     const rawText = response.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if (!rawText) {
+    if (!rawText)
       return {
         error: "No se pudo analizar el documento",
       };
-    }
 
     const cleaned = rawText
       .replace(/```json/g, "")
