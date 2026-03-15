@@ -2,8 +2,14 @@ import Link from "next/link";
 import { getExchangeRates } from "@/app/actions/finance";
 import MarkupConfigurator from "./MarkupConfigurator";
 import TaxReports from "./TaxReports";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function Page() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) redirect("/iniciar-sesion");
+
   const rates = await getExchangeRates();
   const config = { enabled: true, threshold: 2.0 };
 

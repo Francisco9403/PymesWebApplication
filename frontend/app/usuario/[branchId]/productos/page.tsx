@@ -2,9 +2,12 @@ import { getProducts } from "@/app/actions/product";
 import ProductTable from "./ProductTable";
 import Link from "next/link";
 import { ProductFilters } from "./ProductFilters";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function Page({
   searchParams,
+  params,
 }: {
   searchParams: Promise<{
     page?: string;
@@ -13,12 +16,19 @@ export default async function Page({
     belowMinStock?: string;
     sort?: string;
   }>;
+  params: { branchId: string };
 }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) redirect("/iniciar-sesion");
+
   const { page, size, name, belowMinStock, sort } = await searchParams;
+  const { branchId } = await params;
 
   const data = await getProducts({
     page: Number(page ?? 0),
     size: Number(size ?? 10),
+    branchId,
     name,
     belowMinStock,
     sort,

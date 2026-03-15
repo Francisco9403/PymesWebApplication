@@ -21,15 +21,15 @@ export default function Navbar({ branches }: { branches: Branch[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
-  const selectedBranchId = params.branchId 
-    ? Number(params.branchId) 
-    : (branches[0]?.id || 0);
+  const selectedBranchId = params.branchId
+    ? Number(params.branchId)
+    : branches[0]?.id || 0;
 
   const handleLogout = async () => {
     try {
       await AuthService.logout();
       show("Sesión cerrada correctamente", "success");
-      router.replace("/usuario");
+      router.replace("/");
     } catch (error) {
       show(
         error instanceof Error ? error.message : "Error inesperado",

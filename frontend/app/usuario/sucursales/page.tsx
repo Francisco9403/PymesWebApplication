@@ -1,8 +1,14 @@
 import { getBranches } from "@/app/actions/branch";
 import CreateBranchForm from "./CreateBranchForm";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function SucursalesPage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) redirect("/iniciar-sesion");
+
   const branches = await getBranches();
 
   return (

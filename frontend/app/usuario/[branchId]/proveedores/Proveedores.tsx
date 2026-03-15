@@ -14,10 +14,7 @@ import {
 import { useToast } from "@/layout/ToastProvider";
 import { Supplier } from "@/types/Supplier";
 import { TaxCategory } from "@/types/TaxCategory";
-import {
-  compareCostsAction,
-  getSupplierProductsAction,
-} from "@/app/actions/product";
+import { compareCostsAction, getSupplierProducts } from "@/app/actions/product";
 import { Product } from "@/types/Product";
 import { analyzeDocument, importSupplierData } from "@/app/actions/proveedor";
 
@@ -56,7 +53,7 @@ export default function Proveedores({
     setSelectedSupplier(supplier);
     setIsLoadingProducts(true);
 
-    const products = await getSupplierProductsAction(supplier.id).catch(
+    const products = await getSupplierProducts(supplier.id, branchId).catch(
       () => [],
     );
     setSupplierProducts(products);

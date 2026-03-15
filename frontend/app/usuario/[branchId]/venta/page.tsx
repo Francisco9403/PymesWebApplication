@@ -1,11 +1,17 @@
+import { cookies } from "next/headers";
 import Venta from "./Venta";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function Page({
   params,
 }: {
   params: { branchId: string };
 }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) redirect("/iniciar-sesion");
+
   const { branchId } = await params;
 
   return (

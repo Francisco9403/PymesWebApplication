@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/layout/ToastProvider";
 import { AuthService } from "@/lib/auth";
 import { useRouter } from "next/navigation";
@@ -8,7 +7,6 @@ import { useState, useTransition } from "react";
 
 export default function IniciarSesionForm() {
   const { show } = useToast();
-  useAuth({ requireAuth: false });
 
   const [credentials, setCredentials] = useState({
     email: "",

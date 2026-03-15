@@ -4,14 +4,17 @@ import { PageResponse } from "@/types/Page";
 import { ProductResponse } from "@/types/Product";
 import { cookies } from "next/headers";
 
-export async function getSupplierProductsAction(supplierId: number) {
+export async function getSupplierProducts(
+  supplierId: number,
+  branchId: number,
+) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) return { error: "No autorizado" };
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/products/supplier/${supplierId}`,
+      `${process.env.NEXT_PUBLIC_API}/products/supplier/${supplierId}?branchId=${branchId}`,
       {
         headers: {
           Authorization: `Bearer ${jwt}`,
@@ -179,6 +182,7 @@ export async function updateProduct(
 export async function getProducts(params: {
   page: number;
   size: number;
+  branchId: string;
   name?: string;
   belowMinStock?: string;
   sort?: string;
@@ -191,6 +195,7 @@ export async function getProducts(params: {
 
   search.set("page", String(params.page));
   search.set("size", String(params.size));
+  search.set("branchId", params.branchId);
 
   if (params.name) search.set("name", params.name);
   if (params.belowMinStock) search.set("belowMinStock", params.belowMinStock);

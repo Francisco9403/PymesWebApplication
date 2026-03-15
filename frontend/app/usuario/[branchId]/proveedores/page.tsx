@@ -1,11 +1,17 @@
+import { cookies } from "next/headers";
 import Proveedores from "./Proveedores";
 import { getSuppliers } from "@/app/actions/proveedor";
+import { redirect } from "next/navigation";
 
 export default async function Page({
   params,
 }: {
   params: { branchId: string };
 }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) redirect("/iniciar-sesion");
+
   const { branchId } = await params;
 
   const result = await getSuppliers();

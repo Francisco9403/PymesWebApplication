@@ -3,18 +3,25 @@ import { getProducts } from "@/app/actions/product";
 import StockTable from "./StockTable";
 import AddStockForm from "./AddStockForm";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function InventarioPage({
   params,
 }: {
   params: { branchId: string };
 }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) redirect("/iniciar-sesion");
+
   const { branchId } = await params;
 
   const stockData = await getStockByBranch(Number(branchId));
   const productsPage = await getProducts({
     page: 0,
     size: 500,
+    branchId,
   });
   const productsList = productsPage?.content || [];
 

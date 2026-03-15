@@ -1,4 +1,6 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 const modules = [
   {
@@ -50,6 +52,10 @@ export default async function Page({
 }: {
   params: Promise<{ branchId: string }>;
 }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) redirect("/iniciar-sesion");
+
   const { branchId } = await params;
 
   return (
