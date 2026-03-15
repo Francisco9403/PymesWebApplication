@@ -32,7 +32,7 @@ export interface BranchRequest {
   location: Location;
 }
 
-// https://www.mercadopago.com.ar/developers/es/docs/qr-code/create-store-and-pos
+// https://developers.mercadolibre.com.ar/obtener-todas-las-sucursales
 
 export interface BranchLocation {
   address_line: string;

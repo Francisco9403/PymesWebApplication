@@ -32,3 +32,15 @@ export enum SaleStatus {
   COMPLETED = "COMPLETED",
   CANCELED = "CANCELED",
 }
+
+export type CreateSaleItemRequest = {
+  productId: number;
+  quantity: number;
+};
+
+export type CreateSaleRequest = {
+  branchId: number;
+  customerId?: number | null;
+  channel: "WEB" | "INSTAGRAM" | "WHATSAPP" | "POS_PHYSICAL";
+  items: CreateSaleItemRequest[];
+};

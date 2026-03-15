@@ -3,7 +3,6 @@
 import { cookies } from "next/headers";
 import { Supplier } from "@/types/Supplier";
 import { GoogleGenAI } from "@google/genai";
-import { revalidatePath } from "next/cache";
 
 export async function importSupplierData(
   prevState: { error?: string; success?: string } | null,
@@ -34,10 +33,8 @@ export async function importSupplierData(
       return { error: errorData?.message || "Error al importar datos" };
     }
 
-    // hacemos que la próxima renderización del server component traiga datos nuevos
-    // Eso significa que la próxima vez que el cliente haga router.refresh() o navegue, el servidor vuelve a ejecutar
-    //   const suppliers = await getSuppliers();
-    revalidatePath(`/usuario/${branchId}/proveedores`);
+    // hacemos que la próxima visita a la URL recargue datos nuevos que fueron cacheados anteriormente
+    /* revalidatePath(`/usuario/${branchId}/proveedores`); */
     return { success: "Proveedor cargado correctamente" };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Error inesperado" };

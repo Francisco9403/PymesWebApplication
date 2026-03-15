@@ -2,7 +2,7 @@
 
 import { useToast } from "@/layout/ToastProvider";
 import { useActionState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Importamos para refrescar la lista
+import { useRouter } from "next/navigation";
 import { createBranchAction } from "@/app/actions/branch";
 
 export default function CreateBranchForm() {
@@ -15,7 +15,7 @@ export default function CreateBranchForm() {
     if (state.error) show(state.error, "error");
     if (state.success) {
       show(state.success, "success");
-      router.refresh(); // Sincronización inmediata con la tabla
+      router.refresh();
     }
   }, [state, show, router]);
 

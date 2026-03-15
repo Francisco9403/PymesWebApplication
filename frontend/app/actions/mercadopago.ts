@@ -11,6 +11,8 @@ import {
 } from "@/types/mercadopago";
 import { randomUUID } from "crypto";
 
+// https://www.mercadopago.com.ar/developers/es/reference/qr-dynamic/_instore_orders_qr_seller_collectors_user_id_pos_external_pos_id_qrs/put
+
 export async function crearQrMercadoPago(total: number) {
   const body: CreateQROrderInput = {
     external_reference: "sale_" + randomUUID(),
@@ -48,7 +50,9 @@ export async function crearQrMercadoPago(total: number) {
     const data = await res.json();
 
     if (!res.ok) {
-      return { error: data?.message || "Error inesperado de MercadoPago" };
+      return {
+        error: data?.message || "Error inesperado al crear QR en MercadoPago",
+      };
     }
 
     return {
@@ -61,6 +65,8 @@ export async function crearQrMercadoPago(total: number) {
     };
   }
 }
+
+// https://developers.mercadolibre.com.ar/obtener-todas-las-sucursales
 
 export async function obtenerSucursalPorExternalId(
   externalId: string,
@@ -75,12 +81,17 @@ export async function obtenerSucursalPorExternalId(
     },
   );
 
-  if (!res.ok) return null;
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`MercadoPago API error ${res.status}: ${errorText}`);
+  }
 
   const data: BranchSearchResponse = await res.json();
 
   return data.results.length > 0 ? data.results[0] : null;
 }
+
+// https://www.mercadopago.com.ar/developers/es/docs/qr-code/create-store-and-pos
 
 export async function crearSucursal(
   name: string,
@@ -113,6 +124,8 @@ export async function crearSucursal(
   const data: BranchResponse = await res.json();
   return data;
 }
+
+// https://www.mercadopago.com.ar/developers/es/docs/qr-code/create-store-and-pos
 
 export async function crearCaja(
   name: string,

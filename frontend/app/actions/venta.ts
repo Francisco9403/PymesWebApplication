@@ -2,18 +2,7 @@
 
 import { cookies } from "next/headers";
 import type { CartItem } from "@/types/Cart";
-
-type CreateSaleItemRequest = {
-  productId: number;
-  quantity: number;
-};
-
-type CreateSaleRequest = {
-  branchId: number;
-  customerId?: number | null;
-  channel: "WEB" | "INSTAGRAM" | "WHATSAPP" | "POS_PHYSICAL";
-  items: CreateSaleItemRequest[];
-};
+import { CreateSaleRequest } from "@/types/Sale";
 
 export async function crearVenta(
   prevState: { error?: string; success?: string } | null,

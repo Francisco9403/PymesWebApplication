@@ -60,10 +60,8 @@ export async function addStockAction(
     revalidatePath(`/usuario/${branchId}/inventario`);
     return { success: "¡Stock actualizado correctamente!" };
   } catch (error) {
-    if (error instanceof Error) {
-      return { error: error.message };
-    }
-
-    return { error: "Error inesperado" };
+    return {
+      error: error instanceof Error ? error.message : "Error inesperado",
+    };
   }
 }

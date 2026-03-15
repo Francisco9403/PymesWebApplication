@@ -65,7 +65,6 @@ export async function generateCustomerTag(
       config: { responseMimeType: "application/json" },
     });
 
-    // 🚨 Limpiar texto antes de parsear
     const rawText = response.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!rawText) return { error: "No se pudo generar etiquetas del cliente" };
 
@@ -76,7 +75,6 @@ export async function generateCustomerTag(
 
     const tags: string[] = JSON.parse(cleaned);
 
-    // Guardar etiquetas en backend
     const updated = await updateCustomerTags(customerId, tags);
     if ("error" in updated) return { error: updated.error };
 
@@ -105,8 +103,6 @@ export async function getCustomers(page = 0, size = 20) {
   );
 
   if (!res.ok) {
-    const text = await res.text();
-    console.error("API ERROR:", res.status, text);
     throw new Error(`Error ${res.status}`);
   }
 
@@ -122,26 +118,33 @@ export async function getCustomerSales(
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-  if (!jwt) throw new Error("No autorizado");
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API}/customers/${customerId}/sales?page=${page}&size=${size}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-      },
-      cache: "no-store",
-    },
-  );
-
-  if (!res.ok) {
-    throw new Error("Error fetching sales");
+  if (!jwt) {
+    return { error: "No autorizado" };
   }
 
-  const data: PageResponse<CustomerSaleResponse> = await res.json();
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/customers/${customerId}/sales?page=${page}&size=${size}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+        cache: "no-store",
+      },
+    );
 
-  return data;
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      return { error: data.message ?? "Error obteniendo ventas" };
+    }
+
+    const data: PageResponse<CustomerSaleResponse> = await response.json();
+    return data;
+  } catch {
+    return { error: "No se pudo conectar con el servidor" };
+  }
 }
 
 export async function crearCliente(

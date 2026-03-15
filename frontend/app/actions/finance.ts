@@ -1,9 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { revalidatePath } from "next/cache";
-
-// app/actions/finance.ts
+import { DolarApiRate } from "@/types/dolar";
 
 export async function getExchangeRates() {
   try {
@@ -13,17 +11,15 @@ export async function getExchangeRates() {
 
     if (!res.ok) throw new Error("API no disponible");
 
-    const data = await res.json();
+    const data: DolarApiRate[] = await res.json();
 
-    // Función auxiliar para buscar por varios nombres posibles
     const findRate = (names: string[]) => {
-      const found = data.find((d: any) => names.includes(d.casa.toLowerCase()));
-      return found ? found.venta : 0; // Si no lo encuentra, devuelve 0 en vez de undefined
+      const found = data.find((d) => names.includes(d.casa.toLowerCase()));
+      return found ? found.venta : 0;
     };
 
     return {
       oficial: findRate(["oficial"]),
-      // Probamos con 'mep' o 'bolsa' que son los nombres comunes
       mep: findRate(["mep", "bolsa"]),
       cripto: findRate(["cripto", "ccb"]),
     };
@@ -44,20 +40,28 @@ export async function updateMarkupSettings(formData: FormData) {
   };
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API}/finance/settings`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${jwt}`,
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/finance/settings`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwt}`,
+        },
+        body: JSON.stringify(settings),
       },
-      body: JSON.stringify(settings),
-    });
+    );
 
-    if (!res.ok) throw new Error("Error al guardar");
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      return { error: data.message ?? "Falló la actualización de valor" };
+    }
 
     // revalidatePath("/usuario/finanzas");
     return { success: "Configuración actualizada" };
-  } catch (err) {
-    return { error: "Fallo al conectar con el servidor" };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Error inesperado",
+    };
   }
 }

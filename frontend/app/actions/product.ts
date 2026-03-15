@@ -1,15 +1,13 @@
 "use server";
 
 import { PageResponse } from "@/types/Page";
-import { Product, ProductResponse } from "@/types/Product";
-import { revalidatePath } from "next/cache";
+import { ProductResponse } from "@/types/Product";
 import { cookies } from "next/headers";
 
 export async function getSupplierProductsAction(supplierId: number) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-
-  if (!jwt) return [];
+  if (!jwt) return { error: "No autorizado" };
 
   try {
     const res = await fetch(
@@ -22,20 +20,25 @@ export async function getSupplierProductsAction(supplierId: number) {
       },
     );
 
-    if (!res.ok) return [];
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => null);
+      return {
+        error: errorData?.message || "Error al obtener productos del proveedor",
+      };
+    }
 
     return await res.json();
   } catch (error) {
-    console.error("Error obteniendo productos del proveedor:", error);
-    return [];
+    return {
+      error: error instanceof Error ? error.message : "Error inesperado",
+    };
   }
 }
 
 export async function compareCostsAction(productNames: string[]) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-
-  if (!jwt) return {};
+  if (!jwt) return { error: "No autorizado" };
 
   try {
     const res = await fetch(
@@ -51,12 +54,16 @@ export async function compareCostsAction(productNames: string[]) {
       },
     );
 
-    if (!res.ok) return {};
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => null);
+      return { error: errorData?.message || "Error al comparar costos" };
+    }
 
     return await res.json();
   } catch (error) {
-    console.error("Error comparando precios:", error);
-    return {};
+    return {
+      error: error instanceof Error ? error.message : "Error inesperado",
+    };
   }
 }
 
@@ -93,7 +100,6 @@ export async function create(
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-
   if (!jwt) return { error: "No autorizado" };
 
   const rawData = {
@@ -136,7 +142,6 @@ export async function updateProduct(
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-
   if (!jwt) return { error: "No autorizado" };
 
   const payload = {
@@ -220,7 +225,6 @@ export async function deleteProduct(
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-
   if (!jwt) return { error: "No autorizado" };
 
   const productId = formData.get("productId");
@@ -265,10 +269,12 @@ export async function confirmStrategicPricesAction() {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      return { error: errorData?.message || "Error asdasda" };
+      return {
+        error: errorData?.message || "Error al confirmar precios estratégicos",
+      };
     }
 
-    return { success: "asdasd" };
+    return { success: "Precios estratégicos aplicados" };
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : "Error inesperado",

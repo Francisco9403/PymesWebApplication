@@ -1,6 +1,7 @@
 "use client";
 
 import { getCustomerSales } from "@/app/actions/cliente";
+import { useToast } from "@/layout/ToastProvider";
 import { CustomerListResponse, CustomerSaleResponse } from "@/types/Customer";
 import { useEffect, useState } from "react";
 
@@ -9,16 +10,23 @@ export default function CustomerPurchases({
 }: {
   customer: CustomerListResponse;
 }) {
+  const { show } = useToast();
   const [sales, setSales] = useState<CustomerSaleResponse[]>([]);
 
   useEffect(() => {
     async function load() {
       const res = await getCustomerSales(customer.id);
+
+      if ("error" in res) {
+        show(res.error, "error");
+        return;
+      }
+
       setSales(res.content);
     }
 
     load();
-  }, [customer.id]);
+  }, [customer.id, show]);
 
   return (
     <div className="border rounded-lg p-4 mt-4">

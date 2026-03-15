@@ -13,8 +13,6 @@ import { generateCustomerTag, getCustomerSales } from "@/app/actions/cliente";
 import QRScanner from "./QRScanner";
 import ProductList from "./ProductList";
 import { QrData } from "@/types/QrData";
-import { PageResponse } from "@/types/Page";
-import { CustomerSaleResponse } from "@/types/Customer";
 
 export default function Venta({ branchId }: { branchId: number }) {
   const { show } = useToast();
@@ -78,29 +76,23 @@ export default function Venta({ branchId }: { branchId: number }) {
 
       await crearVenta(null, formData);
 
-      let customerSales: PageResponse<CustomerSaleResponse> | null = null;
       if (customerId) {
-        try {
-          customerSales = await getCustomerSales(customerId);
-        } catch (err) {
-          show(
-            err instanceof Error
-              ? err.message
-              : "No se pudieron obtener las ventas del cliente",
-            "error",
-          );
+        const customerSales = await getCustomerSales(customerId);
+
+        if ("error" in customerSales) {
+          show(customerSales.error, "error");
+          return;
         }
 
-        if (customerSales) {
-          const tagsResult = await generateCustomerTag(
-            customerId,
-            customerSales.content,
-          );
-          if ("error" in tagsResult) {
-            show(tagsResult.error, "error");
-          } else {
-            show("Etiquetas de cliente actualizadas correctamente", "success");
-          }
+        const tagsResult = await generateCustomerTag(
+          customerId,
+          customerSales.content,
+        );
+
+        if ("error" in tagsResult) {
+          show(tagsResult.error, "error");
+        } else {
+          show("Etiquetas de cliente actualizadas correctamente", "success");
         }
       }
 

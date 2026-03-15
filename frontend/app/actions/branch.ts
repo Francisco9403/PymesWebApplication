@@ -1,7 +1,6 @@
 "use server";
 
 import { Branch } from "@/types/Branch";
-import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
 export async function getBranches(): Promise<Branch[]> {
@@ -28,14 +27,12 @@ export async function createBranchAction(
 
     if (!jwt) return { error: "No autorizado" };
 
-    // LA POSTA: .has() nos dice si el tilde está puesto (true) o no (false)
     const checkValue = formData.has("isPointOfSale");
 
     const branchPayload = {
       name: formData.get("name"),
       address: formData.get("address"),
       phone: formData.get("phone"),
-      // Mandamos los dos nombres para ganarle a Jackson si es mañoso
       isPointOfSale: checkValue,
       pointOfSale: checkValue,
     };
