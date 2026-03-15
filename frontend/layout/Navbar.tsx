@@ -1,13 +1,13 @@
 "use client";
 
 import { useToast } from "./ToastProvider";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useParams } from "next/navigation";
 import { AuthService } from "@/lib/auth";
 import Link from "next/link";
 import { Branch } from "@/types/Branch";
 
 const navLinks = [
-  { name: "Clientes", href: "cumplimiento", scoped: true },
+  { name: "Clientes", href: "clientes", scoped: true },
   { name: "Finanzas", href: "finanzas", scoped: true },
   { name: "Productos", href: "productos", scoped: true },
   { name: "Venta", href: "venta", scoped: true },
@@ -16,17 +16,14 @@ const navLinks = [
   { name: "Sucursales", href: "/usuario/sucursales", scoped: false },
 ];
 
-export default function Navbar({
-  branches,
-  selectedBranchId,
-}: {
-  branches: Branch[];
-  selectedBranchId: number;
-}) {
-  console.log(selectedBranchId);
+export default function Navbar({ branches }: { branches: Branch[] }) {
   const { show } = useToast();
   const router = useRouter();
   const pathname = usePathname();
+  const params = useParams();
+  const selectedBranchId = params.branchId 
+    ? Number(params.branchId) 
+    : (branches[0]?.id || 0);
 
   const handleLogout = async () => {
     try {
@@ -67,29 +64,27 @@ export default function Navbar({
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">
-            <nav className="hidden lg:flex items-center gap-1">
-              {navLinks.map((link) => {
-                const href = link.scoped
-                  ? `/usuario/${selectedBranchId}/${link.href}`
-                  : link.href;
+            {navLinks.map((link) => {
+              const href = link.scoped
+                ? `/usuario/${selectedBranchId}/${link.href}`
+                : link.href;
 
-                const active = pathname.startsWith(href);
+              const active = pathname.startsWith(href);
 
-                return (
-                  <Link
-                    key={link.name}
-                    href={href}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
-                      active
-                        ? "bg-slate-100 text-slate-900"
-                        : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
-                    }`}
-                  >
-                    {link.name}
-                  </Link>
-                );
-              })}
-            </nav>
+              return (
+                <Link
+                  key={link.name}
+                  href={href}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                    active
+                      ? "bg-slate-100 text-slate-900"
+                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 

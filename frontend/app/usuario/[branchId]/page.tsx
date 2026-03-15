@@ -1,9 +1,9 @@
-import { Link } from "lucide-react";
+import Link from "next/link";
 
 const modules = [
   {
     name: "Clientes",
-    href: "cumplimiento",
+    href: "clientes",
     icon: "👥",
     desc: "Gestión de cartera y cumplimiento.",
   },

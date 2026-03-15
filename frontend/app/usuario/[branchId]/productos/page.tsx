@@ -4,16 +4,18 @@ import Link from "next/link";
 import { ProductFilters } from "./ProductFilters";
 
 export default async function Page({
-  searchParams: { page, size, name, belowMinStock, sort },
+  searchParams,
 }: {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     size?: string;
     name?: string;
     belowMinStock?: string;
     sort?: string;
-  };
+  }>;
 }) {
+  const { page, size, name, belowMinStock, sort } = await searchParams;
+
   const data = await getProducts({
     page: Number(page ?? 0),
     size: Number(size ?? 10),
