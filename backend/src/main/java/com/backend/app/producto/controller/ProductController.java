@@ -71,9 +71,11 @@ public class ProductController {
     public PageResponse<ProductListResponse> getAllProducts(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Boolean belowMinStock,
+            @RequestParam(required = false) Long branchId,
             Pageable pageable
     ) {
-        ProductSearchCriteria criteria = new ProductSearchCriteria(name, belowMinStock, null);
+        // Pasamos el branchId al criteria
+        ProductSearchCriteria criteria = new ProductSearchCriteria(name, belowMinStock, branchId);
 
         return PageResponse.from(
                 productService.searchProducts(criteria, pageable)
@@ -126,9 +128,14 @@ public class ProductController {
     }
 
     @GetMapping("/supplier/{supplierId}")
-    public ResponseEntity<List<Product>> getProductsBySupplier(@PathVariable Long supplierId) {
-        List<Product> products = productService.getProductsBySupplier(supplierId);
+    public ResponseEntity<List<Product>> getProductsBySupplier(
+            @PathVariable Long supplierId,
+            @RequestParam(required = false) Long branchId
+    ) {
+        // Necesitaremos ajustar el Service para que acepte este branchId
+        List<Product> products = productService.getProductsBySupplier(supplierId, branchId);
         return ResponseEntity.ok(products);
     }
+
 
 }

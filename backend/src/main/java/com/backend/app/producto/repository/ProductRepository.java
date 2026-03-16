@@ -37,4 +37,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT p FROM Product p JOIN p.suppliers s WHERE s.id = :supplierId")
     List<Product> findBySupplierId(@Param("supplierId") Long supplierId);
 
+    @Query("SELECT DISTINCT p FROM Product p " +
+            "JOIN p.suppliers s " +
+            "JOIN p.stocks st " +
+            "WHERE s.id = :supplierId AND st.branch.id = :branchId")
+    List<Product> findBySupplierIdAndBranchId(
+            @Param("supplierId") Long supplierId,
+            @Param("branchId") Long branchId);
+
 }

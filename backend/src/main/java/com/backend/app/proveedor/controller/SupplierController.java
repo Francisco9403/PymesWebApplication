@@ -1,7 +1,7 @@
 package com.backend.app.proveedor.controller;
 
 import java.util.List;
-import jakarta.validation.Valid; // 🚀 Importación necesaria
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -36,8 +36,11 @@ public class SupplierController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Supplier>> getAllSuppliers() {
-        return ResponseEntity.ok(supplierService.getAllSuppliers());
+    public ResponseEntity<List<Supplier>> getAllSuppliers(
+            @RequestParam(required = false) Long branchId
+    ) {
+        // 🚀 Llamamos al nuevo método del service que ya tiene el escudo anti-nulos
+        return ResponseEntity.ok(supplierService.getSuppliersByBranch(branchId));
     }
 
     @GetMapping("/{id}")

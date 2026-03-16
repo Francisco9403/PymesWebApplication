@@ -4,28 +4,64 @@ import { cookies } from "next/headers";
 import { Supplier } from "@/types/Supplier";
 import { GoogleGenAI } from "@google/genai";
 
+export async function getSuppliers(branchId?: number): Promise<{
+  data?: Supplier[];
+  error?: string;
+}> {
+  const cookieStore = await cookies();
+  const jwt = cookieStore.get("token")?.value;
+  if (!jwt) return { error: "No autorizado" };
+
+  try {
+    // 💡 Si hay branchId, lo agregamos como query param
+    const baseUrl = `${process.env.NEXT_PUBLIC_API}/suppliers`;
+    const url = branchId ? `${baseUrl}?branchId=${branchId}` : baseUrl;
+
+    const res = await fetch(url, {
+      cache: "no-store", // 👈 Importante para ver los cambios al toque
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => null);
+      return { error: errorData?.message || "Error al obtener proveedores" };
+    }
+
+    const data = await res.json();
+    return { data };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Error inesperado",
+    };
+  }
+}
+
+/**
+ * 🚀 Importar datos del proveedor (OCR/IA)
+ */
 export async function importSupplierData(
-  prevState: { error?: string; success?: string } | null,
-  formData: FormData,
+    prevState: { error?: string; success?: string } | null,
+    formData: FormData,
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) return { error: "No autorizado" };
 
   const payload = JSON.parse(formData.get("payload") as string);
-  const branchId = Number(formData.get("branchId"));
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/suppliers/import`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${jwt}`,
+        `${process.env.NEXT_PUBLIC_API}/suppliers/import`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwt}`,
+          },
+          body: JSON.stringify(payload),
         },
-        body: JSON.stringify(payload),
-      },
     );
 
     if (!response.ok) {
@@ -33,21 +69,21 @@ export async function importSupplierData(
       return { error: errorData?.message || "Error al importar datos" };
     }
 
-    // hacemos que la próxima visita a la URL recargue datos nuevos que fueron cacheados anteriormente
-    /* revalidatePath(`/usuario/${branchId}/proveedores`); */
     return { success: "Proveedor cargado correctamente" };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Error inesperado" };
   }
 }
 
+// --- LÓGICA DE ANÁLISIS CON GEMINI ---
+
 const client = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
+  apiKey: process.env.GEMINI_API_KEY as string,
 });
 
 export async function analyzeImage(
-  prevState: { error?: string; success?: string } | null,
-  formData: FormData,
+    prevState: { error?: string; success?: string } | null,
+    formData: FormData,
 ) {
   const file = formData.get("image") as File;
   if (!file) throw new Error("No se proporcionó ninguna imagen.");
@@ -80,17 +116,9 @@ export async function analyzeImage(
     });
 
     const rawText = response.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) return { error: "No se pudo analizar la imagen" };
 
-    if (!rawText)
-      return {
-        error: "No se pudo analizar la imagen",
-      };
-
-    const cleaned = rawText
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
+    const cleaned = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
     return JSON.parse(cleaned);
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Error inesperado" };
@@ -98,13 +126,11 @@ export async function analyzeImage(
 }
 
 export async function analyzeDocument(
-  prevState: { error?: string; success?: string } | null,
-  formData: FormData,
+    prevState: { error?: string; success?: string } | null,
+    formData: FormData,
 ) {
   const file = formData.get("file") as File;
-  if (!file) {
-    return { error: "No se proporcionó archivo" };
-  }
+  if (!file) return { error: "No se proporcionó archivo" };
 
   const bytes = await file.arrayBuffer();
   const base64Data = Buffer.from(bytes).toString("base64");
@@ -117,9 +143,7 @@ export async function analyzeDocument(
           role: "user",
           parts: [
             {
-              text: `Analiza este documento (factura, remito o lista).
-Extrae razón social, CUIT, categoría fiscal y productos (name, baseCostPrice).
-Devuelve estrictamente JSON.`,
+              text: `Analiza este documento (factura, remito o lista). Extrae razón social, CUIT, categoría fiscal y productos (name, baseCostPrice, quantity). Devuelve estrictamente JSON.`,
             },
             {
               inlineData: {
@@ -136,49 +160,11 @@ Devuelve estrictamente JSON.`,
     });
 
     const rawText = response.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) return { error: "No se pudo analizar el documento" };
 
-    if (!rawText)
-      return {
-        error: "No se pudo analizar el documento",
-      };
-
-    const cleaned = rawText
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
+    const cleaned = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
     return { data: JSON.parse(cleaned) };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Error inesperado" };
-  }
-}
-
-export async function getSuppliers(): Promise<{
-  data?: Supplier[];
-  error?: string;
-}> {
-  const cookieStore = await cookies();
-  const jwt = cookieStore.get("token")?.value;
-  if (!jwt) return { error: "No autorizado" };
-
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API}/suppliers`, {
-      cache: "no-store",
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-      },
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => null);
-      return { error: errorData?.message || "Error al obtener proveedores" };
-    }
-
-    const data = await res.json();
-    return { data };
-  } catch (err) {
-    return {
-      error: err instanceof Error ? err.message : "Error inesperado",
-    };
   }
 }
