@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 
 export async function getSupplierProducts(
   supplierId: number,
-  branchId: number,
+  branchId: string,
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;

@@ -4,10 +4,9 @@ import { getSuppliers } from "@/app/actions/proveedor";
 import { redirect } from "next/navigation";
 
 export default async function Page({
-                                     params,
-                                   }: {
-  // 🚀 En Next.js 15, params es una Promise
-  params: Promise<{ branchId: string }>;
+  params,
+}: {
+  params: { branchId: string };
 }) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -15,15 +14,17 @@ export default async function Page({
 
   const { branchId } = await params;
 
-  // 🚀 PASO CLAVE: Pasamos el branchId a la action
-  const result = await getSuppliers(Number(branchId));
+  const result = await getSuppliers(branchId);
 
   return (
-      <main className="p-4 md:p-8">
-        <Proveedores
-            branchId={Number(branchId)}
-            initialSuppliers={result.data ?? []}
-        />
-      </main>
+    <main
+      className="min-h-[calc(100vh-64px)] p-4 md:p-8 transition-colors duration-300
+        bg-slate-50 dark:bg-[#0A0A0F]"
+    >
+      <Proveedores
+        branchId={branchId}
+        initialSuppliers={result.data ?? []}
+      />
+    </main>
   );
 }

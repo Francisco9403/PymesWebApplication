@@ -29,33 +29,55 @@ export default function CustomerPurchases({
   }, [customer.id, show]);
 
   return (
-    <div className="mt-6 border-t border-slate-200 pt-6">
-      <div className="flex items-center justify-between px-2 mb-4">
-        <h2 className="text-lg font-bold text-slate-800 uppercase tracking-tight">
+    <div
+      className="mt-0 pt-5 px-0 border-t transition-colors
+        border-slate-100 dark:border-[rgba(255,255,255,0.06)]"
+    >
+      {/* Sub-header */}
+      <div className="flex items-center justify-between px-4 mb-4">
+        <h2 className="text-base font-extrabold tracking-[-0.01em]
+          text-slate-800 dark:text-[#F0EDE8]">
           Compras de{" "}
-          <span className="text-indigo-600">{customer.name}</span>
+          <span className="text-[#FF6B35]">{customer.name}</span>
         </h2>
-        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+        <span className="text-[0.65rem] font-bold uppercase tracking-widest
+          text-slate-400 dark:text-[#555]">
           {sales.length} Transacciones
         </span>
       </div>
-  
+ 
+      {/* Empty state */}
       {sales.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 py-12 opacity-30">
+        <div className="flex flex-col items-center gap-3 py-12 opacity-30">
           <span className="text-5xl">🧾</span>
-          <p className="text-slate-900 font-bold italic">Sin compras registradas.</p>
+          <p className="font-bold italic text-slate-900 dark:text-[#F0EDE8]">
+            Sin compras registradas.
+          </p>
         </div>
       ) : (
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-slate-100 dark:divide-[rgba(255,255,255,0.04)]">
           {sales.map((sale) => (
-            <div key={sale.id} className="flex items-center justify-between p-4 hover:bg-slate-50/80 transition-colors group">
-              <span className="font-mono text-xs text-slate-400 uppercase tracking-widest">
+            <div
+              key={sale.id}
+              className="group flex items-center justify-between px-4 py-3.5 transition-colors
+                hover:bg-slate-50/80 dark:hover:bg-[rgba(255,107,53,0.03)]"
+            >
+              {/* Sale ID */}
+              <span className="font-mono text-xs uppercase tracking-widest
+                text-slate-400 dark:text-[#444]">
                 ID {sale.id}
               </span>
-              <span className="text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
+ 
+              {/* Amount */}
+              <span className="text-lg font-extrabold tabular-nums transition-colors
+                text-slate-900 group-hover:text-[#FF6B35]
+                dark:text-[#F0EDE8] dark:group-hover:text-[#FF6B35]">
                 ${sale.totalAmount}
               </span>
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">
+ 
+              {/* Date */}
+              <span className="text-[11px] font-bold uppercase tracking-wide
+                text-slate-400 dark:text-[#444]">
                 {sale.createdAt}
               </span>
             </div>

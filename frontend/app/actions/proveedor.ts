@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { Supplier } from "@/types/Supplier";
 import { GoogleGenAI } from "@google/genai";
 
-export async function getSuppliers(branchId?: number): Promise<{
+export async function getSuppliers(branchId: string): Promise<{
   data?: Supplier[];
   error?: string;
 }> {
@@ -13,12 +13,8 @@ export async function getSuppliers(branchId?: number): Promise<{
   if (!jwt) return { error: "No autorizado" };
 
   try {
-    // 💡 Si hay branchId, lo agregamos como query param
-    const baseUrl = `${process.env.NEXT_PUBLIC_API}/suppliers`;
-    const url = branchId ? `${baseUrl}?branchId=${branchId}` : baseUrl;
-
-    const res = await fetch(url, {
-      cache: "no-store", // 👈 Importante para ver los cambios al toque
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API}/suppliers?branchId=${branchId}`, {
+      cache: "no-store",
       headers: {
         Authorization: `Bearer ${jwt}`,
       },
@@ -38,9 +34,6 @@ export async function getSuppliers(branchId?: number): Promise<{
   }
 }
 
-/**
- * 🚀 Importar datos del proveedor (OCR/IA)
- */
 export async function importSupplierData(
     prevState: { error?: string; success?: string } | null,
     formData: FormData,
@@ -75,10 +68,8 @@ export async function importSupplierData(
   }
 }
 
-// --- LÓGICA DE ANÁLISIS CON GEMINI ---
-
 const client = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY as string,
+  apiKey: process.env.GEMINI_API_KEY
 });
 
 export async function analyzeImage(

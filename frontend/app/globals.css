@@ -1,65 +1,22 @@
 @import "tailwindcss";
 
-:root {
-  --foreground-rgb: 15, 23, 42; /* Slate 900 */
-  --background-start-rgb: 248, 250, 252; /* Slate 50 */
-  --background-end-rgb: 255, 255, 255; /* Blanco puro */
+@custom-variant dark (&:where(.dark, .dark &));
+
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
 }
 
-@layer base {
-  body {
-    @apply bg-slate-50 text-slate-900 antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  }
-
-  /* Estilizamos los inputs para que no se vean como el default de HTML */
-  input,
-  select,
-  textarea {
-    @apply bg-white border-slate-200 text-slate-900 transition-all duration-200;
-  }
-
-  input:focus,
-  select:focus,
-  textarea:focus {
-    @apply ring-2 ring-indigo-500/20 border-indigo-500 outline-none;
-  }
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-@layer components {
-  /* Botón primario estilo "SaaS" */
-  .btn-primary {
-    @apply px-4 py-2 bg-slate-900 text-white font-semibold rounded-xl
-            /* Elevación y sombra al pasar el mouse */
-        hover:bg-slate-800 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-200/40
-            /* Efecto de pulsación al hacer clic */
-        active:scale-95
-            /* Transición suave para que no sea brusco */
-        transition-all duration-300 ease-out
-            /* Estado deshabilitado */
-        disabled:bg-slate-300 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none;
-  }
-
-  /* Contenedor de tarjeta profesional */
-  .card-container {
-    @apply bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden;
-  }
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-/* Scrollbar moderno y fino */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-slate-50;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
-}
-
-/* Suavizar el scroll general */
-html {
-  scroll-behavior: smooth;
+@keyframes float { 
+  0%,100% { transform: translateY(0); } 
+  50% { transform: translateY(-8px); } 
 }

@@ -13,191 +13,217 @@ export default function SupplierDataReview({
   setData: React.Dispatch<React.SetStateAction<EditableOCRData | null>>;
   importAction: (formData: FormData) => void;
   importing: boolean;
-  branchId: number;
+  branchId: string;
 }) {
   return (
     <form
       action={importAction}
-      className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-top-4 duration-500"
+      className="max-w-4xl mx-auto flex flex-col gap-5"
     >
-      <div className="card-container p-6">
-        <div className="flex items-center gap-3 border-b border-slate-100 pb-4 mb-5">
-          <div className="w-11 h-11 bg-emerald-600 rounded-xl flex items-center justify-center text-white text-xl shadow-sm">
+ 
+      {/* ── Header card ── */}
+      <div
+        className="p-6 rounded-xl transition-colors
+          bg-white border border-slate-200
+          dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.07)]"
+      >
+        {/* Card header */}
+        <div
+          className="flex items-center gap-3 pb-4 mb-5
+            border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]"
+        >
+          <div
+            className="w-11 h-11 rounded-xl flex items-center justify-center text-xl
+              bg-[rgba(0,201,167,0.1)] dark:bg-[rgba(0,201,167,0.1)]"
+            style={{ border: "1px solid rgba(0,201,167,0.25)" }}
+          >
             ✅
           </div>
           <div>
-            <h2 className="text-xl font-black text-slate-900">
+            <h2 className="text-lg font-extrabold tracking-[-0.01em] text-slate-900 dark:text-[#F0EDE8]">
               Revisión de Datos
             </h2>
-            <p className="text-xs text-slate-400 font-medium mt-0.5">
+            <p className="text-xs mt-0.5 text-slate-400 dark:text-[#555]">
               Verificá y editá la información antes de importar
             </p>
           </div>
+ 
+          {/* Products count badge */}
           <div className="ml-auto">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-[11px] font-black uppercase tracking-wide border border-indigo-100">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 animate-pulse" />
+            <span
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wide
+                border border-[rgba(255,107,53,0.3)] bg-[rgba(255,107,53,0.08)] text-[#FF6B35]"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-[#FF6B35] animate-pulse" />
               {currentData.products.length} Productos detectados
             </span>
           </div>
         </div>
-        <div className="space-y-1.5">
-          <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">
+ 
+        {/* Business name input */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5 text-slate-400 dark:text-[#555]">
             Razón Social del Proveedor
           </label>
           <input
-            className="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 outline-none font-bold text-slate-900 bg-white transition-all placeholder:font-normal placeholder:text-slate-300"
+            className="w-full px-4 py-3 rounded-xl text-sm font-bold outline-none transition-all
+              border bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 placeholder:font-normal
+              focus:border-[rgba(255,107,53,0.5)] focus:ring-2 focus:ring-[rgba(255,107,53,0.12)] focus:bg-white
+              dark:bg-[rgba(255,255,255,0.04)] dark:border-[rgba(255,255,255,0.08)] dark:text-[#F0EDE8] dark:placeholder:text-[#333]
+              dark:focus:border-[rgba(255,107,53,0.5)] dark:focus:ring-[rgba(255,107,53,0.1)] dark:focus:bg-[rgba(255,255,255,0.06)]"
             placeholder="Ej: Distribuidora SA"
             name="businessName"
             value={currentData.businessName ?? ""}
-            onChange={(e) =>
-              setData({ ...currentData, businessName: e.target.value })
-            }
+            onChange={(e) => setData({ ...currentData, businessName: e.target.value })}
           />
         </div>
       </div>
-
-      <div className="card-container overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-          <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">
+ 
+      {/* ── Products table ── */}
+      <div
+        className="rounded-xl overflow-hidden transition-colors
+          bg-white border border-slate-200
+          dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.07)]"
+      >
+        {/* Table header */}
+        <div
+          className="flex items-center justify-between px-5 py-4
+            border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]"
+        >
+          <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-700 dark:text-[#AAA]">
             Lista de Productos
           </h3>
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+          <span className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-[#555]">
             {currentData.products.length} ítems
           </span>
         </div>
+ 
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-400">
+            <thead
+              className="border-b text-[10px] font-extrabold uppercase tracking-widest
+                bg-slate-50 border-slate-200 text-slate-400
+                dark:bg-[rgba(255,255,255,0.02)] dark:border-[rgba(255,255,255,0.06)] dark:text-[#444]"
+            >
               <tr>
-                <th className="p-4 font-black uppercase text-[10px] tracking-widest w-8">
-                  #
-                </th>
-                <th className="p-4 font-black uppercase text-[10px] tracking-widest">
-                  Nombre del Producto
-                </th>
-                <th className="p-4 font-black uppercase text-[10px] tracking-widest w-36">
-                  EAN13
-                </th>
-                <th className="p-4 font-black uppercase text-[10px] tracking-widest text-right w-24">
-                  Cantidad
-                </th>
-                <th className="p-4 font-black uppercase text-[10px] tracking-widest text-right w-40">
-                  Precio de Costo
-                </th>
+                <th className="p-4 w-8">#</th>
+                <th className="p-4">Nombre del Producto</th>
+                <th className="p-4 w-36">EAN13</th>
+                <th className="p-4 w-24 text-right">Cantidad</th>
+                <th className="p-4 w-40 text-right">Precio de Costo</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+ 
+            <tbody
+              className="divide-y
+                divide-slate-100 dark:divide-[rgba(255,255,255,0.04)]"
+            >
               {currentData.products.map((p, i) => (
                 <tr
                   key={i}
-                  className="hover:bg-slate-50/80 transition-colors group"
+                  className="group transition-colors
+                    hover:bg-slate-50/80
+                    dark:hover:bg-[rgba(255,107,53,0.03)]"
                 >
+                  {/* Row number */}
                   <td className="p-4">
-                    <span className="text-xs font-black text-slate-300 tabular-nums">
+                    <span className="text-xs font-bold tabular-nums text-slate-300 dark:text-[#333]">
                       {i + 1}
                     </span>
                   </td>
+ 
+                  {/* Name */}
                   <td className="p-4">
                     <input
-                      className="w-full bg-transparent font-bold text-slate-900 group-hover:text-indigo-600 transition-colors outline-none border-b border-transparent focus:border-indigo-300 focus:bg-white focus:px-2 focus:rounded-lg py-0.5 placeholder:text-slate-300 placeholder:font-normal"
+                      className="w-full bg-transparent outline-none py-0.5 transition-all font-bold text-slate-900 placeholder:text-slate-300 placeholder:font-normal border-b border-transparent focus:border-[rgba(255,107,53,0.4)] focus:bg-[rgba(255,107,53,0.04)] focus:px-2 focus:rounded-lg dark:text-[#F0EDE8] dark:placeholder:text-[#333] dark:focus:border-[rgba(255,107,53,0.4)] dark:focus:bg-[rgba(255,107,53,0.06)] group-hover:text-[#FF6B35] dark:group-hover:text-[#FF6B35]"
                       placeholder="Nombre del producto"
                       value={p.name ?? ""}
                       onChange={(e) => {
-                        const newProducts = [...currentData.products];
-                        newProducts[i] = {
-                          ...newProducts[i],
-                          name: e.target.value,
-                        };
-                        setData({ ...currentData, products: newProducts });
+                        const next = [...currentData.products];
+                        next[i] = { ...next[i], name: e.target.value };
+                        setData({ ...currentData, products: next });
                       }}
                     />
                   </td>
+ 
+                  {/* EAN13 */}
                   <td className="p-4">
                     <input
-                      className="w-40 bg-transparent font-mono text-slate-700 outline-none border-b border-transparent focus:border-indigo-300 focus:bg-white focus:px-2 focus:rounded-lg py-0.5"
+                      className="bg-transparent outline-none py-0.5 transition-all font-mono text-slate-700 tabular-nums border-b border-transparent focus:border-[rgba(255,107,53,0.4)] focus:bg-[rgba(255,107,53,0.04)] focus:px-2 focus:rounded-lg dark:text-[#AAA] dark:focus:border-[rgba(255,107,53,0.4)] dark:focus:bg-[rgba(255,107,53,0.06)] w-40"
                       placeholder="EAN13"
                       value={p.ean13 ?? ""}
                       onChange={(e) => {
-                        const newProducts = [...currentData.products];
-                        newProducts[i] = {
-                          ...newProducts[i],
-                          ean13: e.target.value,
-                        };
-                        setData({ ...currentData, products: newProducts });
+                        const next = [...currentData.products];
+                        next[i] = { ...next[i], ean13: e.target.value };
+                        setData({ ...currentData, products: next });
                       }}
                     />
                   </td>
+ 
+                  {/* Quantity */}
                   <td className="p-4">
                     <input
                       type="number"
-                      className="w-20 text-right bg-transparent font-mono font-bold text-slate-900 outline-none border-b border-transparent focus:border-indigo-300 focus:bg-white focus:px-2 focus:rounded-lg py-0.5"
+                      className="bg-transparent outline-none py-0.5 transition-all font-mono text-slate-700 tabular-nums border-b border-transparent focus:border-[rgba(255,107,53,0.4)] focus:bg-[rgba(255,107,53,0.04)] focus:px-2 focus:rounded-lg dark:text-[#AAA] dark:focus:border-[rgba(255,107,53,0.4)] dark:focus:bg-[rgba(255,107,53,0.06)] w-20 text-right font-bold"
                       value={p.quantity ?? 1}
                       onChange={(e) => {
-                        const newProducts = [...currentData.products];
-                        newProducts[i] = {
-                          ...newProducts[i],
-                          quantity: parseInt(e.target.value) || 1,
-                        };
-                        setData({ ...currentData, products: newProducts });
+                        const next = [...currentData.products];
+                        next[i] = { ...next[i], quantity: parseInt(e.target.value) || 1 };
+                        setData({ ...currentData, products: next });
                       }}
                     />
                   </td>
-
+ 
+                  {/* Cost price */}
                   <td className="p-4">
-                    <div className="flex flex-col items-end">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <span className="text-xs font-black text-slate-400">
-                          $
-                        </span>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-slate-400 dark:text-[#555]">$</span>
                         <input
                           type="number"
                           step="0.01"
-                          className="w-28 text-right bg-transparent font-mono font-black text-slate-900 outline-none border-b border-transparent focus:border-indigo-300 focus:bg-white focus:px-2 focus:rounded-lg py-0.5 tabular-nums"
+                          className="bg-transparent outline-none py-0.5 transition-all font-mono text-slate-700 tabular-nums border-b border-transparent focus:border-[rgba(255,107,53,0.4)] focus:bg-[rgba(255,107,53,0.04)] focus:px-2 focus:rounded-lg dark:text-[#AAA] dark:focus:border-[rgba(255,107,53,0.4)] dark:focus:bg-[rgba(255,107,53,0.06)] w-28 text-right font-extrabold"
                           value={p.baseCostPrice ?? 0}
                           onChange={(e) => {
-                            const newProducts = [...currentData.products];
-                            newProducts[i] = {
-                              ...newProducts[i],
-                              baseCostPrice: parseFloat(e.target.value) || 0,
-                            };
-                            setData({ ...currentData, products: newProducts });
+                            const next = [...currentData.products];
+                            next[i] = { ...next[i], baseCostPrice: parseFloat(e.target.value) || 0 };
+                            setData({ ...currentData, products: next });
                           }}
                         />
                       </div>
-
-                      {p.lastCostPrice !== undefined && (
-                        <div className="mt-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-100 shadow-sm">
-                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
-                            Prev: ${p.lastCostPrice.toFixed(2)}
-                          </span>
-                          {(() => {
-                            const diff = p.baseCostPrice - p.lastCostPrice;
-                            const percent = (diff / p.lastCostPrice) * 100;
-
-                            if (percent > 0.1) {
-                              return (
-                                <span className="text-[10px] font-black text-red-500 flex items-center">
-                                  <span className="mr-0.5">↑</span>
-                                  {percent.toFixed(1)}%
-                                </span>
-                              );
-                            }
-                            if (percent < -0.1) {
-                              return (
-                                <span className="text-[10px] font-black text-emerald-500 flex items-center">
-                                  <span className="mr-0.5">↓</span>
-                                  {Math.abs(percent).toFixed(1)}%
-                                </span>
-                              );
-                            }
-                            return (
-                              <span className="text-[10px] font-bold text-slate-400 tracking-tighter ml-1 italic">
-                                Sin cambios
+ 
+                      {/* Price comparison badge */}
+                      {p.lastCostPrice !== undefined && (() => {
+                        const diff = p.baseCostPrice - p.lastCostPrice;
+                        const pct = (diff / p.lastCostPrice) * 100;
+                        const isUp = pct > 0.1;
+                        const isDown = pct < -0.1;
+ 
+                        return (
+                          <div
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tight
+                              bg-slate-50 border border-slate-100
+                              dark:bg-[rgba(255,255,255,0.04)] dark:border-[rgba(255,255,255,0.06)]"
+                          >
+                            <span className="text-slate-400 dark:text-[#555]">
+                              Prev: ${p.lastCostPrice.toFixed(2)}
+                            </span>
+                            {isUp && (
+                              <span className="text-red-500 dark:text-red-400 flex items-center gap-0.5">
+                                ↑ {pct.toFixed(1)}%
                               </span>
-                            );
-                          })()}
-                        </div>
-                      )}
+                            )}
+                            {isDown && (
+                              <span className="text-[#00C9A7] flex items-center gap-0.5">
+                                ↓ {Math.abs(pct).toFixed(1)}%
+                              </span>
+                            )}
+                            {!isUp && !isDown && (
+                              <span className="italic text-slate-400 dark:text-[#444]">Sin cambios</span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </td>
                 </tr>
@@ -206,62 +232,49 @@ export default function SupplierDataReview({
           </table>
         </div>
       </div>
-
-      <input
-        type="hidden"
-        name="payload"
-        value={JSON.stringify({ ...currentData, branchId })}
-      />
-      <div className="flex items-center justify-between px-2">
-        <p className="text-xs text-slate-400 font-medium">
-          {currentData.products.some(
-            (p) => p.lastCostPrice && p.baseCostPrice > p.lastCostPrice,
-          )
-            ? "⚠️ Se detectaron aumentos en los costos de algunos productos."
-            : "Podés editar cualquier campo antes de confirmar"}
+ 
+      {/* ── Footer: warning + submit ── */}
+      <input type="hidden" name="payload" value={JSON.stringify({ ...currentData, branchId })} />
+ 
+      <div className="flex items-center justify-between px-1">
+        {/* Warning / hint */}
+        <p className="text-xs text-slate-400 dark:text-[#555]">
+          {currentData.products.some((p) => p.lastCostPrice && p.baseCostPrice > p.lastCostPrice) ? (
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-bold
+                  border border-[rgba(255,107,53,0.3)] bg-[rgba(255,107,53,0.08)] text-[#FF6B35]"
+              >
+                ⚠️ Se detectaron aumentos en los costos de algunos productos.
+              </span>
+            </span>
+          ) : (
+            "Podés editar cualquier campo antes de confirmar"
+          )}
         </p>
+ 
+        {/* Submit button */}
         <button
           type="submit"
           disabled={importing}
-          className="btn-primary px-8 py-3 flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-xl shadow-indigo-100"
+          className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm tracking-[0.02em]
+            border-0 cursor-pointer transition-[transform,box-shadow,background-color] duration-150
+            bg-[#FF6B35] text-white
+            hover:bg-[#FF8555] hover:-translate-y-[2px] hover:shadow-[0_16px_32px_rgba(255,107,53,0.3)]
+            disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
         >
           {importing ? (
             <>
-              <svg
-                className="animate-spin w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8z"
-                />
+              <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
               </svg>
               <span className="animate-pulse">Importando...</span>
             </>
           ) : (
             <>
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
               Confirmar Importación
             </>

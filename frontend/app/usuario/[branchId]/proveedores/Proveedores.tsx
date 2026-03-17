@@ -23,7 +23,7 @@ export default function Proveedores({
   initialSuppliers,
   suppliersError,
 }: {
-  branchId: number;
+  branchId: string;
   initialSuppliers: Supplier[];
   suppliersError?: string;
 }) {
@@ -133,9 +133,12 @@ export default function Proveedores({
   const currentData = data ?? derivedData;
 
   return (
-    <div className="max-w-7xl mx-auto p-4">
+    <div className="max-w-7xl mx-auto">
+ 
       {view === "list" ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+ 
+          {/* Supplier list */}
           <div
             className={`${selectedSupplier ? "lg:col-span-8" : "lg:col-span-12"} transition-all duration-500`}
           >
@@ -145,13 +148,22 @@ export default function Proveedores({
               onSupplierClick={handleSupplierClick}
             />
           </div>
-
+ 
+          {/* Supplier product panel */}
           {selectedSupplier && (
-            <div className="lg:col-span-4 h-fit sticky top-8">
+            <div className="lg:col-span-4 h-fit sticky top-24">
               {isLoadingProducts ? (
-                <div className="card-container p-20 flex flex-col items-center justify-center gap-4">
-                  <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                /* Loading state */
+                <div
+                  className="flex flex-col items-center justify-center gap-4 p-20 rounded-xl
+                    bg-white border border-slate-200
+                    dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.07)]"
+                >
+                  <div
+                    className="w-8 h-8 rounded-full border-4 border-t-transparent animate-spin"
+                    style={{ borderColor: "#FF6B35", borderTopColor: "transparent" }}
+                  />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-[#444]">
                     Buscando productos...
                   </p>
                 </div>
@@ -165,18 +177,24 @@ export default function Proveedores({
             </div>
           )}
         </div>
+ 
       ) : (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-5">
+ 
+          {/* Back button */}
           <button
-            onClick={() => {
-              setView("list");
-              setData(null);
-            }}
-            className="group flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-[0.2em]"
+            onClick={() => { setView("list"); setData(null); }}
+            className="group inline-flex items-center gap-2 w-fit text-[0.72rem] font-bold uppercase tracking-[0.15em] transition-colors
+              text-slate-400 hover:text-slate-700
+              dark:text-[#555] dark:hover:text-[#F0EDE8]"
           >
-            <span className="text-sm">←</span> Volver al listado
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+              className="transition-transform group-hover:-translate-x-0.5">
+              <path d="M15 19l-7-7 7-7" />
+            </svg>
+            Volver al listado
           </button>
-
+ 
           {currentData ? (
             <SupplierDataReview
               currentData={currentData}

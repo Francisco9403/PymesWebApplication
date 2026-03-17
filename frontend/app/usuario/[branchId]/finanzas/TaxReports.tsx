@@ -17,53 +17,91 @@ export default function TaxReports() {
   };
 
   return (
-    <div className="card-container p-6 bg-white border-slate-200 shadow-sm mt-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-      <div className="flex items-center gap-3 border-b border-slate-50 pb-4 mb-6">
-        <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg shadow-slate-200">
+    <div
+      className="p-6 rounded-xl transition-colors
+        bg-white border border-slate-200
+        dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.07)]"
+    >
+      {/* Header */}
+      <div
+        className="flex items-center gap-3 pb-5 mb-6
+          border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]"
+      >
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl
+            bg-[rgba(255,107,53,0.1)]"
+          style={{ border: "1px solid rgba(255,107,53,0.25)" }}
+        >
           ⚖️
         </div>
         <div>
-          <h2 className="text-xl font-black text-slate-900">
+          <h2 className="text-lg font-extrabold tracking-[-0.01em]
+            text-slate-900 dark:text-[#F0EDE8]">
             Libros y Exportación Legal
           </h2>
-          <p className="text-xs text-slate-500 font-medium uppercase tracking-widest">
-            Generación de archivos para contador (AFIP/ARBA)
+          <p className="text-[10px] font-bold uppercase tracking-widest mt-0.5
+            text-slate-500 dark:text-[#555]">
+            Generación de archivos para contador (ARCA / ARBA)
           </p>
         </div>
       </div>
-
+ 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
+ 
+        {/* Period picker */}
+        <div className="flex flex-col gap-2">
+          <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5
+            text-slate-400 dark:text-[#555]">
             Seleccionar Período Fiscal
           </label>
           <input
             type="month"
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
-            className="w-full p-4 rounded-2xl border-2 border-slate-100 font-bold text-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+            className="w-full px-4 py-3 rounded-xl text-sm font-bold outline-none transition-all
+              border bg-slate-50 border-slate-200 text-slate-700
+              focus:border-[rgba(255,107,53,0.5)] focus:ring-2 focus:ring-[rgba(255,107,53,0.12)] focus:bg-white
+              dark:bg-[rgba(255,255,255,0.04)] dark:border-[rgba(255,255,255,0.08)] dark:text-[#F0EDE8]
+              dark:focus:border-[rgba(255,107,53,0.5)] dark:focus:ring-[rgba(255,107,53,0.1)] dark:focus:bg-[rgba(255,255,255,0.06)]"
           />
         </div>
-
+ 
+        {/* Download buttons */}
         <div className="flex flex-col gap-3 justify-end">
+          {/* Primary: IVA book */}
           <button
             onClick={() => handleDownload("iva")}
-            className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+            className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest
+              border-0 cursor-pointer transition-[transform,box-shadow,background-color] duration-150
+              bg-[#FF6B35] text-white
+              hover:bg-[#FF8555] hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(255,107,53,0.3)]"
           >
             📄 Libro IVA Digital (.txt)
           </button>
+ 
+          {/* Ghost: retenciones */}
           <button
             onClick={() => handleDownload("retenciones")}
-            className="w-full bg-white text-indigo-600 border-2 border-indigo-50 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-all flex items-center justify-center gap-2"
+            className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest
+              cursor-pointer transition-colors duration-150
+              border-2 border-[rgba(255,107,53,0.3)] text-[#FF6B35] bg-transparent
+              hover:border-[rgba(255,107,53,0.5)] hover:bg-[rgba(255,107,53,0.06)]
+              dark:border-[rgba(255,107,53,0.25)] dark:hover:border-[rgba(255,107,53,0.45)] dark:hover:bg-[rgba(255,107,53,0.08)]"
           >
             📊 Reporte Percepciones (PDF)
           </button>
         </div>
       </div>
-
-      <p className="text-[10px] text-slate-400 mt-6 italic text-center border-t border-slate-50 pt-4">
-        Los archivos generados cumplen con la normativa de **AFIP (SIRE)** y los
-        regímenes de retención vigentes.
+ 
+      {/* Compliance note */}
+      <p
+        className="text-[10px] italic text-center mt-6 pt-4
+          border-t border-slate-100 dark:border-[rgba(255,255,255,0.06)]
+          text-slate-400 dark:text-[#444]"
+      >
+        Los archivos generados cumplen con la normativa de{" "}
+        <span className="font-bold not-italic text-slate-500 dark:text-[#555]">ARCA (SIRE)</span>{" "}
+        y los regímenes de retención vigentes.
       </p>
     </div>
   );

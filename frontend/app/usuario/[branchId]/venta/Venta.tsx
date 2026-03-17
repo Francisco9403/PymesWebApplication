@@ -1,6 +1,5 @@
 "use client";
 
-import { crearQrMercadoPago } from "@/app/actions/mercadopago";
 import { procesarSku } from "@/app/actions/product";
 import { useToast } from "@/layout/ToastProvider";
 
@@ -13,8 +12,9 @@ import { generateCustomerTag, getCustomerSales } from "@/app/actions/cliente";
 import QRScanner from "./QRScanner";
 import ProductList from "./ProductList";
 import { QrData } from "@/types/QrData";
+import { crearQrMercadoPago } from "@/app/actions/mercadopago";
 
-export default function Venta({ branchId }: { branchId: number }) {
+export default function Venta({ branchId }: { branchId: string }) {
   const { show } = useToast();
   const [qrData, setQrData] = useState<QrData | null>(null);
   const [customerId, setCustomerId] = useState<number | null>(null);
@@ -96,7 +96,9 @@ export default function Venta({ branchId }: { branchId: number }) {
         }
       }
 
-      const qrResult = await crearQrMercadoPago(total);
+      /* const qrResult = await crearQrMercadoPago(total); */
+
+      const qrResult = await crearQrMercadoPago(total)
       if ("error" in qrResult) {
         show(qrResult.error, "error");
         return;
@@ -124,42 +126,43 @@ export default function Venta({ branchId }: { branchId: number }) {
   }
 
   return (
-    <div className="flex flex-col gap-6 pb-20">
+    <div className="flex flex-col gap-5 pb-20">
       <QRScanner onScan={handleScan} loading={isPending} />
-
+ 
       <CustomerSelector
         customerId={customerId}
         customerName={customerName}
         setCustomerId={setCustomerId}
         setCustomerName={setCustomerName}
       />
-
-      <div className="grid grid-cols-1 gap-6">
+ 
+      <div className="flex flex-col gap-5">
         <ProductList cart={cart} removeFromCart={removeFromCart} />
-
+ 
+        {/* Cobrar CTA */}
         {cart.length > 0 && !qrData && (
           <button
             onClick={handleCobrar}
             disabled={isPending}
-            className="btn-primary bg-emerald-600! hover:bg-emerald-700! py-6 text-xl shadow-xl shadow-emerald-200/50 flex items-center justify-center gap-3"
+            className="w-full inline-flex items-center justify-center gap-3 py-5 rounded-xl text-lg font-extrabold tracking-[-0.01em]
+              border-0 cursor-pointer transition-[transform,box-shadow,background-color] duration-150
+              bg-[#00C9A7] text-white
+              hover:bg-[#00B396] hover:-translate-y-[2px] hover:shadow-[0_20px_40px_rgba(0,201,167,0.3)]
+              disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
           >
             {isPending ? (
-              <span className="animate-pulse">Generando Orden...</span>
+              <>
+                <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                <span className="animate-pulse">Generando Orden...</span>
+              </>
             ) : (
               <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 Finalizar y Cobrar
               </>
@@ -167,7 +170,7 @@ export default function Venta({ branchId }: { branchId: number }) {
           </button>
         )}
       </div>
-
+ 
       <PaymentQR
         qrString={qrData?.qrString}
         externalReference={qrData?.externalReference}

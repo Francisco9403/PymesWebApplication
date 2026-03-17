@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ToastProvider } from "@/layout/ToastProvider";
+import { Sora, DM_Mono } from 'next/font/google'
+
+const sora = Sora({
+  subsets: ['latin'],
+  weight: ['300','400','600','700','800'],
+  variable: '--font-sora'
+})
+
+const dmMono = DM_Mono({
+  subsets: ['latin'],
+  weight: ['400','500'],
+  variable: '--font-dm-mono',
+})
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -13,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${sora.variable} ${dmMono.variable}`}>
       <body>
         <ToastProvider>{children}</ToastProvider>
       </body>

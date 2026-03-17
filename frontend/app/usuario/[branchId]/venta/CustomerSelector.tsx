@@ -81,9 +81,12 @@ export function CustomerSelector({
   return (
     <button
       onClick={() => setCreating(true)}
-      className="btn-primary bg-indigo-600! hover:bg-indigo-700!"
-    >
-      + Agregar cliente
+      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm tracking-[0.02em]
+        border-0 cursor-pointer transition-[transform,box-shadow,background-color] duration-150 bg-[#FF6B35] text-white hover:bg-[#FF8555] hover:-translate-y-px hover:shadow-[0_10px_24px_rgba(255,107,53,0.3)]">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 4v16m8-8H4" />
+      </svg>
+      Agregar cliente
     </button>
   );
 }
