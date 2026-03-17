@@ -1,6 +1,10 @@
 
 package com.backend.app.producto.controller;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,18 +19,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.validation.Valid;
-import com.backend.app.producto.model.Product;
-import com.backend.app.usuario.model.User;
+
 import com.backend.app.autentificacion.config.dto.PageResponse;
+import com.backend.app.producto.model.Product;
 import com.backend.app.producto.model.dto.ProductListResponse;
 import com.backend.app.producto.model.dto.ProductResponse;
 import com.backend.app.producto.model.dto.ProductSearchCriteria;
 import com.backend.app.producto.service.ProductService;
+import com.backend.app.usuario.model.User;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/products")
@@ -41,7 +43,6 @@ public class ProductController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Product createProduct(@Valid @RequestBody Product product) {
-        System.out.println(product);
         return productService.createProduct(product);
     }
 
@@ -59,10 +60,6 @@ public class ProductController {
             Authentication auth
     ) {
         User user = (User) auth.getPrincipal();
-
-        System.out.println("productId: " + id);
-        System.out.println("branchId: " + branchId);
-        System.out.println("userId: " + user.getId());
         productService.deleteProduct(id, branchId, user.getId());
     }
 
@@ -112,7 +109,6 @@ public class ProductController {
         // Obtenemos el usuario logueado para que solo afecte a sus productos
         User user = (User) auth.getPrincipal();
 
-        System.out.println("🤖 IA mandó " + suggestions.size() + " sugerencias para el usuario: " + user.getId());
 
         // Llamamos al método del Service que procesa la lista
         productService.saveAIStrategicDrafts(suggestions, user.getId());

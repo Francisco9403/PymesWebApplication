@@ -12,3 +12,6 @@ cookie:
   secure: false
   domain: localhost
   sameSite: Lax
+
+frontend:
+  url: http://localhost:3000

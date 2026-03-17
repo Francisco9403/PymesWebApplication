@@ -2,10 +2,10 @@
 
 import {
   createContext,
-  useContext,
-  useReducer,
   useCallback,
+  useContext,
   useMemo,
+  useReducer,
 } from "react";
 
 type ToastType = "success" | "info" | "warn" | "error";
@@ -67,40 +67,53 @@ export const useToast = (): ToastContextType => {
   return context;
 };
 
+/* ─────────────────────────────────────────────
+   Design-system tokens per toast type
+   success → #00C9A7  (teal  — same as "Nivel Óptimo", payment confirm)
+   info    → #06B6D4  (cyan  — same as "Dólar MEP" feature card)
+   warn    → #FFD166  (amber — same as "Stock Crítico" mini-card)
+   error   → red-400  (same as stock-crítico badge dark)
+───────────────────────────────────────────── */
 const TOAST_VARIANTS: Record<
   ToastType,
-  { border: string; iconBg: string; iconColor: string; label: string }
+  {
+    accent: string; // hex — used for icon, left bar, border
+    borderOpacity: string; // tailwind border utility
+    iconBg: string; // tailwind bg utility
+    label: string;
+  }
 > = {
   success: {
-    border: "border-emerald-500/40",
-    iconBg: "bg-emerald-500/10",
-    iconColor: "text-emerald-400",
-    label: "Success",
+    accent: "#00C9A7",
+    borderOpacity: "border-[rgba(0,201,167,0.35)]",
+    iconBg: "bg-[rgba(0,201,167,0.12)]",
+    label: "Éxito",
   },
   info: {
-    border: "border-sky-500/40",
-    iconBg: "bg-sky-500/10",
-    iconColor: "text-sky-400",
+    accent: "#06B6D4",
+    borderOpacity: "border-[rgba(6,182,212,0.35)]",
+    iconBg: "bg-[rgba(6,182,212,0.12)]",
     label: "Info",
   },
   warn: {
-    border: "border-amber-400/40",
-    iconBg: "bg-amber-400/10",
-    iconColor: "text-amber-400",
-    label: "Warning",
+    accent: "#FFD166",
+    borderOpacity: "border-[rgba(255,209,102,0.35)]",
+    iconBg: "bg-[rgba(255,209,102,0.12)]",
+    label: "Atención",
   },
   error: {
-    border: "border-red-500/40",
-    iconBg: "bg-red-500/10",
-    iconColor: "text-red-400",
+    accent: "#F87171",
+    borderOpacity: "border-[rgba(248,113,113,0.35)]",
+    iconBg: "bg-[rgba(248,113,113,0.12)]",
     label: "Error",
   },
 };
 
+/* ── Icon ── */
 function ToastIcon({ type }: { type: ToastType }) {
   const props = {
-    width: 16,
-    height: 16,
+    width: 15,
+    height: 15,
     viewBox: "0 0 24 24",
     fill: "none",
     stroke: "currentColor",
@@ -137,6 +150,7 @@ function ToastIcon({ type }: { type: ToastType }) {
   );
 }
 
+/* ── Single toast item ── */
 function ToastItem({
   toast,
   onRemove,
@@ -147,57 +161,69 @@ function ToastItem({
   const v = TOAST_VARIANTS[toast.type];
 
   return (
-    <>
+    <div
+      className={`
+        relative flex items-start gap-3 w-80 rounded-xl border pl-5 pr-3 py-4
+        shadow-2xl shadow-black/50 backdrop-blur-md
+        bg-[rgba(10,10,15,0.95)]
+        ${v.borderOpacity}
+      `}
+      style={{
+        animation: "toastIn 0.25s ease forwards",
+        fontFamily: "'Sora', 'DM Sans', sans-serif",
+      }}
+    >
+      {/* Left accent bar */}
       <div
-        className={`
-          relative flex items-start gap-3 w-80 rounded-xl border
-          bg-[#111118]/95 backdrop-blur-md p-4 shadow-2xl shadow-black/60
-          ${v.border}
-        `}
-        style={{ animation: "toastIn 0.25s ease forwards" }}
+        className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full"
+        style={{ background: v.accent, opacity: 0.8 }}
+      />
+
+      {/* Icon */}
+      <div
+        className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${v.iconBg}`}
+        style={{ color: v.accent }}
       >
-        <div
-          className={`absolute left-0 top-3 bottom-3 w-0.5 rounded-full ${v.iconColor} opacity-60`}
-          style={{ background: "currentColor" }}
-        />
-
-        <div
-          className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${v.iconBg} ${v.iconColor}`}
-        >
-          <ToastIcon type={toast.type} />
-        </div>
-
-        <div className="flex-1 min-w-0 pt-0.5">
-          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-0.5">
-            {v.label}
-          </p>
-          <p className="text-sm text-zinc-200 leading-snug wrap-break-word">
-            {toast.message}
-          </p>
-        </div>
-
-        <button
-          onClick={onRemove}
-          className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-zinc-600 hover:text-zinc-300 hover:bg-white/6 transition-all duration-150 mt-0.5"
-          aria-label="Close"
-        >
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          >
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
+        <ToastIcon type={toast.type} />
       </div>
-    </>
+
+      {/* Text */}
+      <div className="flex-1 min-w-0 pt-0.5">
+        <p
+          className="text-[0.6rem] font-bold uppercase tracking-[0.12em] mb-0.5"
+          style={{ color: v.accent, fontFamily: "'DM Mono', monospace" }}
+        >
+          {v.label}
+        </p>
+        <p className="text-sm text-[#C8C5C0] leading-snug break-words">
+          {toast.message}
+        </p>
+      </div>
+
+      {/* Close */}
+      <button
+        onClick={onRemove}
+        aria-label="Cerrar"
+        className="shrink-0 w-6 h-6 mt-0.5 flex items-center justify-center rounded-md transition-all duration-150
+          text-[#444] hover:text-[#AAA] hover:bg-[rgba(255,255,255,0.06)]"
+      >
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        >
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
   );
 }
 
+/* ── Container ── */
 function ToastContainer({
   toasts,
   removeToast,
@@ -206,7 +232,7 @@ function ToastContainer({
   removeToast: (id: string) => void;
 }) {
   return (
-    <div className="fixed bottom-5 right-5 flex flex-col gap-2.5 z-9999">
+    <div className="fixed bottom-5 right-5 flex flex-col gap-2.5 z-[9999]">
       {toasts.map((toast) => (
         <ToastItem
           key={toast.id}

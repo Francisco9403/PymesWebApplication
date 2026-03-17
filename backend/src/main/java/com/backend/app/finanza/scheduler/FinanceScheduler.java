@@ -1,6 +1,9 @@
 package com.backend.app.finanza.scheduler;
 
-import com.backend.app.finanza.service.FinanceService;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -9,9 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
+import com.backend.app.finanza.service.FinanceService;
 
 @Component
 public class FinanceScheduler {
@@ -41,7 +42,6 @@ public class FinanceScheduler {
                     if ("mep".equals(nombre) || "bolsa".equals(nombre)) {
                         BigDecimal currentMep = new BigDecimal(casa.get("venta").toString());
 
-                        System.out.println("🤖 Bot Financiero: Cotización real MEP detectada: $" + currentMep);
                         financeService.applyAutomaticMarkup(currentMep);
                         break;
                     }

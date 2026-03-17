@@ -1,8 +1,8 @@
 "use server";
 
-import { cookies } from "next/headers";
 import type { CartItem } from "@/types/Cart";
 import { CreateSaleRequest } from "@/types/Sale";
+import { cookies } from "next/headers";
 
 export async function crearVenta(
   prevState: { error?: string; success?: string } | null,
@@ -10,7 +10,6 @@ export async function crearVenta(
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
-
   if (!jwt) return { error: "No autorizado" };
 
   const branchId = Number(formData.get("branchId"));

@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiError> handleBusiness(BusinessException ex, HttpServletRequest request) {
         log.warn("Violación de regla de negocio: {}", ex.getMessage());
-        return createErrorResponse(ex.getMessage(), "BUSINESS_RULE_ERROR", HttpStatus.UNPROCESSABLE_ENTITY, request, null);
+        return createErrorResponse(ex.getMessage(), "BUSINESS_RULE_ERROR", HttpStatus.UNPROCESSABLE_CONTENT, request, null);
     }
 
     // 3. Stock insuficiente (HTTP 409 - Conflicto)

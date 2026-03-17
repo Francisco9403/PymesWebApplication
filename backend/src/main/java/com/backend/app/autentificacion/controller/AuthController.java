@@ -3,7 +3,6 @@ package com.backend.app.autentificacion.controller;
 import java.io.IOException;
 import java.util.Map;
 
-import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -13,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.app.autentificacion.config.dto.LoginRequest;
 import com.backend.app.autentificacion.service.AuthService;
+import com.backend.app.usuario.service.PasswordResetService;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -30,10 +32,13 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final AuthService authService;
+    private final PasswordResetService passwordResetService;
 
-    public AuthController(AuthenticationManager authenticationManager, AuthService authService) {
+    public AuthController(AuthenticationManager authenticationManager, AuthService authService,
+            PasswordResetService passwordResetService) {
         this.authenticationManager = authenticationManager;
         this.authService = authService;
+        this.passwordResetService = passwordResetService;
     }
 
     @PostMapping("/login")
@@ -64,6 +69,23 @@ public class AuthController {
         return ResponseEntity.ok(
                 Map.of("username", authentication.getName())
         );
+    }
+
+    @PostMapping("/forgot-password")
+    @ResponseStatus(HttpStatus.OK)
+    public void forgotPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        passwordResetService.sendResetEmail(email);
+    }
+
+    @PatchMapping("/reset-password")
+    @ResponseStatus(HttpStatus.OK)
+    public void resetPassword(@RequestBody Map<String, String> body) {
+    
+        String token = body.get("token");
+        String newPassword = body.get("password");
+    
+        passwordResetService.resetPassword(token, newPassword);
     }
 
     @PostMapping("/logout")

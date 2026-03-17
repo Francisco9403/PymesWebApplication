@@ -36,7 +36,6 @@ export default function IniciarSesionForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
  
-      {/* Email */}
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-bold ml-0.5 text-slate-700 dark:text-[#AAA]">
           Email <span className="text-[#FF6B35]">*</span>
@@ -56,7 +55,6 @@ export default function IniciarSesionForm() {
         />
       </div>
  
-      {/* Password */}
       <div className="flex flex-col gap-1.5">
         <div className="flex justify-between items-center ml-0.5">
           <label className="text-sm font-bold text-slate-700 dark:text-[#AAA]">
@@ -105,7 +103,6 @@ export default function IniciarSesionForm() {
         </div>
       </div>
  
-      {/* Submit */}
       <button
         type="submit"
         disabled={isPending}
