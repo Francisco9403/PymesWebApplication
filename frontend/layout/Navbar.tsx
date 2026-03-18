@@ -55,9 +55,7 @@ export default function Navbar({ branches }: { branches: Branch[] }) {
         dark:bg-[rgba(10,10,15,0.85)] dark:border-[rgba(255,255,255,0.05)] dark:shadow-none"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        {/* ── Left: logo + nav ── */}
         <div className="flex items-center gap-8">
-          {/* Logo */}
           <Link href="/usuario" className="flex flex-col leading-none">
             <span className="text-[1.1rem] font-extrabold tracking-[-0.02em] text-slate-900 dark:text-[#F0EDE8]">
               Comercio<span className="text-[#FF6B35]">App</span>
@@ -73,7 +71,6 @@ export default function Navbar({ branches }: { branches: Branch[] }) {
             </span>
           </Link>
 
-          {/* Nav links */}
           <nav className="hidden lg:flex items-center gap-0.5">
             {navLinks.map((link) => {
               const href = link.scoped
@@ -99,9 +96,7 @@ export default function Navbar({ branches }: { branches: Branch[] }) {
           </nav>
         </div>
 
-        {/* ── Right: branch selector + theme toggle + logout ── */}
         <div className="flex items-center gap-3">
-          {/* Branch selector */}
           {branches.length > 0 && (
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#FF6B35] text-xs pointer-events-none select-none">
@@ -142,7 +137,6 @@ export default function Navbar({ branches }: { branches: Branch[] }) {
             </div>
           )}
 
-          {/* Dark / light toggle — same as Home.tsx */}
           <button
             onClick={toggleDark}
             aria-label="Cambiar tema"
@@ -151,7 +145,6 @@ export default function Navbar({ branches }: { branches: Branch[] }) {
               dark:bg-[rgba(255,255,255,0.06)] dark:hover:bg-[rgba(255,255,255,0.1)] dark:text-[#9A9A9A]"
           >
             {darkMode ? (
-              /* Sun — currently dark, click → go light */
               <svg
                 width="15"
                 height="15"
@@ -166,7 +159,6 @@ export default function Navbar({ branches }: { branches: Branch[] }) {
                 <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
               </svg>
             ) : (
-              /* Moon — currently light, click → go dark */
               <svg
                 width="15"
                 height="15"
@@ -182,7 +174,6 @@ export default function Navbar({ branches }: { branches: Branch[] }) {
             )}
           </button>
 
-          {/* Logout */}
           <button
             onClick={handleLogout}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold

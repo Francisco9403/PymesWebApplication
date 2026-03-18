@@ -44,7 +44,6 @@ export default function RestablecerPassword() {
     <form action={formAction} className="flex flex-col gap-5">
       <input type="hidden" name="token" value={token ?? ""} />
 
-      {/* Password field */}
       <div className="flex flex-col gap-1.5">
         <label
           className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5
@@ -66,7 +65,6 @@ export default function RestablecerPassword() {
               dark:bg-[rgba(255,255,255,0.04)] dark:border-[rgba(255,255,255,0.08)] dark:text-[#F0EDE8] dark:placeholder:text-[#444]
               dark:focus:border-[rgba(255,107,53,0.5)] dark:focus:ring-[rgba(255,107,53,0.1)] dark:focus:bg-[rgba(255,255,255,0.06)]"
           />
-          {/* Toggle visibility */}
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
@@ -113,13 +111,11 @@ export default function RestablecerPassword() {
           </button>
         </div>
 
-        {/* Strength hint */}
         <p className="text-[0.65rem] ml-0.5 text-slate-400 dark:text-[#444]">
           Mínimo 8 caracteres, incluí números y símbolos.
         </p>
       </div>
 
-      {/* Submit */}
       <button
         type="submit"
         disabled={isPending}

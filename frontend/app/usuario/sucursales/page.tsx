@@ -1,8 +1,8 @@
 import { getBranches } from "@/app/actions/branch";
-import CreateBranchForm from "./CreateBranchForm";
-import Link from "next/link";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import CreateBranchForm from "./CreateBranchForm";
 
 export default async function SucursalesPage() {
   const cookieStore = await cookies();
@@ -16,15 +16,16 @@ export default async function SucursalesPage() {
       className="min-h-[calc(100vh-64px)] p-6 sm:p-10 transition-colors duration-300
         bg-slate-50 dark:bg-[#0A0A0F]"
     >
-      {/* Ambient glows */}
-      <div className="fixed rounded-full pointer-events-none blur-[140px] w-[500px] h-[500px] -top-[150px] -left-[150px]
-        bg-[rgba(255,107,53,0.04)] dark:bg-[rgba(255,107,53,0.08)]" />
-      <div className="fixed rounded-full pointer-events-none blur-[140px] w-[400px] h-[400px] bottom-0 right-0
-        bg-[rgba(0,201,167,0.03)] dark:bg-[rgba(0,201,167,0.06)]" />
- 
+      <div
+        className="fixed rounded-full pointer-events-none blur-[140px] w-[500px] h-[500px] -top-[150px] -left-[150px]
+        bg-[rgba(255,107,53,0.04)] dark:bg-[rgba(255,107,53,0.08)]"
+      />
+      <div
+        className="fixed rounded-full pointer-events-none blur-[140px] w-[400px] h-[400px] bottom-0 right-0
+        bg-[rgba(0,201,167,0.03)] dark:bg-[rgba(0,201,167,0.06)]"
+      />
+
       <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-8">
- 
-        {/* ── Header ── */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="flex flex-col gap-2">
             <Link
@@ -33,14 +34,25 @@ export default async function SucursalesPage() {
                 text-slate-400 hover:text-slate-700
                 dark:text-[#555] dark:hover:text-[#F0EDE8]"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                className="transition-transform group-hover:-translate-x-0.5">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-transform group-hover:-translate-x-0.5"
+              >
                 <path d="M15 19l-7-7 7-7" />
               </svg>
               Volver al Panel
             </Link>
-            <h1 className="text-4xl font-extrabold tracking-[-0.03em]
-              text-slate-900 dark:text-[#F0EDE8]">
+            <h1
+              className="text-4xl font-extrabold tracking-[-0.03em]
+              text-slate-900 dark:text-[#F0EDE8]"
+            >
               Administrar Sucursales
             </h1>
             <p className="text-sm text-slate-500 dark:text-[#666]">
@@ -48,25 +60,28 @@ export default async function SucursalesPage() {
             </p>
           </div>
         </header>
- 
+
         <div className="h-px bg-linear-to-r from-transparent via-slate-200 to-transparent dark:via-[rgba(255,255,255,0.08)]" />
- 
+
         <CreateBranchForm />
- 
-        {/* ── Branch list ── */}
+
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-lg font-extrabold tracking-[-0.01em]
-              text-slate-800 dark:text-[#F0EDE8]">
+            <h2
+              className="text-lg font-extrabold tracking-[-0.01em]
+              text-slate-800 dark:text-[#F0EDE8]"
+            >
               Listado de Locales
             </h2>
-            <span className="text-[0.65rem] font-bold uppercase tracking-widest
-              text-slate-400 dark:text-[#555]">
-              {branches.length} {branches.length === 1 ? "Sucursal" : "Sucursales"}
+            <span
+              className="text-[0.65rem] font-bold uppercase tracking-widest
+              text-slate-400 dark:text-[#555]"
+            >
+              {branches.length}{" "}
+              {branches.length === 1 ? "Sucursal" : "Sucursales"}
             </span>
           </div>
- 
-          {/* Branches table */}
+
           <div
             className="rounded-xl overflow-hidden transition-colors
               bg-white border border-slate-200
@@ -86,10 +101,8 @@ export default async function SucursalesPage() {
                     <th className="p-4">Tipo de Operación</th>
                   </tr>
                 </thead>
- 
+
                 <tbody className="divide-y divide-slate-100 dark:divide-[rgba(255,255,255,0.04)]">
- 
-                  {/* Empty state */}
                   {(!branches || branches.length === 0) && (
                     <tr>
                       <td colSpan={4} className="p-16 text-center">
@@ -102,7 +115,7 @@ export default async function SucursalesPage() {
                       </td>
                     </tr>
                   )}
- 
+
                   {branches.map((branch) => (
                     <tr
                       key={branch.id}
@@ -110,26 +123,24 @@ export default async function SucursalesPage() {
                         hover:bg-slate-50/80
                         dark:hover:bg-[rgba(255,107,53,0.03)]"
                     >
-                      {/* Name */}
                       <td className="p-4">
-                        <span className="font-bold transition-colors
+                        <span
+                          className="font-bold transition-colors
                           text-slate-900 group-hover:text-[#FF6B35]
-                          dark:text-[#F0EDE8] dark:group-hover:text-[#FF6B35]">
+                          dark:text-[#F0EDE8] dark:group-hover:text-[#FF6B35]"
+                        >
                           {branch.name}
                         </span>
                       </td>
- 
-                      {/* Address */}
+
                       <td className="p-4 font-medium text-slate-600 dark:text-[#888]">
                         {branch.address || "— No especificada —"}
                       </td>
- 
-                      {/* Phone */}
+
                       <td className="p-4 font-mono text-xs text-slate-500 dark:text-[#555]">
                         {branch.phone || "— Sin teléfono —"}
                       </td>
- 
-                      {/* Type badge */}
+
                       <td className="p-4">
                         {branch.isPointOfSale ? (
                           <span

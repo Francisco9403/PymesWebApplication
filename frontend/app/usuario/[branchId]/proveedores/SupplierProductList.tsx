@@ -13,8 +13,6 @@ export default function SupplierProductList({
 }) {
   return (
     <div className="flex flex-col gap-4">
- 
-      {/* Panel header */}
       <div
         className="flex justify-between items-center p-5 rounded-xl
           border border-[rgba(255,107,53,0.2)] bg-[rgba(255,107,53,0.05)]
@@ -37,8 +35,7 @@ export default function SupplierProductList({
           ✕
         </button>
       </div>
- 
-      {/* Products table */}
+
       <div
         className="rounded-xl overflow-hidden
           bg-white border border-slate-200
@@ -56,12 +53,13 @@ export default function SupplierProductList({
                 <th className="p-4 text-right">Costo Actual</th>
               </tr>
             </thead>
-            <tbody
-              className="divide-y divide-slate-100 dark:divide-[rgba(255,255,255,0.04)]"
-            >
+            <tbody className="divide-y divide-slate-100 dark:divide-[rgba(255,255,255,0.04)]">
               {products.length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="p-10 text-center text-xs italic text-slate-400 dark:text-[#444]">
+                  <td
+                    colSpan={2}
+                    className="p-10 text-center text-xs italic text-slate-400 dark:text-[#444]"
+                  >
                     Este proveedor no tiene productos vinculados.
                   </td>
                 </tr>

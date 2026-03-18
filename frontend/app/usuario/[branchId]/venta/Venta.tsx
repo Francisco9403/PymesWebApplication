@@ -3,16 +3,16 @@
 import { procesarSku } from "@/app/actions/product";
 import { useToast } from "@/layout/ToastProvider";
 
-import { useState, useTransition } from "react";
-import PaymentQR from "./PaymentQR";
+import { generateCustomerTag, getCustomerSales } from "@/app/actions/cliente";
+import { crearQrMercadoPago } from "@/app/actions/mercadopago";
 import { crearVenta } from "@/app/actions/venta";
 import { CartItem, Product } from "@/types/Cart";
-import { CustomerSelector } from "./CustomerSelector";
-import { generateCustomerTag, getCustomerSales } from "@/app/actions/cliente";
-import QRScanner from "./QRScanner";
-import ProductList from "./ProductList";
 import { QrData } from "@/types/QrData";
-import { crearQrMercadoPago } from "@/app/actions/mercadopago";
+import { useState, useTransition } from "react";
+import { CustomerSelector } from "./CustomerSelector";
+import PaymentQR from "./PaymentQR";
+import ProductList from "./ProductList";
+import QRScanner from "./QRScanner";
 
 export default function Venta({ branchId }: { branchId: string }) {
   const { show } = useToast();
@@ -96,9 +96,7 @@ export default function Venta({ branchId }: { branchId: string }) {
         }
       }
 
-      /* const qrResult = await crearQrMercadoPago(total); */
-
-      const qrResult = await crearQrMercadoPago(total)
+      const qrResult = await crearQrMercadoPago(total);
       if ("error" in qrResult) {
         show(qrResult.error, "error");
         return;
@@ -128,18 +126,17 @@ export default function Venta({ branchId }: { branchId: string }) {
   return (
     <div className="flex flex-col gap-5 pb-20">
       <QRScanner onScan={handleScan} loading={isPending} />
- 
+
       <CustomerSelector
         customerId={customerId}
         customerName={customerName}
         setCustomerId={setCustomerId}
         setCustomerName={setCustomerName}
       />
- 
+
       <div className="flex flex-col gap-5">
         <ProductList cart={cart} removeFromCart={removeFromCart} />
- 
-        {/* Cobrar CTA */}
+
         {cart.length > 0 && !qrData && (
           <button
             onClick={handleCobrar}
@@ -152,17 +149,42 @@ export default function Venta({ branchId }: { branchId: string }) {
           >
             {isPending ? (
               <>
-                <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                <svg
+                  className="animate-spin w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  />
                 </svg>
                 <span className="animate-pulse">Generando Orden...</span>
               </>
             ) : (
               <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
                 </svg>
                 Finalizar y Cobrar
               </>
@@ -170,7 +192,7 @@ export default function Venta({ branchId }: { branchId: string }) {
           </button>
         )}
       </div>
- 
+
       <PaymentQR
         qrString={qrData?.qrString}
         externalReference={qrData?.externalReference}

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { runFullAIPricingAnalysis } from "@/app/actions/pricing";
-import { ProductResponse } from "@/types/Product";
 import { useToast } from "@/layout/ToastProvider";
+import { ProductResponse } from "@/types/Product";
+import { useState } from "react";
 
 export default function PricingTrigger({
   products,
@@ -37,7 +37,6 @@ export default function PricingTrigger({
         dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.07)]"
     >
       <div className="flex items-center gap-3">
-        {/* Icon */}
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0
             bg-[rgba(168,85,247,0.1)]"
@@ -46,17 +45,21 @@ export default function PricingTrigger({
           🪄
         </div>
         <div>
-          <h3 className="text-sm font-extrabold tracking-[-0.01em]
-            text-slate-900 dark:text-[#F0EDE8]">
+          <h3
+            className="text-sm font-extrabold tracking-[-0.01em]
+            text-slate-900 dark:text-[#F0EDE8]"
+          >
             Asistente de Precios Estratégicos
           </h3>
-          <p className="text-[10px] font-bold uppercase tracking-widest mt-0.5
-            text-slate-400 dark:text-[#555]">
+          <p
+            className="text-[10px] font-bold uppercase tracking-widest mt-0.5
+            text-slate-400 dark:text-[#555]"
+          >
             IA detectando estacionalidad y reposición en Junín
           </p>
         </div>
       </div>
- 
+
       <button
         onClick={handleAnalyze}
         disabled={isAnalyzing}
@@ -68,9 +71,24 @@ export default function PricingTrigger({
       >
         {isAnalyzing ? (
           <>
-            <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            <svg
+              className="animate-spin w-3.5 h-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8z"
+              />
             </svg>
             <span className="animate-pulse">Analizando Mercado...</span>
           </>

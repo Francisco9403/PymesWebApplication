@@ -67,19 +67,12 @@ export const useToast = (): ToastContextType => {
   return context;
 };
 
-/* ─────────────────────────────────────────────
-   Design-system tokens per toast type
-   success → #00C9A7  (teal  — same as "Nivel Óptimo", payment confirm)
-   info    → #06B6D4  (cyan  — same as "Dólar MEP" feature card)
-   warn    → #FFD166  (amber — same as "Stock Crítico" mini-card)
-   error   → red-400  (same as stock-crítico badge dark)
-───────────────────────────────────────────── */
 const TOAST_VARIANTS: Record<
   ToastType,
   {
-    accent: string; // hex — used for icon, left bar, border
-    borderOpacity: string; // tailwind border utility
-    iconBg: string; // tailwind bg utility
+    accent: string;
+    borderOpacity: string;
+    iconBg: string;
     label: string;
   }
 > = {
@@ -109,7 +102,6 @@ const TOAST_VARIANTS: Record<
   },
 };
 
-/* ── Icon ── */
 function ToastIcon({ type }: { type: ToastType }) {
   const props = {
     width: 15,
@@ -150,7 +142,6 @@ function ToastIcon({ type }: { type: ToastType }) {
   );
 }
 
-/* ── Single toast item ── */
 function ToastItem({
   toast,
   onRemove,
@@ -173,13 +164,11 @@ function ToastItem({
         fontFamily: "'Sora', 'DM Sans', sans-serif",
       }}
     >
-      {/* Left accent bar */}
       <div
         className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full"
         style={{ background: v.accent, opacity: 0.8 }}
       />
 
-      {/* Icon */}
       <div
         className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${v.iconBg}`}
         style={{ color: v.accent }}
@@ -187,7 +176,6 @@ function ToastItem({
         <ToastIcon type={toast.type} />
       </div>
 
-      {/* Text */}
       <div className="flex-1 min-w-0 pt-0.5">
         <p
           className="text-[0.6rem] font-bold uppercase tracking-[0.12em] mb-0.5"
@@ -195,12 +183,11 @@ function ToastItem({
         >
           {v.label}
         </p>
-        <p className="text-sm text-[#C8C5C0] leading-snug break-words">
+        <p className="text-sm text-[#C8C5C0] leading-snug wrap-break-word">
           {toast.message}
         </p>
       </div>
 
-      {/* Close */}
       <button
         onClick={onRemove}
         aria-label="Cerrar"
@@ -223,7 +210,6 @@ function ToastItem({
   );
 }
 
-/* ── Container ── */
 function ToastContainer({
   toasts,
   removeToast,
@@ -232,7 +218,7 @@ function ToastContainer({
   removeToast: (id: string) => void;
 }) {
   return (
-    <div className="fixed bottom-5 right-5 flex flex-col gap-2.5 z-[9999]">
+    <div className="fixed bottom-5 right-5 flex flex-col gap-2.5 z-9999">
       {toasts.map((toast) => (
         <ToastItem
           key={toast.id}

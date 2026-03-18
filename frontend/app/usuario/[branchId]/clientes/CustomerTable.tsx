@@ -1,8 +1,8 @@
 "use client";
 
+import { CustomerListResponse } from "@/types/Customer";
 import { useState } from "react";
 import CustomerPurchases from "./CustomerPurchases";
-import { CustomerListResponse } from "@/types/Customer";
 
 export default function CustomerTable({
   customers,
@@ -12,8 +12,8 @@ export default function CustomerTable({
   const [selectedCustomer, setSelectedCustomer] =
     useState<CustomerListResponse | null>(null);
 
-    return (
-      <div
+  return (
+    <div
       className="rounded-xl overflow-hidden transition-colors
         bg-white border border-slate-200
         dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.07)]"
@@ -34,10 +34,8 @@ export default function CustomerTable({
               <th className="p-4">Acciones</th>
             </tr>
           </thead>
- 
+
           <tbody className="divide-y divide-slate-100 dark:divide-[rgba(255,255,255,0.04)]">
- 
-            {/* Empty state */}
             {(!customers || customers.length === 0) && (
               <tr>
                 <td colSpan={6} className="p-16 text-center">
@@ -50,7 +48,7 @@ export default function CustomerTable({
                 </td>
               </tr>
             )}
- 
+
             {customers?.map((customer) => (
               <tr
                 key={customer.id}
@@ -58,21 +56,20 @@ export default function CustomerTable({
                   hover:bg-slate-50/80
                   dark:hover:bg-[rgba(255,107,53,0.03)]"
               >
-                {/* Name */}
                 <td className="p-4">
-                  <span className="font-bold transition-colors
+                  <span
+                    className="font-bold transition-colors
                     text-slate-900 group-hover:text-[#FF6B35]
-                    dark:text-[#F0EDE8] dark:group-hover:text-[#FF6B35]">
+                    dark:text-[#F0EDE8] dark:group-hover:text-[#FF6B35]"
+                  >
                     {customer.name}
                   </span>
                 </td>
- 
-                {/* Phone */}
+
                 <td className="p-4 font-mono text-xs text-slate-500 dark:text-[#555]">
                   {customer.phone || "— SIN ASIGNAR —"}
                 </td>
- 
-                {/* Balance */}
+
                 <td className="p-4">
                   {customer.currentDebt > 0 ? (
                     <span
@@ -93,8 +90,7 @@ export default function CustomerTable({
                     </span>
                   )}
                 </td>
- 
-                {/* Credit limit */}
+
                 <td className="p-4">
                   {customer.creditLimit != null ? (
                     <span className="font-bold text-slate-700 dark:text-[#AAA]">
@@ -106,8 +102,7 @@ export default function CustomerTable({
                     </span>
                   )}
                 </td>
- 
-                {/* Tags */}
+
                 <td className="p-4">
                   <div className="flex gap-1.5 flex-wrap">
                     {customer.tags && customer.tags.length > 0 ? (
@@ -121,15 +116,15 @@ export default function CustomerTable({
                         </span>
                       ))
                     ) : (
-                      <span className="text-[11px] font-bold text-slate-300 dark:text-[#333] uppercase tracking-wide">—</span>
+                      <span className="text-[11px] font-bold text-slate-300 dark:text-[#333] uppercase tracking-wide">
+                        —
+                      </span>
                     )}
                   </div>
                 </td>
- 
-                {/* Actions */}
+
                 <td className="p-4">
                   <div className="flex items-center gap-2">
-                    {/* Ver compras */}
                     <button
                       onClick={() => setSelectedCustomer(customer)}
                       className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wide
@@ -140,11 +135,10 @@ export default function CustomerTable({
                     >
                       👁 Ver compras
                     </button>
- 
-                    {/* WhatsApp reminder */}
+
                     <a
                       href={`https://wa.me/${customer.phone}?text=${encodeURIComponent(
-                        `Hola ${customer.name}, te recordamos que tenés un saldo pendiente. Podés pagar desde este link: https://tuapp.com/pagar/${customer.id}`
+                        `Hola ${customer.name}, te recordamos que tenés un saldo pendiente. Podés pagar desde este link: https://tuapp.com/pagar/${customer.id}`,
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -162,8 +156,8 @@ export default function CustomerTable({
           </tbody>
         </table>
       </div>
- 
+
       {selectedCustomer && <CustomerPurchases customer={selectedCustomer} />}
     </div>
-    );
+  );
 }

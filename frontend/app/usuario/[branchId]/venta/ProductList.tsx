@@ -19,10 +19,11 @@ export default function ProductList({
         bg-white border border-slate-200
         dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.07)]"
     >
-      {/* Cart header */}
       <div className="flex items-center gap-2 mb-6">
-        <h3 className="text-lg font-extrabold tracking-[-0.01em]
-          text-slate-800 dark:text-[#F0EDE8]">
+        <h3
+          className="text-lg font-extrabold tracking-[-0.01em]
+          text-slate-800 dark:text-[#F0EDE8]"
+        >
           Resumen de Venta
         </h3>
         <span
@@ -33,8 +34,7 @@ export default function ProductList({
           {cart.length} items
         </span>
       </div>
- 
-      {/* Items */}
+
       {cart.length === 0 ? (
         <div
           className="py-10 text-center rounded-xl border-2 border-dashed
@@ -52,20 +52,27 @@ export default function ProductList({
               className="group flex justify-between items-center py-4"
             >
               <div className="flex flex-col gap-0.5">
-                <span className="font-bold transition-colors
+                <span
+                  className="font-bold transition-colors
                   text-slate-900 group-hover:text-[#FF6B35]
-                  dark:text-[#F0EDE8] dark:group-hover:text-[#FF6B35]">
+                  dark:text-[#F0EDE8] dark:group-hover:text-[#FF6B35]"
+                >
                   {item.product.sku}
                 </span>
                 <span className="text-xs text-slate-400 dark:text-[#555]">
                   Cantidad: {item.quantity}
                 </span>
               </div>
- 
+
               <div className="flex items-center gap-4">
-                <span className="font-mono font-bold tabular-nums
-                  text-slate-700 dark:text-[#AAA]">
-                  ${(Number(item.product.currentSalePrice ?? 0) * item.quantity).toFixed(2)}
+                <span
+                  className="font-mono font-bold tabular-nums
+                  text-slate-700 dark:text-[#AAA]"
+                >
+                  $
+                  {(
+                    Number(item.product.currentSalePrice ?? 0) * item.quantity
+                  ).toFixed(2)}
                 </span>
                 <button
                   onClick={() => removeFromCart(item.product.id)}
@@ -80,19 +87,22 @@ export default function ProductList({
           ))}
         </div>
       )}
- 
-      {/* Total */}
+
       {cart.length > 0 && (
         <div
           className="mt-8 pt-5 flex justify-between items-end
             border-t-2 border-slate-900 dark:border-[rgba(255,255,255,0.2)]"
         >
-          <span className="text-sm font-bold uppercase tracking-tight
-            text-slate-400 dark:text-[#555]">
+          <span
+            className="text-sm font-bold uppercase tracking-tight
+            text-slate-400 dark:text-[#555]"
+          >
             Total a Pagar
           </span>
-          <span className="text-4xl font-extrabold tracking-[-0.03em] tabular-nums
-            text-slate-900 dark:text-[#F0EDE8]">
+          <span
+            className="text-4xl font-extrabold tracking-[-0.03em] tabular-nums
+            text-slate-900 dark:text-[#F0EDE8]"
+          >
             ${total.toFixed(2)}
           </span>
         </div>

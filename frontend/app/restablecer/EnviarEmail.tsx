@@ -15,7 +15,6 @@ export default function EnviarEmail() {
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
-      {/* Email field */}
       <div className="flex flex-col gap-1.5">
         <label
           className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5
@@ -36,7 +35,6 @@ export default function EnviarEmail() {
         />
       </div>
 
-      {/* Submit */}
       <button
         type="submit"
         disabled={isPending}

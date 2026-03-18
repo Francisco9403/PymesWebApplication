@@ -21,15 +21,15 @@ export default function EditProductModal({
   }, [state, show]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4
-      bg-black/40 dark:bg-black/60 backdrop-blur-sm">
- 
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4
+      bg-black/40 dark:bg-black/60 backdrop-blur-sm"
+    >
       <div
         className="w-full max-w-md rounded-2xl p-7 transition-colors
           bg-white border border-slate-200 shadow-2xl
           dark:bg-[rgba(18,18,24,0.98)] dark:border-[rgba(255,255,255,0.08)] dark:shadow-[0_32px_64px_rgba(0,0,0,0.6)]"
       >
-        {/* Modal header */}
         <div
           className="flex items-center justify-between mb-6 pb-5
             border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]"
@@ -42,8 +42,10 @@ export default function EditProductModal({
             >
               📦
             </div>
-            <h2 className="text-lg font-extrabold tracking-[-0.01em]
-              text-slate-900 dark:text-[#F0EDE8]">
+            <h2
+              className="text-lg font-extrabold tracking-[-0.01em]
+              text-slate-900 dark:text-[#F0EDE8]"
+            >
               Editar Producto
             </h2>
           </div>
@@ -57,20 +59,41 @@ export default function EditProductModal({
             ✕
           </button>
         </div>
- 
-        {/* Form */}
+
         <form action={formAction} className="flex flex-col gap-3.5">
           <input type="hidden" name="id" defaultValue={product.id} />
- 
+
           {[
-            { name: "name",             label: "Nombre",        placeholder: "Ej: Yerba Mate 500g",   defaultValue: product.name },
-            { name: "ean13",            label: "EAN13",         placeholder: "Código de barras",       defaultValue: product.ean13 ?? "" },
-            { name: "baseCostPrice",    label: "Costo",         placeholder: "0.00",                   defaultValue: product.baseCostPrice },
-            { name: "currentSalePrice", label: "Precio venta",  placeholder: "0.00",                   defaultValue: product.currentSalePrice },
+            {
+              name: "name",
+              label: "Nombre",
+              placeholder: "Ej: Yerba Mate 500g",
+              defaultValue: product.name,
+            },
+            {
+              name: "ean13",
+              label: "EAN13",
+              placeholder: "Código de barras",
+              defaultValue: product.ean13 ?? "",
+            },
+            {
+              name: "baseCostPrice",
+              label: "Costo",
+              placeholder: "0.00",
+              defaultValue: product.baseCostPrice,
+            },
+            {
+              name: "currentSalePrice",
+              label: "Precio venta",
+              placeholder: "0.00",
+              defaultValue: product.currentSalePrice,
+            },
           ].map((field) => (
             <div key={field.name} className="flex flex-col gap-1.5">
-              <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5
-                text-slate-400 dark:text-[#555]">
+              <label
+                className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5
+                text-slate-400 dark:text-[#555]"
+              >
                 {field.label}
               </label>
               <input
@@ -81,23 +104,25 @@ export default function EditProductModal({
               />
             </div>
           ))}
- 
-          {/* Feedback messages */}
+
           {state?.error && (
-            <p className="text-xs font-semibold px-3 py-2 rounded-lg
+            <p
+              className="text-xs font-semibold px-3 py-2 rounded-lg
               text-red-600 bg-red-50 border border-red-100
-              dark:text-red-400 dark:bg-[rgba(239,68,68,0.08)] dark:border-[rgba(239,68,68,0.2)]">
+              dark:text-red-400 dark:bg-[rgba(239,68,68,0.08)] dark:border-[rgba(239,68,68,0.2)]"
+            >
               {state.error}
             </p>
           )}
           {state?.success && (
-            <p className="text-xs font-semibold px-3 py-2 rounded-lg
-              text-[#00C9A7] bg-[rgba(0,201,167,0.06)] border border-[rgba(0,201,167,0.2)]">
+            <p
+              className="text-xs font-semibold px-3 py-2 rounded-lg
+              text-[#00C9A7] bg-[rgba(0,201,167,0.06)] border border-[rgba(0,201,167,0.2)]"
+            >
               {state.success}
             </p>
           )}
- 
-          {/* Actions */}
+
           <div className="flex justify-end gap-2.5 pt-2">
             <button
               type="button"
@@ -119,13 +144,30 @@ export default function EditProductModal({
             >
               {pending ? (
                 <>
-                  <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  <svg
+                    className="animate-spin w-3.5 h-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8z"
+                    />
                   </svg>
                   <span className="animate-pulse">Guardando...</span>
                 </>
-              ) : "Guardar Cambios"}
+              ) : (
+                "Guardar Cambios"
+              )}
             </button>
           </div>
         </form>

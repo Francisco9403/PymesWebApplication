@@ -1,22 +1,22 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
-import SupplierDataReview from "./SupplierDataReview";
-import SupplierFileUpload from "./SupplierFileUpload";
-import SupplierList from "./SupplierList";
-import SupplierProductList from "./SupplierProductList";
+import { compareCostsAction, getSupplierProducts } from "@/app/actions/product";
+import { analyzeDocument, importSupplierData } from "@/app/actions/proveedor";
+import { useToast } from "@/layout/ToastProvider";
 import {
   EditableOCRData,
   EditableProduct,
   RawOCRProduct,
   RawOCRResult,
 } from "@/types/OCR";
-import { useToast } from "@/layout/ToastProvider";
+import { Product } from "@/types/Product";
 import { Supplier } from "@/types/Supplier";
 import { TaxCategory } from "@/types/TaxCategory";
-import { compareCostsAction, getSupplierProducts } from "@/app/actions/product";
-import { Product } from "@/types/Product";
-import { analyzeDocument, importSupplierData } from "@/app/actions/proveedor";
+import { useActionState, useEffect, useMemo, useState } from "react";
+import SupplierDataReview from "./SupplierDataReview";
+import SupplierFileUpload from "./SupplierFileUpload";
+import SupplierList from "./SupplierList";
+import SupplierProductList from "./SupplierProductList";
 
 export default function Proveedores({
   branchId,
@@ -134,11 +134,8 @@ export default function Proveedores({
 
   return (
     <div className="max-w-7xl mx-auto">
- 
       {view === "list" ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
- 
-          {/* Supplier list */}
           <div
             className={`${selectedSupplier ? "lg:col-span-8" : "lg:col-span-12"} transition-all duration-500`}
           >
@@ -148,12 +145,10 @@ export default function Proveedores({
               onSupplierClick={handleSupplierClick}
             />
           </div>
- 
-          {/* Supplier product panel */}
+
           {selectedSupplier && (
             <div className="lg:col-span-4 h-fit sticky top-24">
               {isLoadingProducts ? (
-                /* Loading state */
                 <div
                   className="flex flex-col items-center justify-center gap-4 p-20 rounded-xl
                     bg-white border border-slate-200
@@ -161,7 +156,10 @@ export default function Proveedores({
                 >
                   <div
                     className="w-8 h-8 rounded-full border-4 border-t-transparent animate-spin"
-                    style={{ borderColor: "#FF6B35", borderTopColor: "transparent" }}
+                    style={{
+                      borderColor: "#FF6B35",
+                      borderTopColor: "transparent",
+                    }}
                   />
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-[#444]">
                     Buscando productos...
@@ -177,24 +175,33 @@ export default function Proveedores({
             </div>
           )}
         </div>
- 
       ) : (
         <div className="flex flex-col gap-5">
- 
-          {/* Back button */}
           <button
-            onClick={() => { setView("list"); setData(null); }}
+            onClick={() => {
+              setView("list");
+              setData(null);
+            }}
             className="group inline-flex items-center gap-2 w-fit text-[0.72rem] font-bold uppercase tracking-[0.15em] transition-colors
               text-slate-400 hover:text-slate-700
               dark:text-[#555] dark:hover:text-[#F0EDE8]"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-              className="transition-transform group-hover:-translate-x-0.5">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform group-hover:-translate-x-0.5"
+            >
               <path d="M15 19l-7-7 7-7" />
             </svg>
             Volver al listado
           </button>
- 
+
           {currentData ? (
             <SupplierDataReview
               currentData={currentData}

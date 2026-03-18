@@ -70,17 +70,17 @@ export default async function Page({
       className="min-h-[calc(100vh-64px)] p-6 sm:p-10 transition-colors duration-300
         bg-slate-50 dark:bg-[#0A0A0F]"
     >
-      {/* Subtle background glow */}
-      <div className="fixed rounded-full pointer-events-none blur-[140px] w-[600px] h-[600px] top-0 -left-[200px]
-        bg-[rgba(255,107,53,0.04)] dark:bg-[rgba(255,107,53,0.07)]" />
-      <div className="fixed rounded-full pointer-events-none blur-[140px] w-[500px] h-[500px] bottom-0 right-0
-        bg-[rgba(0,201,167,0.03)] dark:bg-[rgba(0,201,167,0.06)]" />
- 
+      <div
+        className="fixed rounded-full pointer-events-none blur-[140px] w-[600px] h-[600px] top-0 -left-[200px]
+        bg-[rgba(255,107,53,0.04)] dark:bg-[rgba(255,107,53,0.07)]"
+      />
+      <div
+        className="fixed rounded-full pointer-events-none blur-[140px] w-[500px] h-[500px] bottom-0 right-0
+        bg-[rgba(0,201,167,0.03)] dark:bg-[rgba(0,201,167,0.06)]"
+      />
+
       <div className="relative z-10 max-w-7xl mx-auto">
- 
-        {/* ── Header ── */}
         <header className="mb-10">
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 px-[14px] py-[6px] rounded-full border border-[rgba(255,107,53,0.3)] bg-[rgba(255,107,53,0.08)] text-[0.72rem] font-bold tracking-widest uppercase text-[#FF6B35] font-dmMono mb-4">
             <span
               className="relative inline-block w-2 h-2 rounded-full bg-[#00C9A7]
@@ -88,7 +88,7 @@ export default async function Page({
             />
             Panel de Control
           </div>
- 
+
           <h2 className="text-3xl font-extrabold tracking-[-0.02em] text-slate-900 dark:text-[#F0EDE8]">
             Bienvenido de nuevo.
           </h2>
@@ -96,11 +96,9 @@ export default async function Page({
             Seleccioná un módulo para comenzar.
           </p>
         </header>
- 
-        {/* Divider */}
+
         <div className="h-px mb-10 bg-linear-to-r from-transparent via-slate-200 to-transparent dark:via-[rgba(255,255,255,0.08)]" />
- 
-        {/* ── Module grid ── */}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {modules.map((mod) => (
             <Link
@@ -113,18 +111,15 @@ export default async function Page({
                 dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.07)] dark:hover:border-[rgba(255,107,53,0.3)] dark:hover:bg-[rgba(255,255,255,0.05)] dark:hover:shadow-none dark:hover:-translate-y-1
                 before:content-[''] before:absolute before:inset-0 before:bg-[linear-gradient(135deg,rgba(255,107,53,0.03)_0%,transparent_60%)] before:opacity-0 before:transition-opacity before:duration-300 group-hover:before:opacity-100"
             >
-              {/* Corner bracket — top left */}
               <div
                 className="absolute top-0 left-0 w-[18px] h-[18px] border-t-2 border-l-2 transition-opacity duration-200 opacity-0 group-hover:opacity-50"
                 style={{ borderColor: mod.color }}
               />
-              {/* Corner bracket — bottom right */}
               <div
                 className="absolute bottom-0 right-0 w-[18px] h-[18px] border-b-2 border-r-2 transition-opacity duration-200 opacity-0 group-hover:opacity-50"
                 style={{ borderColor: mod.color }}
               />
- 
-              {/* Icon */}
+
               <div
                 className="w-12 h-12 flex items-center justify-center rounded-xl text-2xl
                   transition-transform duration-200 group-hover:scale-110
@@ -133,8 +128,7 @@ export default async function Page({
               >
                 {mod.icon}
               </div>
- 
-              {/* Text */}
+
               <div>
                 <h3
                   className="font-bold text-[0.95rem] tracking-[-0.01em] transition-colors duration-150
@@ -147,8 +141,7 @@ export default async function Page({
                   {mod.desc}
                 </p>
               </div>
- 
-              {/* Arrow */}
+
               <div
                 className="mt-auto flex items-center gap-1 text-xs font-bold tracking-[0.05em] uppercase
                   transition-[color,gap] duration-150
@@ -156,7 +149,16 @@ export default async function Page({
                   dark:text-[#333] dark:group-hover:text-[#FF6B35]"
               >
                 Abrir módulo
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
               </div>

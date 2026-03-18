@@ -22,7 +22,6 @@ export default function TaxReports() {
         bg-white border border-slate-200
         dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.07)]"
     >
-      {/* Header */}
       <div
         className="flex items-center gap-3 pb-5 mb-6
           border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]"
@@ -35,23 +34,27 @@ export default function TaxReports() {
           ⚖️
         </div>
         <div>
-          <h2 className="text-lg font-extrabold tracking-[-0.01em]
-            text-slate-900 dark:text-[#F0EDE8]">
+          <h2
+            className="text-lg font-extrabold tracking-[-0.01em]
+            text-slate-900 dark:text-[#F0EDE8]"
+          >
             Libros y Exportación Legal
           </h2>
-          <p className="text-[10px] font-bold uppercase tracking-widest mt-0.5
-            text-slate-500 dark:text-[#555]">
+          <p
+            className="text-[10px] font-bold uppercase tracking-widest mt-0.5
+            text-slate-500 dark:text-[#555]"
+          >
             Generación de archivos para contador (ARCA / ARBA)
           </p>
         </div>
       </div>
- 
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
- 
-        {/* Period picker */}
         <div className="flex flex-col gap-2">
-          <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5
-            text-slate-400 dark:text-[#555]">
+          <label
+            className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5
+            text-slate-400 dark:text-[#555]"
+          >
             Seleccionar Período Fiscal
           </label>
           <input
@@ -65,10 +68,8 @@ export default function TaxReports() {
               dark:focus:border-[rgba(255,107,53,0.5)] dark:focus:ring-[rgba(255,107,53,0.1)] dark:focus:bg-[rgba(255,255,255,0.06)]"
           />
         </div>
- 
-        {/* Download buttons */}
+
         <div className="flex flex-col gap-3 justify-end">
-          {/* Primary: IVA book */}
           <button
             onClick={() => handleDownload("iva")}
             className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest
@@ -78,8 +79,7 @@ export default function TaxReports() {
           >
             📄 Libro IVA Digital (.txt)
           </button>
- 
-          {/* Ghost: retenciones */}
+
           <button
             onClick={() => handleDownload("retenciones")}
             className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest
@@ -92,15 +92,16 @@ export default function TaxReports() {
           </button>
         </div>
       </div>
- 
-      {/* Compliance note */}
+
       <p
         className="text-[10px] italic text-center mt-6 pt-4
           border-t border-slate-100 dark:border-[rgba(255,255,255,0.06)]
           text-slate-400 dark:text-[#444]"
       >
         Los archivos generados cumplen con la normativa de{" "}
-        <span className="font-bold not-italic text-slate-500 dark:text-[#555]">ARCA (SIRE)</span>{" "}
+        <span className="font-bold not-italic text-slate-500 dark:text-[#555]">
+          ARCA (SIRE)
+        </span>{" "}
         y los regímenes de retención vigentes.
       </p>
     </div>

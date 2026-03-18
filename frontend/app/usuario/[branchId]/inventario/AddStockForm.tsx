@@ -27,7 +27,6 @@ export default function AddStockForm({
         bg-white border border-slate-200
         dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.07)]"
     >
-      {/* Form header */}
       <div
         className="flex items-center gap-3 pb-5 mb-6
           border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]"
@@ -40,8 +39,10 @@ export default function AddStockForm({
           📥
         </div>
         <div>
-          <h2 className="text-lg font-extrabold tracking-[-0.01em]
-            text-slate-900 dark:text-[#F0EDE8]">
+          <h2
+            className="text-lg font-extrabold tracking-[-0.01em]
+            text-slate-900 dark:text-[#F0EDE8]"
+          >
             Ingreso de Mercadería
           </h2>
           <p className="text-xs mt-0.5 text-slate-400 dark:text-[#555]">
@@ -49,22 +50,23 @@ export default function AddStockForm({
           </p>
         </div>
       </div>
- 
+
       <input type="hidden" name="branchId" value={branchId} />
- 
-      {/* Fields grid */}
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
- 
-        {/* Product select */}
         <div className="md:col-span-2 flex flex-col gap-1.5">
-          <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5 text-slate-400 dark:text-[#555]">Producto</label>
+          <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5 text-slate-400 dark:text-[#555]">
+            Producto
+          </label>
           <div className="relative">
             <select
               name="productId"
               required
               className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all border bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-[rgba(255,107,53,0.5)] focus:ring-2 focus:ring-[rgba(255,107,53,0.12)] focus:bg-white dark:bg-[rgba(255,255,255,0.04)] dark:border-[rgba(255,255,255,0.08)] dark:text-[#F0EDE8] dark:placeholder:text-[#444] dark:focus:border-[rgba(255,107,53,0.5)] dark:focus:ring-[rgba(255,107,53,0.1)] dark:focus:bg-[rgba(255,255,255,0.06)] font-bold appearance-none pr-9 cursor-pointer"
             >
-              <option value="" className="text-black">Seleccionar SKU...</option>
+              <option value="" className="text-black">
+                Seleccionar SKU...
+              </option>
               {products.map((p) => (
                 <option key={p.id} value={p.id} className="text-black">
                   {p.name} ({p.sku})
@@ -74,16 +76,24 @@ export default function AddStockForm({
             <svg
               className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none
                 text-slate-400 dark:text-[#555]"
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2.5"
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           </div>
         </div>
- 
-        {/* Quantity */}
+
         <div className="flex flex-col gap-1.5">
-          <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5 text-slate-400 dark:text-[#555]">Cantidad</label>
+          <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5 text-slate-400 dark:text-[#555]">
+            Cantidad
+          </label>
           <input
             name="quantity"
             type="number"
@@ -93,10 +103,11 @@ export default function AddStockForm({
             className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all border bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-[rgba(255,107,53,0.5)] focus:ring-2 focus:ring-[rgba(255,107,53,0.12)] focus:bg-white dark:bg-[rgba(255,255,255,0.04)] dark:border-[rgba(255,255,255,0.08)] dark:text-[#F0EDE8] dark:placeholder:text-[#444] dark:focus:border-[rgba(255,107,53,0.5)] dark:focus:ring-[rgba(255,107,53,0.1)] dark:focus:bg-[rgba(255,255,255,0.06)] font-bold"
           />
         </div>
- 
-        {/* Critical threshold */}
+
         <div className="flex flex-col gap-1.5">
-          <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5 text-slate-400 dark:text-[#555]">Límite Crítico</label>
+          <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5 text-slate-400 dark:text-[#555]">
+            Límite Crítico
+          </label>
           <input
             name="criticalThreshold"
             type="number"
@@ -106,8 +117,7 @@ export default function AddStockForm({
           />
         </div>
       </div>
- 
-      {/* Footer */}
+
       <div
         className="flex justify-end mt-6 pt-5
           border-t border-slate-100 dark:border-[rgba(255,255,255,0.06)]"
@@ -123,17 +133,41 @@ export default function AddStockForm({
         >
           {pending ? (
             <>
-              <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              <svg
+                className="animate-spin w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8z"
+                />
               </svg>
               <span className="animate-pulse">Guardando...</span>
             </>
           ) : (
             <>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                  d="M12 4v16m8-8H4" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
               Cargar al Stock
             </>

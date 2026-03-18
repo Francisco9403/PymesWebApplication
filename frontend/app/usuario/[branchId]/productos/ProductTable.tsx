@@ -1,13 +1,13 @@
 "use client";
 
+import { runFullAIPricingAnalysis } from "@/app/actions/pricing";
+import { confirmStrategicPricesAction } from "@/app/actions/product";
+import { ActionButton } from "@/components/ActionButton";
+import { useToast } from "@/layout/ToastProvider";
 import { PageResponse } from "@/types/Page";
 import { ProductResponse } from "@/types/Product";
 import Link from "next/link";
 import { useState } from "react";
-import { confirmStrategicPricesAction } from "@/app/actions/product";
-import { runFullAIPricingAnalysis } from "@/app/actions/pricing";
-import { ActionButton } from "@/components/ActionButton";
-import { useToast } from "@/layout/ToastProvider";
 
 export default function ProductTable({
   pageData,
@@ -51,8 +51,6 @@ export default function ProductTable({
 
   return (
     <div className="flex flex-col gap-5">
- 
-      {/* ── Strategy header bar ── */}
       <div
         className="flex flex-col md:flex-row justify-end items-start md:items-center gap-4 p-5 rounded-xl transition-colors
           bg-white border border-slate-200
@@ -67,19 +65,22 @@ export default function ProductTable({
             🪄
           </div>
           <div>
-            <h3 className="text-sm font-extrabold tracking-[-0.01em]
-              text-slate-900 dark:text-[#F0EDE8]">
+            <h3
+              className="text-sm font-extrabold tracking-[-0.01em]
+              text-slate-900 dark:text-[#F0EDE8]"
+            >
               Estrategia de Precios
             </h3>
-            <p className="text-[10px] font-bold uppercase tracking-widest mt-0.5
-              text-slate-400 dark:text-[#555]">
+            <p
+              className="text-[10px] font-bold uppercase tracking-widest mt-0.5
+              text-slate-400 dark:text-[#555]"
+            >
               Asistente Gemini 2.0 Flash
             </p>
           </div>
         </div>
- 
+
         <div className="flex gap-2">
-          {/* Ghost AI button */}
           <ActionButton
             onClick={handleAIAnalysis}
             loading={status.analyzing}
@@ -92,8 +93,7 @@ export default function ProductTable({
           >
             Sugerir con IA
           </ActionButton>
- 
-          {/* Primary apply button */}
+
           <ActionButton
             onClick={handleConfirmPrices}
             loading={status.loading}
@@ -107,8 +107,7 @@ export default function ProductTable({
           </ActionButton>
         </div>
       </div>
- 
-      {/* ── Products table ── */}
+
       <div
         className="rounded-xl overflow-hidden transition-colors
           bg-white border border-slate-200
@@ -129,22 +128,25 @@ export default function ProductTable({
                 <th className="p-4 text-right">Operaciones</th>
               </tr>
             </thead>
- 
+
             <tbody className="divide-y divide-slate-100 dark:divide-[rgba(255,255,255,0.04)]">
               {content.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-12 text-center text-sm italic
-                    text-slate-400 dark:text-[#444]">
+                  <td
+                    colSpan={5}
+                    className="p-12 text-center text-sm italic
+                    text-slate-400 dark:text-[#444]"
+                  >
                     No hay productos registrados en el catálogo.
                   </td>
                 </tr>
               )}
- 
+
               {content.map((product) => {
                 const hasStrategicRule =
                   product.strategicMultiplier &&
                   Number(product.strategicMultiplier) > 1;
- 
+
                 return (
                   <tr
                     key={product.id}
@@ -152,16 +154,17 @@ export default function ProductTable({
                       hover:bg-slate-50/80
                       dark:hover:bg-[rgba(255,107,53,0.03)]"
                   >
-                    {/* Name + badge */}
                     <td className="p-4">
                       <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold transition-colors
+                          <span
+                            className="font-bold transition-colors
                             text-slate-900 group-hover:text-[#FF6B35]
-                            dark:text-[#F0EDE8] dark:group-hover:text-[#FF6B35]">
+                            dark:text-[#F0EDE8] dark:group-hover:text-[#FF6B35]"
+                          >
                             {product.name}
                           </span>
- 
+
                           {hasStrategicRule && (
                             <div className="relative group/badge">
                               <span
@@ -170,16 +173,21 @@ export default function ProductTable({
                               >
                                 ⚡ Estratégico
                               </span>
-                              {/* Tooltip */}
                               <div
                                 className="absolute bottom-full left-0 mb-2 hidden group-hover/badge:block w-52 p-3 rounded-xl shadow-2xl z-50 leading-relaxed
                                   bg-slate-900 border border-slate-700 text-white text-[10px]
                                   dark:bg-[rgba(18,18,24,0.98)] dark:border-[rgba(255,255,255,0.1)]"
                               >
                                 <p className="font-bold mb-1 uppercase tracking-tight text-[#A855F7]">
-                                  Sugerencia IA (+{((Number(product.strategicMultiplier) - 1) * 100).toFixed(0)}%)
+                                  Sugerencia IA (+
+                                  {(
+                                    (Number(product.strategicMultiplier) - 1) *
+                                    100
+                                  ).toFixed(0)}
+                                  %)
                                 </p>
-                                {product.strategicReason || "Aumento sugerido por estacionalidad o reposición."}
+                                {product.strategicReason ||
+                                  "Aumento sugerido por estacionalidad o reposición."}
                               </div>
                             </div>
                           )}
@@ -189,25 +197,23 @@ export default function ProductTable({
                         </span>
                       </div>
                     </td>
- 
-                    {/* SKU */}
+
                     <td className="p-4 font-mono text-xs text-slate-500 dark:text-[#555]">
                       {product.sku || "—"}
                     </td>
- 
-                    {/* Cost */}
+
                     <td className="p-4 text-right font-mono text-slate-400 dark:text-[#555]">
                       ${Number(product.baseCostPrice ?? 0).toFixed(2)}
                     </td>
- 
-                    {/* Sale price */}
+
                     <td className="p-4 text-right">
                       <div className="flex flex-col items-end gap-1">
                         <span
                           className={`font-mono font-extrabold px-2 py-1 rounded-lg text-xs transition-colors
-                            ${hasStrategicRule
-                              ? "border border-[rgba(168,85,247,0.3)] bg-[rgba(168,85,247,0.08)] text-[#A855F7]"
-                              : "bg-slate-100 text-slate-900 dark:bg-[rgba(255,255,255,0.06)] dark:text-[#F0EDE8]"
+                            ${
+                              hasStrategicRule
+                                ? "border border-[rgba(168,85,247,0.3)] bg-[rgba(168,85,247,0.08)] text-[#A855F7]"
+                                : "bg-slate-100 text-slate-900 dark:bg-[rgba(255,255,255,0.06)] dark:text-[#F0EDE8]"
                             }`}
                         >
                           ${Number(product.currentSalePrice ?? 0).toFixed(2)}
@@ -219,8 +225,7 @@ export default function ProductTable({
                         )}
                       </div>
                     </td>
- 
-                    {/* Row actions */}
+
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-1.5">
                         <ActionButton
@@ -254,24 +259,28 @@ export default function ProductTable({
           </table>
         </div>
       </div>
- 
-      {/* ── Pagination ── */}
+
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-1">
-        <p className="text-[0.7rem] font-bold uppercase tracking-widest
-          text-slate-400 dark:text-[#555]">
+        <p
+          className="text-[0.7rem] font-bold uppercase tracking-widest
+          text-slate-400 dark:text-[#555]"
+        >
           Página{" "}
-          <span className="text-slate-900 dark:text-[#F0EDE8]">{page + 1}</span>
-          {" "}de{" "}
-          <span className="text-slate-900 dark:text-[#F0EDE8]">{totalPages}</span>
+          <span className="text-slate-900 dark:text-[#F0EDE8]">{page + 1}</span>{" "}
+          de{" "}
+          <span className="text-slate-900 dark:text-[#F0EDE8]">
+            {totalPages}
+          </span>
         </p>
- 
+
         <div className="flex gap-2">
           <Link
             href={`?page=${Math.max(0, page - 1)}`}
             className={`px-4 py-2 rounded-xl font-bold text-sm transition-all border
-              ${page === 0
-                ? "pointer-events-none bg-slate-50 border-slate-100 text-slate-300 dark:bg-[rgba(255,255,255,0.02)] dark:border-[rgba(255,255,255,0.04)] dark:text-[#333]"
-                : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 shadow-sm dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.08)] dark:text-[#AAA] dark:hover:border-[rgba(255,107,53,0.3)] dark:hover:bg-[rgba(255,107,53,0.04)]"
+              ${
+                page === 0
+                  ? "pointer-events-none bg-slate-50 border-slate-100 text-slate-300 dark:bg-[rgba(255,255,255,0.02)] dark:border-[rgba(255,255,255,0.04)] dark:text-[#333]"
+                  : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 shadow-sm dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.08)] dark:text-[#AAA] dark:hover:border-[rgba(255,107,53,0.3)] dark:hover:bg-[rgba(255,107,53,0.04)]"
               }`}
           >
             ← Anterior
@@ -279,9 +288,10 @@ export default function ProductTable({
           <Link
             href={`?page=${Math.min(totalPages - 1, page + 1)}`}
             className={`px-4 py-2 rounded-xl font-bold text-sm transition-all border
-              ${page >= totalPages - 1
-                ? "pointer-events-none bg-slate-50 border-slate-100 text-slate-300 dark:bg-[rgba(255,255,255,0.02)] dark:border-[rgba(255,255,255,0.04)] dark:text-[#333]"
-                : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 shadow-sm dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.08)] dark:text-[#AAA] dark:hover:border-[rgba(255,107,53,0.3)] dark:hover:bg-[rgba(255,107,53,0.04)]"
+              ${
+                page >= totalPages - 1
+                  ? "pointer-events-none bg-slate-50 border-slate-100 text-slate-300 dark:bg-[rgba(255,255,255,0.02)] dark:border-[rgba(255,255,255,0.04)] dark:text-[#333]"
+                  : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 shadow-sm dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.08)] dark:text-[#AAA] dark:hover:border-[rgba(255,107,53,0.3)] dark:hover:bg-[rgba(255,107,53,0.04)]"
               }`}
           >
             Siguiente →

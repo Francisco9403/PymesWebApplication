@@ -20,14 +20,11 @@ export default function SupplierDataReview({
       action={importAction}
       className="max-w-4xl mx-auto flex flex-col gap-5"
     >
- 
-      {/* ── Header card ── */}
       <div
         className="p-6 rounded-xl transition-colors
           bg-white border border-slate-200
           dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.07)]"
       >
-        {/* Card header */}
         <div
           className="flex items-center gap-3 pb-4 mb-5
             border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]"
@@ -47,8 +44,7 @@ export default function SupplierDataReview({
               Verificá y editá la información antes de importar
             </p>
           </div>
- 
-          {/* Products count badge */}
+
           <div className="ml-auto">
             <span
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wide
@@ -59,8 +55,7 @@ export default function SupplierDataReview({
             </span>
           </div>
         </div>
- 
-        {/* Business name input */}
+
         <div className="flex flex-col gap-1.5">
           <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5 text-slate-400 dark:text-[#555]">
             Razón Social del Proveedor
@@ -74,18 +69,18 @@ export default function SupplierDataReview({
             placeholder="Ej: Distribuidora SA"
             name="businessName"
             value={currentData.businessName ?? ""}
-            onChange={(e) => setData({ ...currentData, businessName: e.target.value })}
+            onChange={(e) =>
+              setData({ ...currentData, businessName: e.target.value })
+            }
           />
         </div>
       </div>
- 
-      {/* ── Products table ── */}
+
       <div
         className="rounded-xl overflow-hidden transition-colors
           bg-white border border-slate-200
           dark:bg-[rgba(255,255,255,0.03)] dark:border-[rgba(255,255,255,0.07)]"
       >
-        {/* Table header */}
         <div
           className="flex items-center justify-between px-5 py-4
             border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]"
@@ -97,7 +92,7 @@ export default function SupplierDataReview({
             {currentData.products.length} ítems
           </span>
         </div>
- 
+
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead
@@ -113,7 +108,7 @@ export default function SupplierDataReview({
                 <th className="p-4 w-40 text-right">Precio de Costo</th>
               </tr>
             </thead>
- 
+
             <tbody
               className="divide-y
                 divide-slate-100 dark:divide-[rgba(255,255,255,0.04)]"
@@ -125,14 +120,12 @@ export default function SupplierDataReview({
                     hover:bg-slate-50/80
                     dark:hover:bg-[rgba(255,107,53,0.03)]"
                 >
-                  {/* Row number */}
                   <td className="p-4">
                     <span className="text-xs font-bold tabular-nums text-slate-300 dark:text-[#333]">
                       {i + 1}
                     </span>
                   </td>
- 
-                  {/* Name */}
+
                   <td className="p-4">
                     <input
                       className="w-full bg-transparent outline-none py-0.5 transition-all font-bold text-slate-900 placeholder:text-slate-300 placeholder:font-normal border-b border-transparent focus:border-[rgba(255,107,53,0.4)] focus:bg-[rgba(255,107,53,0.04)] focus:px-2 focus:rounded-lg dark:text-[#F0EDE8] dark:placeholder:text-[#333] dark:focus:border-[rgba(255,107,53,0.4)] dark:focus:bg-[rgba(255,107,53,0.06)] group-hover:text-[#FF6B35] dark:group-hover:text-[#FF6B35]"
@@ -145,8 +138,7 @@ export default function SupplierDataReview({
                       }}
                     />
                   </td>
- 
-                  {/* EAN13 */}
+
                   <td className="p-4">
                     <input
                       className="bg-transparent outline-none py-0.5 transition-all font-mono text-slate-700 tabular-nums border-b border-transparent focus:border-[rgba(255,107,53,0.4)] focus:bg-[rgba(255,107,53,0.04)] focus:px-2 focus:rounded-lg dark:text-[#AAA] dark:focus:border-[rgba(255,107,53,0.4)] dark:focus:bg-[rgba(255,107,53,0.06)] w-40"
@@ -159,8 +151,7 @@ export default function SupplierDataReview({
                       }}
                     />
                   </td>
- 
-                  {/* Quantity */}
+
                   <td className="p-4">
                     <input
                       type="number"
@@ -168,17 +159,21 @@ export default function SupplierDataReview({
                       value={p.quantity ?? 1}
                       onChange={(e) => {
                         const next = [...currentData.products];
-                        next[i] = { ...next[i], quantity: parseInt(e.target.value) || 1 };
+                        next[i] = {
+                          ...next[i],
+                          quantity: parseInt(e.target.value) || 1,
+                        };
                         setData({ ...currentData, products: next });
                       }}
                     />
                   </td>
- 
-                  {/* Cost price */}
+
                   <td className="p-4">
                     <div className="flex flex-col items-end gap-1.5">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-slate-400 dark:text-[#555]">$</span>
+                        <span className="text-xs font-bold text-slate-400 dark:text-[#555]">
+                          $
+                        </span>
                         <input
                           type="number"
                           step="0.01"
@@ -186,44 +181,49 @@ export default function SupplierDataReview({
                           value={p.baseCostPrice ?? 0}
                           onChange={(e) => {
                             const next = [...currentData.products];
-                            next[i] = { ...next[i], baseCostPrice: parseFloat(e.target.value) || 0 };
+                            next[i] = {
+                              ...next[i],
+                              baseCostPrice: parseFloat(e.target.value) || 0,
+                            };
                             setData({ ...currentData, products: next });
                           }}
                         />
                       </div>
- 
-                      {/* Price comparison badge */}
-                      {p.lastCostPrice !== undefined && (() => {
-                        const diff = p.baseCostPrice - p.lastCostPrice;
-                        const pct = (diff / p.lastCostPrice) * 100;
-                        const isUp = pct > 0.1;
-                        const isDown = pct < -0.1;
- 
-                        return (
-                          <div
-                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tight
+
+                      {p.lastCostPrice !== undefined &&
+                        (() => {
+                          const diff = p.baseCostPrice - p.lastCostPrice;
+                          const pct = (diff / p.lastCostPrice) * 100;
+                          const isUp = pct > 0.1;
+                          const isDown = pct < -0.1;
+
+                          return (
+                            <div
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tight
                               bg-slate-50 border border-slate-100
                               dark:bg-[rgba(255,255,255,0.04)] dark:border-[rgba(255,255,255,0.06)]"
-                          >
-                            <span className="text-slate-400 dark:text-[#555]">
-                              Prev: ${p.lastCostPrice.toFixed(2)}
-                            </span>
-                            {isUp && (
-                              <span className="text-red-500 dark:text-red-400 flex items-center gap-0.5">
-                                ↑ {pct.toFixed(1)}%
+                            >
+                              <span className="text-slate-400 dark:text-[#555]">
+                                Prev: ${p.lastCostPrice.toFixed(2)}
                               </span>
-                            )}
-                            {isDown && (
-                              <span className="text-[#00C9A7] flex items-center gap-0.5">
-                                ↓ {Math.abs(pct).toFixed(1)}%
-                              </span>
-                            )}
-                            {!isUp && !isDown && (
-                              <span className="italic text-slate-400 dark:text-[#444]">Sin cambios</span>
-                            )}
-                          </div>
-                        );
-                      })()}
+                              {isUp && (
+                                <span className="text-red-500 dark:text-red-400 flex items-center gap-0.5">
+                                  ↑ {pct.toFixed(1)}%
+                                </span>
+                              )}
+                              {isDown && (
+                                <span className="text-[#00C9A7] flex items-center gap-0.5">
+                                  ↓ {Math.abs(pct).toFixed(1)}%
+                                </span>
+                              )}
+                              {!isUp && !isDown && (
+                                <span className="italic text-slate-400 dark:text-[#444]">
+                                  Sin cambios
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                     </div>
                   </td>
                 </tr>
@@ -232,14 +232,18 @@ export default function SupplierDataReview({
           </table>
         </div>
       </div>
- 
-      {/* ── Footer: warning + submit ── */}
-      <input type="hidden" name="payload" value={JSON.stringify({ ...currentData, branchId })} />
- 
+
+      <input
+        type="hidden"
+        name="payload"
+        value={JSON.stringify({ ...currentData, branchId })}
+      />
+
       <div className="flex items-center justify-between px-1">
-        {/* Warning / hint */}
         <p className="text-xs text-slate-400 dark:text-[#555]">
-          {currentData.products.some((p) => p.lastCostPrice && p.baseCostPrice > p.lastCostPrice) ? (
+          {currentData.products.some(
+            (p) => p.lastCostPrice && p.baseCostPrice > p.lastCostPrice,
+          ) ? (
             <span className="inline-flex items-center gap-1.5">
               <span
                 className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-bold
@@ -252,8 +256,7 @@ export default function SupplierDataReview({
             "Podés editar cualquier campo antes de confirmar"
           )}
         </p>
- 
-        {/* Submit button */}
+
         <button
           type="submit"
           disabled={importing}
@@ -265,16 +268,41 @@ export default function SupplierDataReview({
         >
           {importing ? (
             <>
-              <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              <svg
+                className="animate-spin w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8z"
+                />
               </svg>
               <span className="animate-pulse">Importando...</span>
             </>
           ) : (
             <>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                />
               </svg>
               Confirmar Importación
             </>
