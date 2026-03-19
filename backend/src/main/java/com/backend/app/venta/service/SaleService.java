@@ -9,26 +9,26 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; // 🚀 Importaciones de SLF4J
-import com.backend.app.exception.InsufficientStockException;
-import com.backend.app.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.backend.app.sucursal.model.Branch;
 import com.backend.app.cliente.model.Customer;
+import com.backend.app.cliente.repository.CustomerRepository;
+import com.backend.app.exception.BusinessException;
+import com.backend.app.exception.InsufficientStockException;
+import com.backend.app.exception.ResourceNotFoundException;
 import com.backend.app.producto.model.Product;
 import com.backend.app.producto.model.ProductStock;
-import com.backend.app.venta.dto.Sale;
-import com.backend.app.venta.dto.SaleItem;
-import com.backend.app.venta.dto.SaleStatus;
-import com.backend.app.venta.dto.CreateSaleItemRequest;
-import com.backend.app.venta.dto.CreateSaleRequest;
-import com.backend.app.sucursal.respository.BranchRepository;
-import com.backend.app.cliente.repository.CustomerRepository;
 import com.backend.app.producto.repository.ProductRepository;
 import com.backend.app.producto.repository.ProductStockRepository;
+import com.backend.app.sucursal.model.Branch;
+import com.backend.app.sucursal.respository.BranchRepository;
+import com.backend.app.venta.model.Sale;
+import com.backend.app.venta.model.SaleItem;
+import com.backend.app.venta.model.SaleStatus;
+import com.backend.app.venta.model.dto.CreateSaleItemRequest;
+import com.backend.app.venta.model.dto.CreateSaleRequest;
 import com.backend.app.venta.repository.SaleRepository;
-import com.backend.app.exception.BusinessException;
 
 @Service
 public class SaleService {

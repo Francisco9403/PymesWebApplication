@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; // 🚀 Importaciones de SLF4J
-import com.backend.app.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,14 +14,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.backend.app.cliente.model.Customer;
-import com.backend.app.venta.dto.Sale;
-import com.backend.app.usuario.model.User;
 import com.backend.app.cliente.model.dto.CreateCustomerRequest;
 import com.backend.app.cliente.model.dto.CustomerListResponse;
 import com.backend.app.cliente.model.dto.CustomerSaleResponse;
 import com.backend.app.cliente.repository.CustomerRepository;
-import com.backend.app.venta.repository.SaleRepository;
+import com.backend.app.exception.ResourceNotFoundException;
+import com.backend.app.usuario.model.User;
 import com.backend.app.usuario.repository.UserRepository;
+import com.backend.app.venta.model.Sale;
+import com.backend.app.venta.repository.SaleRepository;
 
 @Service
 public class CustomerService {

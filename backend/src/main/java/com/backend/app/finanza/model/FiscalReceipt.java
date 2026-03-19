@@ -2,42 +2,53 @@ package com.backend.app.finanza.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
-import com.backend.app.venta.dto.Sale;
+import com.backend.app.venta.model.Sale;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
-public class FiscalReceipt { // Factura A, B, C
+public class FiscalReceipt {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String cae; // Código de Autorización Electrónico
+    private String cae;
     private LocalDate caeExpiration;
-    
+
     private Integer pointOfSale;
-    private Long receiptNumber;
-    
+
+    private Long receiptNumberFrom;
+    private Long receiptNumberTo;
+
+    private LocalDate issueDate;
+
     @Enumerated(EnumType.STRING)
-    private ReceiptType type; // FACTURA_A, FACTURA_B, TICKET_C
-    
+    private ReceiptType type;
+
     @OneToOne
     private Sale sale;
 
-    // Campos para Libro IVA Digital
-    private BigDecimal netAmount;
-    private BigDecimal taxAmount; // IVA 21%, 10.5%, etc.
+    @OneToMany(mappedBy = "fiscalReceipt", cascade = CascadeType.ALL)
+    private List<FiscalReceiptTax> taxes;
+
     private BigDecimal iibbPerception;
 
     private String customerCuit;
     private String customerName;
-    private Integer concept; // 1=Productos, 2=Servicios, 3=Productos y Servicios
+    private Integer customerDocType;
+
+    private Integer concept;
 
     public FiscalReceipt() {
     }
@@ -74,12 +85,28 @@ public class FiscalReceipt { // Factura A, B, C
         this.pointOfSale = pointOfSale;
     }
 
-    public Long getReceiptNumber() {
-        return receiptNumber;
+    public Long getReceiptNumberFrom() {
+        return receiptNumberFrom;
     }
 
-    public void setReceiptNumber(Long receiptNumber) {
-        this.receiptNumber = receiptNumber;
+    public void setReceiptNumberFrom(Long receiptNumberFrom) {
+        this.receiptNumberFrom = receiptNumberFrom;
+    }
+
+    public Long getReceiptNumberTo() {
+        return receiptNumberTo;
+    }
+
+    public void setReceiptNumberTo(Long receiptNumberTo) {
+        this.receiptNumberTo = receiptNumberTo;
+    }
+
+    public LocalDate getIssueDate() {
+        return issueDate;
+    }
+
+    public void setIssueDate(LocalDate issueDate) {
+        this.issueDate = issueDate;
     }
 
     public ReceiptType getType() {
@@ -98,20 +125,12 @@ public class FiscalReceipt { // Factura A, B, C
         this.sale = sale;
     }
 
-    public BigDecimal getNetAmount() {
-        return netAmount;
+    public List<FiscalReceiptTax> getTaxes() {
+        return taxes;
     }
 
-    public void setNetAmount(BigDecimal netAmount) {
-        this.netAmount = netAmount;
-    }
-
-    public BigDecimal getTaxAmount() {
-        return taxAmount;
-    }
-
-    public void setTaxAmount(BigDecimal taxAmount) {
-        this.taxAmount = taxAmount;
+    public void setTaxes(List<FiscalReceiptTax> taxes) {
+        this.taxes = taxes;
     }
 
     public BigDecimal getIibbPerception() {
@@ -136,6 +155,14 @@ public class FiscalReceipt { // Factura A, B, C
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public Integer getCustomerDocType() {
+        return customerDocType;
+    }
+
+    public void setCustomerDocType(Integer customerDocType) {
+        this.customerDocType = customerDocType;
     }
 
     public Integer getConcept() {

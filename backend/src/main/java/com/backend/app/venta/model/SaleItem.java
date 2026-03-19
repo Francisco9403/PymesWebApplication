@@ -1,8 +1,9 @@
-package com.backend.app.venta.dto;
+package com.backend.app.venta.model;
 
 import java.math.BigDecimal;
 
 import com.backend.app.producto.model.Product;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

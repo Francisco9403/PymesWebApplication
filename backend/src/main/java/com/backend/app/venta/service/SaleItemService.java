@@ -1,12 +1,14 @@
 package com.backend.app.venta.service;
 
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; // 🚀 Importaciones de SLF4J
 import org.springframework.stereotype.Service;
-import com.backend.app.venta.dto.SaleItem;
-import com.backend.app.venta.repository.SaleItemRepository;
+
 import com.backend.app.exception.ResourceNotFoundException;
+import com.backend.app.venta.model.SaleItem;
+import com.backend.app.venta.repository.SaleItemRepository;
 
 @Service
 public class SaleItemService {

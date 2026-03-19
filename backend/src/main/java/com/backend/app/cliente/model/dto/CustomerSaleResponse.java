@@ -2,7 +2,7 @@ package com.backend.app.cliente.model.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.backend.app.venta.dto.SaleStatus;
+import com.backend.app.venta.model.SaleStatus;
 
 public record CustomerSaleResponse(
         Long id,

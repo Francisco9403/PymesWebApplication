@@ -1,14 +1,22 @@
 package com.backend.app.venta.controller;
 
 import java.util.List;
-import jakarta.validation.Valid; // 🚀 Importación necesaria
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.app.venta.dto.Sale;
-import com.backend.app.venta.dto.CreateSaleRequest;
+import com.backend.app.venta.model.Sale;
+import com.backend.app.venta.model.dto.CreateSaleRequest;
 import com.backend.app.venta.service.SaleService;
+
+import jakarta.validation.Valid; // 🚀 Importación necesaria
 
 @RestController
 @RequestMapping("/api/sales")

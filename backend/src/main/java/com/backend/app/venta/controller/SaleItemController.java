@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.app.venta.dto.SaleItem;
+import com.backend.app.venta.model.SaleItem;
 import com.backend.app.venta.service.SaleItemService;
 
 @RestController

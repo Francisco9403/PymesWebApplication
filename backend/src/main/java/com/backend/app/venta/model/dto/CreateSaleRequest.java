@@ -1,10 +1,11 @@
-package com.backend.app.venta.dto;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+package com.backend.app.venta.model.dto;
 import java.util.List;
 
 import com.backend.app.archivosParaRevisar.CommunicationChannel;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 public record CreateSaleRequest(
         @NotNull(message = "Debe especificar una sucursal")

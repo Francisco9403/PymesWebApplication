@@ -1,5 +1,7 @@
 package com.backend.app.finanza.repository;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +17,6 @@ public interface FiscalReceiptRepository extends JpaRepository<FiscalReceipt, Lo
 
     // Para validaciones o auditorías buscando por el Código de Autorización Electrónico
     Optional<FiscalReceipt> findByCae(String cae);
+
+    List<FiscalReceipt> findByIssueDateBetween(LocalDate from, LocalDate to);
 }

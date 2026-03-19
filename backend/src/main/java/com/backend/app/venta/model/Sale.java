@@ -1,14 +1,15 @@
-package com.backend.app.venta.dto;
+package com.backend.app.venta.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.backend.app.archivosParaRevisar.CommunicationChannel;
 import com.backend.app.cliente.model.Customer;
 import com.backend.app.finanza.model.FiscalReceipt;
-import com.backend.app.archivosParaRevisar.*;
 import com.backend.app.pago.model.Payment;
 import com.backend.app.sucursal.model.Branch;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

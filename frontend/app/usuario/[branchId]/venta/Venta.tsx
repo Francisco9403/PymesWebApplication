@@ -4,7 +4,7 @@ import { procesarSku } from "@/app/actions/product";
 import { useToast } from "@/layout/ToastProvider";
 
 import { generateCustomerTag, getCustomerSales } from "@/app/actions/cliente";
-import { crearQrMercadoPago } from "@/app/actions/mercadopago";
+import { crearQr } from "@/app/actions/mobbex";
 import { crearVenta } from "@/app/actions/venta";
 import { CartItem, Product } from "@/types/Cart";
 import { QrData } from "@/types/QrData";
@@ -96,7 +96,7 @@ export default function Venta({ branchId }: { branchId: string }) {
         }
       }
 
-      const qrResult = await crearQrMercadoPago(total);
+      const qrResult = await crearQr(total);
       if ("error" in qrResult) {
         show(qrResult.error, "error");
         return;

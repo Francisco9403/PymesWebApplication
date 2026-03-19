@@ -3,7 +3,9 @@ package com.backend.app.cliente.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.backend.app.finanza.model.TaxCategory;
+import com.backend.app.proveedor.model.dto.FiscalOrigin;
+import com.backend.app.proveedor.model.dto.IvaCondition;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -25,7 +27,10 @@ public class CustomerPayment {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    private TaxCategory method;
+    private IvaCondition ivaCondition;
+    
+    @Enumerated(EnumType.STRING)
+    private FiscalOrigin fiscalOrigin;
 
     private LocalDateTime createdAt;
 
@@ -38,23 +43,55 @@ public class CustomerPayment {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Customer getCustomer() {
         return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     public BigDecimal getAmount() {
         return amount;
     }
 
-    public TaxCategory getMethod() {
-        return method;
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public IvaCondition getIvaCondition() {
+        return ivaCondition;
+    }
+
+    public void setIvaCondition(IvaCondition ivaCondition) {
+        this.ivaCondition = ivaCondition;
+    }
+
+    public FiscalOrigin getFiscalOrigin() {
+        return fiscalOrigin;
+    }
+
+    public void setFiscalOrigin(FiscalOrigin fiscalOrigin) {
+        this.fiscalOrigin = fiscalOrigin;
     }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public String getNotes() {
         return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.backend.app.venta.dto.SaleItem;
+import com.backend.app.venta.model.SaleItem;
 
 @Repository
 public interface SaleItemRepository extends JpaRepository<SaleItem, Long> {

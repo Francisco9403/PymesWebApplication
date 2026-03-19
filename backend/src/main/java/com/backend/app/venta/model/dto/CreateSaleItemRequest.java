@@ -1,5 +1,6 @@
-package com.backend.app.venta.dto;
-import jakarta.validation.constraints.*;
+package com.backend.app.venta.model.dto;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 public record CreateSaleItemRequest(
         @NotNull(message = "El ID de producto es obligatorio")

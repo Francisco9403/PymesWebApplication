@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.backend.app.cuentaCorriente.model.CurrentAccount;
-import com.backend.app.finanza.model.TaxCategory;
 import com.backend.app.producto.model.Product;
+import com.backend.app.proveedor.model.dto.FiscalOrigin;
+import com.backend.app.proveedor.model.dto.IvaCondition;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,10 +27,14 @@ public class Supplier {
     private Long id;
     
     private String businessName; // Razón Social
+    @Column(unique = true)
     private String cuit; // Requerido para cumplimiento ARCA
     
     @Enumerated(EnumType.STRING)
-    private TaxCategory taxCategory; // Responsable Inscripto, Monotributo
+    private IvaCondition ivaCondition;
+    
+    @Enumerated(EnumType.STRING)
+    private FiscalOrigin fiscalOrigin;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "suppliers")
@@ -63,12 +70,20 @@ public class Supplier {
         this.cuit = cuit;
     }
 
-    public TaxCategory getPaymentMethod() {
-        return taxCategory;
+    public IvaCondition getIvaCondition() {
+        return ivaCondition;
     }
 
-    public void setTaxCategory(TaxCategory taxCategory) {
-        this.taxCategory = taxCategory;
+    public void setIvaCondition(IvaCondition ivaCondition) {
+        this.ivaCondition = ivaCondition;
+    }
+
+    public FiscalOrigin getFiscalOrigin() {
+        return fiscalOrigin;
+    }
+
+    public void setFiscalOrigin(FiscalOrigin fiscalOrigin) {
+        this.fiscalOrigin = fiscalOrigin;
     }
 
     public List<Product> getProducts() {
@@ -78,7 +93,7 @@ public class Supplier {
     public void setProducts(List<Product> products) {
         this.products = products;
     }
-    
+
     public CurrentAccount getCurrentAccount() {
         return currentAccount;
     }

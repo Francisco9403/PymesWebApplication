@@ -1,29 +1,34 @@
 package com.backend.app.proveedor.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.backend.app.cuentaCorriente.model.CurrentAccount;
-import com.backend.app.exception.ResourceNotFoundException;
-import com.backend.app.archivosParaRevisar.*;
-import com.backend.app.producto.model.AIProductDescription;
-import com.backend.app.producto.model.Product;
-import com.backend.app.producto.model.ProductStock;
-import com.backend.app.proveedor.model.Supplier;
-import com.backend.app.sucursal.model.Branch;
-import com.backend.app.usuario.model.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.app.archivosParaRevisar.CommunicationChannel;
+import com.backend.app.cuentaCorriente.model.CurrentAccount;
+import com.backend.app.exception.ResourceNotFoundException;
+import com.backend.app.finanza.model.PurchaseInvoice;
+import com.backend.app.finanza.model.PurchaseVat;
+import com.backend.app.finanza.model.ReceiptType;
+import com.backend.app.finanza.repository.PurchaseInvoiceRepository;
+import com.backend.app.producto.model.AIProductDescription;
+import com.backend.app.producto.model.Product;
+import com.backend.app.producto.model.ProductStock;
 import com.backend.app.producto.model.dto.ProductImportDTO;
-import com.backend.app.proveedor.model.dto.SupplierImportDTO;
-import com.backend.app.sucursal.respository.BranchRepository;
 import com.backend.app.producto.repository.ProductRepository;
+import com.backend.app.proveedor.model.Supplier;
+import com.backend.app.proveedor.model.dto.SupplierImportDTO;
 import com.backend.app.proveedor.repository.SupplierRepository;
+import com.backend.app.sucursal.model.Branch;
+import com.backend.app.sucursal.respository.BranchRepository;
+import com.backend.app.usuario.model.User;
 
 @Service
 @Transactional
@@ -34,13 +39,16 @@ public class SupplierService {
     private final SupplierRepository repository;
     private final ProductRepository productRepository;
     private final BranchRepository branchRepository;
+    private final PurchaseInvoiceRepository purchaseInvoiceRepository;
     private final AIService aiService;
 
     public SupplierService(SupplierRepository repository, ProductRepository productRepository,
-                           BranchRepository branchRepository, AIService aiService) {
+            BranchRepository branchRepository, PurchaseInvoiceRepository purchaseInvoiceRepository,
+            AIService aiService) {
         this.repository = repository;
         this.productRepository = productRepository;
         this.branchRepository = branchRepository;
+        this.purchaseInvoiceRepository = purchaseInvoiceRepository;
         this.aiService = aiService;
     }
 
@@ -71,14 +79,16 @@ public class SupplierService {
         Supplier supplier = repository.findByCuit(dto.cuit())
                 .map(existing -> {
                     existing.setBusinessName(dto.businessName());
-                    existing.setTaxCategory(dto.taxCategory());
+                    existing.setIvaCondition(dto.ivaCondition());
+                    existing.setFiscalOrigin(dto.fiscalOrigin());
                     return repository.save(existing);
                 })
                 .orElseGet(() -> {
                     Supplier newSupplier = new Supplier();
                     newSupplier.setCuit(dto.cuit());
                     newSupplier.setBusinessName(dto.businessName());
-                    newSupplier.setTaxCategory(dto.taxCategory());
+                    newSupplier.setIvaCondition(dto.ivaCondition());
+                    newSupplier.setFiscalOrigin(dto.fiscalOrigin());
 
                     newSupplier = repository.save(newSupplier);
 
@@ -115,7 +125,60 @@ public class SupplierService {
 
             productRepository.save(product);
         }
+
+        // Código agregado recientemente (todo el if)
+        if (!dto.products().isEmpty()) {
+            PurchaseInvoice invoice = new PurchaseInvoice();
+            invoice.setSupplier(supplier);
+            invoice.setDate(LocalDate.now()); // o dto.invoiceDate() si viene
+            invoice.setReceiptType(ReceiptType.FACTURA_B); // elegir según tus reglas
+            invoice.setPointOfSale(1); // ajustar según tu sucursal
+            invoice.setReceiptNumber(generateReceiptNumber(supplier)); // implementar secuencial
+            invoice.setTotalAmount(BigDecimal.ZERO);
+        
+            BigDecimal totalInvoice = BigDecimal.ZERO;
+            List<PurchaseVat> vatList = new ArrayList<>();
+        
+            for (ProductImportDTO pDto : dto.products()) {
+                BigDecimal lineTotal = pDto.baseCostPrice().multiply(new BigDecimal(pDto.quantity()));
+                totalInvoice = totalInvoice.add(lineTotal);
+        
+                // Generar desglose de IVA (ejemplo simple 21%)
+                PurchaseVat vat = new PurchaseVat();
+                vat.setInvoice(invoice);
+                vat.setRate(21);
+                vat.setTaxableNet(lineTotal);
+                vat.setVatAmount(lineTotal.multiply(new BigDecimal("0.21"))); // simplificación
+                vatList.add(vat);
+            }
+        
+            invoice.setVatBreakdown(vatList);
+            invoice.setTotalAmount(totalInvoice.add(
+                vatList.stream().map(PurchaseVat::getVatAmount).reduce(BigDecimal.ZERO, BigDecimal::add)
+            ));
+        
+            // Snapshots del proveedor para auditoría
+            invoice.setSupplierCuitSnapshot(supplier.getCuit());
+            invoice.setSupplierNameSnapshot(supplier.getBusinessName());
+            invoice.setSupplierIvaConditionSnapshot(supplier.getIvaCondition());
+            invoice.setSupplierOriginSnapshot(supplier.getFiscalOrigin());
+        
+            // Guardar factura y Vats (asumiendo cascade ALL en vatBreakdown)
+            purchaseInvoiceRepository.save(invoice);
+        
+            log.info("Factura automática creada para proveedor '{}', monto total: {}", supplier.getBusinessName(), invoice.getTotalAmount());
+        }
+
         log.info("Importación finalizada para '{}'", supplier.getBusinessName());
+    }
+
+    private long generateReceiptNumber(Supplier supplier) {
+        // Buscar la última factura de este proveedor
+        Optional<PurchaseInvoice> lastInvoice = purchaseInvoiceRepository
+                .findTopBySupplierOrderByReceiptNumberDesc(supplier);
+    
+        // Si existe, sumamos 1; si no, empezamos en 1
+        return lastInvoice.map(invoice -> invoice.getReceiptNumber() + 1).orElse(1L);
     }
 
     private Product findOrCreateProduct(ProductImportDTO pDto, Long userId) {

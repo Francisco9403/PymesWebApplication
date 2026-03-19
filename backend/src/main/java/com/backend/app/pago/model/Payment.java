@@ -2,12 +2,12 @@ package com.backend.app.pago.model;
 
 import java.math.BigDecimal;
 
-import com.backend.app.venta.dto.Sale;
+import com.backend.app.venta.model.Sale;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
-
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
