@@ -40,7 +40,7 @@ public class SaleController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void createSale(@Valid @RequestBody CreateSaleRequest request) { // 🚀 Agregado @Valid
+    public void createSale(@Valid @RequestBody CreateSaleRequest request) {
         saleService.createSale(request);
     }
 }

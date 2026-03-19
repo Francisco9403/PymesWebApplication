@@ -2,6 +2,7 @@ package com.backend.app.venta.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +19,6 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     List<Sale> findByCreatedAtBetweenAndFiscalReceiptIsNotNull(LocalDateTime start, LocalDateTime end);
 
     Page<Sale> findByCustomer_Id(Long customerId, Pageable pageable);
+
+    Optional<Sale> findTopByOrderByIdDesc();
 }

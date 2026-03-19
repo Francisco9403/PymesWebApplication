@@ -1,6 +1,7 @@
 package com.backend.app.venta.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -17,6 +18,9 @@ import com.backend.app.cliente.repository.CustomerRepository;
 import com.backend.app.exception.BusinessException;
 import com.backend.app.exception.InsufficientStockException;
 import com.backend.app.exception.ResourceNotFoundException;
+import com.backend.app.finanza.model.FiscalReceipt;
+import com.backend.app.finanza.model.FiscalReceiptTax;
+import com.backend.app.finanza.model.ReceiptType;
 import com.backend.app.producto.model.Product;
 import com.backend.app.producto.model.ProductStock;
 import com.backend.app.producto.repository.ProductRepository;
@@ -55,75 +59,46 @@ public class SaleService {
     @Transactional
     public Sale createSale(CreateSaleRequest request) {
         log.info("🚀 Iniciando creación de venta. Sucursal ID: {}, Canal: {}", request.branchId(), request.channel());
-
-        // 1. Validar que la venta no venga vacía
+    
+        // Validaciones y búsqueda de sucursal/cliente (igual que antes)
         if (request.items() == null || request.items().isEmpty()) {
-            log.warn("Intento de venta fallido: La lista de productos está vacía.");
             throw new BusinessException("No se puede registrar una venta sin productos");
         }
-
-        // 2. Buscar Sucursal (404 si no existe)
         Branch branch = branchRepository.findById(request.branchId())
-                .orElseThrow(() -> {
-                    log.error("Fallo en venta: Sucursal ID {} no encontrada", request.branchId());
-                    return new ResourceNotFoundException("Sucursal no encontrada con ID: " + request.branchId());
-                });
-
+                .orElseThrow(() -> new ResourceNotFoundException("Sucursal no encontrada con ID: " + request.branchId()));
         Customer customer = null;
         if (request.customerId() != null) {
             customer = customerRepository.findById(request.customerId())
-                    .orElseThrow(() -> {
-                        log.error("Fallo en venta: Cliente ID {} no encontrado", request.customerId());
-                        return new ResourceNotFoundException("Cliente no encontrado con ID: " + request.customerId());
-                    });
-            log.info("Venta vinculada al cliente: {} (ID: {})", customer.getName(), customer.getId());
+                    .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + request.customerId()));
         }
-
+    
         Sale sale = new Sale();
         sale.setBranch(branch);
         sale.setChannel(request.channel());
         sale.setCreatedAt(LocalDateTime.now());
         sale.setCustomer(customer);
-
+    
         List<SaleItem> items = new ArrayList<>();
         BigDecimal totalAmount = BigDecimal.ZERO;
         BigDecimal totalCost = BigDecimal.ZERO;
         int totalItems = 0;
-
+    
+        // Procesar ítems y stock (igual que antes)
         for (CreateSaleItemRequest itemRequest : request.items()) {
-            // 3. Buscar Producto
             Product product = productRepository.findById(itemRequest.productId())
-                    .orElseThrow(() -> {
-                        log.error("Error en item de venta: Producto ID {} no existe", itemRequest.productId());
-                        return new ResourceNotFoundException("Producto no encontrado con ID: " + itemRequest.productId());
-                    });
-
+                    .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + itemRequest.productId()));
+    
             int quantity = itemRequest.quantity();
-            log.debug("Procesando item: {} x{}", product.getName(), quantity);
-
-            if (quantity <= 0) {
-                log.warn("Cantidad inválida para producto {}: {}", product.getName(), quantity);
-                throw new BusinessException("La cantidad del producto " + product.getName() + " debe ser mayor a cero");
-            }
-
-            // 4. Validar Stock 🚀
-            ProductStock stock = productStockRepository
-                    .findByProductAndBranch(product, branch)
-                    .orElseThrow(() -> {
-                        log.error("Error de inventario: Producto '{}' no tiene registro de stock en sucursal {}", product.getName(), branch.getName());
-                        return new BusinessException("El producto " + product.getName() + " no tiene registro de stock en esta sucursal");
-                    });
-
-            if (stock.getQuantity() < quantity) {
-                log.warn("Venta rechazada por falta de stock: {} (Pedido: {}, Disponible: {})",
-                        product.getName(), quantity, stock.getQuantity());
-                throw new InsufficientStockException(product.getName(), quantity, stock.getQuantity());
-            }
-
+            if (quantity <= 0) throw new BusinessException("Cantidad inválida para producto " + product.getName());
+    
+            ProductStock stock = productStockRepository.findByProductAndBranch(product, branch)
+                    .orElseThrow(() -> new BusinessException("El producto " + product.getName() + " no tiene stock en esta sucursal"));
+            if (stock.getQuantity() < quantity) throw new InsufficientStockException(product.getName(), quantity, stock.getQuantity());
+    
             BigDecimal price = product.getCurrentSalePrice();
             BigDecimal cost = product.getBaseCostPrice();
             BigDecimal subtotal = price.multiply(BigDecimal.valueOf(quantity));
-
+    
             SaleItem item = new SaleItem();
             item.setSale(sale);
             item.setProduct(product);
@@ -133,37 +108,70 @@ public class SaleService {
             item.setPriceAtSale(price);
             item.setCostAtSale(cost);
             item.setSubtotal(subtotal);
-
             items.add(item);
-
+    
             totalAmount = totalAmount.add(subtotal);
             totalCost = totalCost.add(cost.multiply(BigDecimal.valueOf(quantity)));
             totalItems += quantity;
-
-            // Descontar stock de forma segura
-            int newStockQty = stock.getQuantity() - quantity;
-            log.debug("Actualizando stock para {}: {} -> {}", product.getName(), stock.getQuantity(), newStockQty);
-            stock.setQuantity(newStockQty);
+    
+            stock.setQuantity(stock.getQuantity() - quantity); // descontar stock
         }
-
+    
         sale.setItems(items);
         sale.setTotalAmount(totalAmount);
         sale.setTotalCost(totalCost);
         sale.setProfit(totalAmount.subtract(totalCost));
         sale.setTotalItems(totalItems);
         sale.setStatus(SaleStatus.COMPLETED);
-
-        // 5. Actualizar deuda del cliente si corresponde
+    
         if (customer != null) {
             BigDecimal oldDebt = customer.getCurrentDebt() != null ? customer.getCurrentDebt() : BigDecimal.ZERO;
             customer.setCurrentDebt(oldDebt.add(totalAmount));
-            log.info("Deuda de cliente '{}' actualizada: ${} -> ${}", customer.getName(), oldDebt, customer.getCurrentDebt());
         }
-
+    
+        // 🚀 Crear FiscalReceipt automáticamente
+        FiscalReceipt receipt = new FiscalReceipt();
+        receipt.setSale(sale);
+        receipt.setType(ReceiptType.FACTURA_B); // ajustar según cliente y condiciones
+        receipt.setPointOfSale(1); // ajustar según sucursal
+        receipt.setReceiptNumberFrom(generateReceiptNumber()); // correlativo
+        receipt.setReceiptNumberTo(receipt.getReceiptNumberFrom());
+        receipt.setIssueDate(LocalDate.now());
+    
+        if (customer != null) {
+            /* receipt.setCustomerCuit(customer.getCuit()); */
+            receipt.setCustomerName(customer.getName());
+            /* receipt.setCustomerDocType(customer.getDocType()); */
+        }
+    
+        // Desglose de impuestos (IVA 21% como ejemplo)
+        List<FiscalReceiptTax> taxes = new ArrayList<>();
+        for (SaleItem item : items) {
+            FiscalReceiptTax tax = new FiscalReceiptTax();
+            tax.setFiscalReceipt(receipt);
+            tax.setNetAmount(item.getSubtotal());
+            tax.setAlicuota(21);
+            tax.setTaxAmount(item.getSubtotal().multiply(new BigDecimal("0.21")));
+            taxes.add(tax);
+        }
+        receipt.setTaxes(taxes);
+    
+        sale.setFiscalReceipt(receipt);
+    
         Sale savedSale = repository.save(sale);
-        log.info("Venta ID: {} completada con éxito. Total: ${}, Items: {}", savedSale.getId(), totalAmount, totalItems);
-
+        log.info("Venta ID: {} completada con factura fiscal generada. Total: ${}, Items: {}", savedSale.getId(), totalAmount, totalItems);
+    
         return savedSale;
+    }
+
+    private Long generateReceiptNumber() {
+        // 🔹 Obtener el último número de factura en la base de datos
+        Long lastNumber = repository.findTopByOrderByIdDesc()
+                .map(sale -> sale.getFiscalReceipt() != null ? sale.getFiscalReceipt().getReceiptNumberFrom() : 0L)
+                .orElse(0L);
+    
+        // 🔹 Incrementar para el siguiente comprobante
+        return lastNumber + 1;
     }
 
     public List<Sale> getSalesByMonth(int month, int year) {
@@ -177,12 +185,6 @@ public class SaleService {
         log.debug("Se encontraron {} ventas fiscalizadas para el reporte.", sales.size());
 
         return sales;
-    }
-
-    public Sale createSale(Sale sale) {
-        log.debug("Creando registro de venta directa...");
-        sale.setCreatedAt(LocalDateTime.now());
-        return repository.save(sale);
     }
 
     public List<Sale> getSalesByBranch(Long branchId) {
