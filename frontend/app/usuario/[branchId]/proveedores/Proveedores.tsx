@@ -3,6 +3,8 @@
 import { compareCostsAction, getSupplierProducts } from "@/app/actions/product";
 import { analyzeDocument, importSupplierData } from "@/app/actions/proveedor";
 import { useToast } from "@/layout/ToastProvider";
+import { FiscalOrigin } from "@/types/FiscalOrigin";
+import { IvaCondition } from "@/types/IvaCondition";
 import {
   EditableOCRData,
   EditableProduct,
@@ -11,7 +13,6 @@ import {
 } from "@/types/OCR";
 import { Product } from "@/types/Product";
 import { Supplier } from "@/types/Supplier";
-import { TaxCategory } from "@/types/TaxCategory";
 import { useActionState, useEffect, useMemo, useState } from "react";
 import SupplierDataReview from "./SupplierDataReview";
 import SupplierFileUpload from "./SupplierFileUpload";
@@ -67,7 +68,8 @@ export default function Proveedores({
     return {
       businessName: raw.businessName ?? raw.razonSocial ?? "",
       cuit: raw.cuit ?? "",
-      taxCategory: raw.taxCategory ?? TaxCategory.CONSUMIDOR_FINAL,
+      ivaCondition: raw.ivaCondition ?? IvaCondition.CONSUMIDOR_FINAL,
+      fiscalOrigin: raw.fiscalOrigin ?? FiscalOrigin.NACIONAL,
       products: (raw.products ?? raw.productos ?? []).map(
         (p: RawOCRProduct): EditableProduct => ({
           name: p.name ?? p.descripcion ?? "",

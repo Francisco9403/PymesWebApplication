@@ -1,4 +1,4 @@
-export enum TaxCategory {
+export enum IvaCondition {
   RESPONSABLE_INSCRIPTO = "RESPONSABLE_INSCRIPTO",
   MONOTRIBUTO = "MONOTRIBUTO",
   EXENTO = "EXENTO",

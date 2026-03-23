@@ -74,7 +74,7 @@ export default function SupplierList({
                         {s.businessName || "Sin Nombre"}
                       </span>
                       <span className="text-[9px] font-bold uppercase tracking-tight text-[#FF6B35] opacity-70">
-                        {s.taxCategory?.replace("_", " ") ||
+                        {s.ivaCondition?.replace("_", " ") ||
                           "RESPONSABLE INSCRIPTO"}
                       </span>
                     </div>

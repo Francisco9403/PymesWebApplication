@@ -1,5 +1,6 @@
+import { FiscalOrigin } from "./FiscalOrigin";
+import { IvaCondition } from "./IvaCondition";
 import { Supplier } from "./Supplier";
-import { TaxCategory } from "./TaxCategory";
 
 export interface OCRInvoiceEntry {
   id: number;
@@ -19,7 +20,8 @@ export interface OCRProduct {
 export interface OCRResult {
   businessName: string;
   cuit: string;
-  taxCategory: TaxCategory;
+  ivaCondition: IvaCondition;
+  fiscalOrigin: FiscalOrigin;
   products: OCRProduct[];
 }
 
@@ -46,7 +48,8 @@ export interface RawOCRResult {
   businessName?: string;
   razonSocial?: string;
   cuit?: string;
-  taxCategory?: TaxCategory;
+  ivaCondition?: IvaCondition;
+  fiscalOrigin?: FiscalOrigin;
   products?: RawOCRProduct[];
   productos?: RawOCRProduct[];
 }

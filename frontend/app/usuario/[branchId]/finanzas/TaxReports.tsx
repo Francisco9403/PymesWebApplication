@@ -8,10 +8,9 @@ export default function TaxReports() {
   );
 
   const handleDownload = (type: "iva" | "retenciones") => {
-    const [year, month] = period.split("-");
-    const endpoint = type === "iva" ? "iva-ventas" : "retenciones";
+    const endpoint = type === "iva" ? "libro" : "percepciones";
     window.open(
-      `${process.env.NEXT_PUBLIC_API}/finance/export/${endpoint}?month=${month}&year=${year}`,
+      `${process.env.NEXT_PUBLIC_API}/iva/${endpoint}?periodo=${period}`,
       "_blank",
     );
   };

@@ -1,5 +1,7 @@
 "use client";
 
+import { FiscalOrigin } from "@/types/FiscalOrigin";
+import { IvaCondition } from "@/types/IvaCondition";
 import { EditableOCRData } from "@/types/OCR";
 
 export default function SupplierDataReview({
@@ -73,6 +75,83 @@ export default function SupplierDataReview({
               setData({ ...currentData, businessName: e.target.value })
             }
           />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 mt-4 border-t border-slate-100 dark:border-[rgba(255,255,255,0.06)]">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5 text-slate-400 dark:text-[#555]">
+              CUIT
+            </label>
+            <input
+              name="cuit"
+              value={currentData.cuit ?? ""}
+              onChange={(e) =>
+                setData({ ...currentData, cuit: e.target.value })
+              }
+              className="w-full px-4 py-3 rounded-xl text-sm font-mono outline-none transition-all
+                border bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300
+                focus:border-[rgba(255,107,53,0.5)] focus:ring-2 focus:ring-[rgba(255,107,53,0.12)] focus:bg-white
+                dark:bg-[rgba(255,255,255,0.04)] dark:border-[rgba(255,255,255,0.08)] dark:text-[#F0EDE8] dark:placeholder:text-[#333]
+                dark:focus:border-[rgba(255,107,53,0.5)] dark:focus:bg-[rgba(255,255,255,0.06)]"
+              placeholder="20-12345678-9"
+              type="text"
+              inputMode="numeric"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5 text-slate-400 dark:text-[#555]">
+              Condición IVA
+            </label>
+            <select
+              name="ivaCondition"
+              value={currentData.ivaCondition ?? IvaCondition.CONSUMIDOR_FINAL}
+              onChange={(e) =>
+                setData({
+                  ...currentData,
+                  ivaCondition: e.target.value as IvaCondition,
+                })
+              }
+              className="w-full px-4 py-3 rounded-xl text-sm font-bold outline-none transition-all
+                border bg-slate-50 border-slate-200 text-slate-900
+                focus:border-[rgba(255,107,53,0.5)] focus:ring-2 focus:ring-[rgba(255,107,53,0.12)] focus:bg-white
+                dark:bg-[rgba(255,255,255,0.04)] dark:border-[rgba(255,255,255,0.08)] dark:text-[#F0EDE8]
+                dark:focus:border-[rgba(255,107,53,0.5)] dark:focus:bg-[rgba(255,255,255,0.06)]"
+            >
+              {Object.values(IvaCondition).map((iva) => (
+                <option key={iva} value={iva}>
+                  {iva}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[0.65rem] font-bold uppercase tracking-widest ml-0.5 text-slate-400 dark:text-[#555]">
+              Origen Fiscal
+            </label>
+            <select
+              name="fiscalOrigin"
+              value={currentData.fiscalOrigin ?? FiscalOrigin.NACIONAL}
+              onChange={(e) =>
+                setData({
+                  ...currentData,
+                  fiscalOrigin: e.target.value as FiscalOrigin,
+                })
+              }
+              className="w-full px-4 py-3 rounded-xl text-sm font-bold outline-none transition-all
+                border bg-slate-50 border-slate-200 text-slate-900
+                focus:border-[rgba(255,107,53,0.5)] focus:ring-2 focus:ring-[rgba(255,107,53,0.12)] focus:bg-white
+                dark:bg-[rgba(255,255,255,0.04)] dark:border-[rgba(255,255,255,0.08)] dark:text-[#F0EDE8]
+                dark:focus:border-[rgba(255,107,53,0.5)] dark:focus:bg-[rgba(255,255,255,0.06)]"
+            >
+              {Object.values(FiscalOrigin).map((origin) => (
+                <option key={origin} value={origin}>
+                  {origin}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
