@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { DolarApiRate } from "@/types/dolar";
 
 export async function getExchangeRates() {
@@ -34,6 +35,8 @@ export async function updateMarkupSettings(formData: FormData) {
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) return { error: "No autorizado" };
 
+  const branchId = formData.get("branchId");
+
   const settings = {
     automaticMarkupEnabled: formData.get("enabled") === "true",
     thresholdPercentage: Number(formData.get("threshold")),
@@ -41,15 +44,15 @@ export async function updateMarkupSettings(formData: FormData) {
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/finance/settings`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${jwt}`,
+        `${process.env.NEXT_PUBLIC_API}/finance/settings`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwt}`,
+          },
+          body: JSON.stringify(settings),
         },
-        body: JSON.stringify(settings),
-      },
     );
 
     if (!response.ok) {
@@ -57,7 +60,16 @@ export async function updateMarkupSettings(formData: FormData) {
       return { error: data.message ?? "Falló la actualización de valor" };
     }
 
-    // revalidatePath("/usuario/finanzas");
+    // Al cambiar la configuración financiera, refrescamos la vista de finanzas
+    // y la de productos, ya que los precios calculados podrían cambiar.
+    if (branchId) {
+      revalidatePath(`/usuario/${branchId}/finanzas`);
+      revalidatePath(`/usuario/${branchId}/productos`);
+    } else {
+      // Si es una configuración global, refrescamos el layout de usuario
+      revalidatePath("/usuario", "layout");
+    }
+
     return { success: "Configuración actualizada" };
   } catch (error) {
     return {

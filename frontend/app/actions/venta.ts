@@ -3,10 +3,11 @@
 import type { CartItem } from "@/types/Cart";
 import { CreateSaleRequest } from "@/types/Sale";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 export async function crearVenta(
-  prevState: { error?: string; success?: string } | null,
-  formData: FormData,
+    prevState: { error?: string; success?: string } | null,
+    formData: FormData,
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
@@ -46,6 +47,22 @@ export async function crearVenta(
       const data = await response.json().catch(() => ({}));
       return { error: data.message ?? "Falló la creación de venta" };
     }
+
+    // Al vender, refrescamos todos los módulos afectados
+    if (branchId) {
+      // Actualizamos stock en productos e inventario
+      revalidatePath(`/usuario/${branchId}/productos`);
+      revalidatePath(`/usuario/${branchId}/inventario`);
+
+      // Actualizamos el flujo de caja
+      revalidatePath(`/usuario/${branchId}/finanzas`);
+
+      // Si la venta fue a un cliente específico, refrescamos su historial/deuda
+      if (customerIdRaw) {
+        revalidatePath(`/usuario/${branchId}/clientes`);
+      }
+    }
+    revalidatePath(`/usuario/${branchId}/venta`);
 
     return { success: "Venta creada correctamente" };
   } catch (error) {

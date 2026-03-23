@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { Supplier } from "@/types/Supplier";
 import { GoogleGenAI } from "@google/genai";
+import { revalidatePath } from "next/cache";
 
 export async function getSuppliers(branchId: string): Promise<{
   data?: Supplier[];
@@ -14,6 +15,7 @@ export async function getSuppliers(branchId: string): Promise<{
 
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API}/suppliers?branchId=${branchId}`, {
+      next: { tags: [`suppliers-${branchId}`] },
       cache: "no-store",
       headers: {
         Authorization: `Bearer ${jwt}`,
@@ -43,6 +45,7 @@ export async function importSupplierData(
   if (!jwt) return { error: "No autorizado" };
 
   const payload = JSON.parse(formData.get("payload") as string);
+  const branchId = payload.branchId;
 
   try {
     const response = await fetch(
@@ -61,6 +64,9 @@ export async function importSupplierData(
       const errorData = await response.json().catch(() => null);
       return { error: errorData?.message || "Error al importar datos" };
     }
+    if (branchId) {
+      revalidatePath(`/usuario/${branchId}/proveedores`);
+    }
 
     return { success: "Proveedor cargado correctamente" };
   } catch (err) {
@@ -69,7 +75,7 @@ export async function importSupplierData(
 }
 
 const client = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY
+  apiKey: process.env.GEMINI_API_KEY as string
 });
 
 export async function analyzeImage(

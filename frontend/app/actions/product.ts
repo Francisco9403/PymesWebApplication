@@ -3,10 +3,11 @@
 import { PageResponse } from "@/types/Page";
 import { ProductResponse } from "@/types/Product";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 export async function getSupplierProducts(
-  supplierId: number,
-  branchId: string,
+    supplierId: number,
+    branchId: string,
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
@@ -14,13 +15,14 @@ export async function getSupplierProducts(
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/products/supplier/${supplierId}?branchId=${branchId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
+        `${process.env.NEXT_PUBLIC_API}/products/supplier/${supplierId}?branchId=${branchId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+          next: { tags: [`supplier-products-${supplierId}`] },
+          cache: "no-store",
         },
-        cache: "no-store",
-      },
     );
 
     if (!res.ok) {
@@ -45,16 +47,16 @@ export async function compareCostsAction(productNames: string[]) {
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/products/compare-costs`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${jwt}`,
+        `${process.env.NEXT_PUBLIC_API}/products/compare-costs`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwt}`,
+          },
+          body: JSON.stringify(productNames),
+          cache: "no-store",
         },
-        body: JSON.stringify(productNames),
-        cache: "no-store",
-      },
     );
 
     if (!res.ok) {
@@ -77,12 +79,12 @@ export async function procesarSku(sku: string) {
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/products/sku/${sku}`,
-      {
-        method: "GET",
-        headers: { Authorization: `Bearer ${jwt}` },
-        cache: "no-store",
-      },
+        `${process.env.NEXT_PUBLIC_API}/products/sku/${sku}`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${jwt}` },
+          cache: "no-store",
+        },
     );
 
     if (!res.ok) {
@@ -98,12 +100,14 @@ export async function procesarSku(sku: string) {
 }
 
 export async function create(
-  prevState: { error?: string; success?: string } | null,
-  formData: FormData,
+    prevState: { error?: string; success?: string } | null,
+    formData: FormData,
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) return { error: "No autorizado" };
+
+  const branchId = formData.get("branchId");
 
   const rawData = {
     sku: formData.get("sku"),
@@ -127,25 +131,26 @@ export async function create(
       return { error: errorData?.message || "Error al crear el producto" };
     }
 
-    // revalidatePath("/admin/products");
+    if (branchId) {
+      revalidatePath(`/usuario/${branchId}/productos`);
+    }
 
     return { success: "Producto creado correctamente" };
   } catch (error) {
-    if (error instanceof Error) {
-      return { error: error.message };
-    }
-
+    if (error instanceof Error) return { error: error.message };
     return { error: "Error inesperado" };
   }
 }
 
 export async function updateProduct(
-  prevState: { error?: string; success?: string } | null,
-  formData: FormData,
+    prevState: { error?: string; success?: string } | null,
+    formData: FormData,
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) return { error: "No autorizado" };
+
+  const branchId = formData.get("branchId");
 
   const payload = {
     id: Number(formData.get("id")),
@@ -170,7 +175,9 @@ export async function updateProduct(
       return { error: data.message ?? "Error actualizando producto" };
     }
 
-    // revalidatePath("/admin/products");
+    if (branchId) {
+      revalidatePath(`/usuario/${branchId}/productos`);
+    }
 
     return { success: "Producto actualizado correctamente" };
   } catch (error) {
@@ -202,13 +209,14 @@ export async function getProducts(params: {
   if (params.sort) search.set("sort", params.sort);
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API}/products?${search.toString()}`,
-    {
-      cache: "no-store",
-      headers: {
-        Authorization: `Bearer ${jwt}`,
+      `${process.env.NEXT_PUBLIC_API}/products?${search.toString()}`,
+      {
+        cache: "no-store",
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+        next: { tags: ["products-list"] }
       },
-    },
   );
 
   if (!res.ok) {
@@ -225,8 +233,8 @@ export async function getProducts(params: {
 }
 
 export async function deleteProduct(
-  prevState: { error?: string; success?: string } | null,
-  formData: FormData,
+    prevState: { error?: string; success?: string } | null,
+    formData: FormData,
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
@@ -237,18 +245,20 @@ export async function deleteProduct(
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/products/${productId}?branchId=${branchId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${jwt}`,
+        `${process.env.NEXT_PUBLIC_API}/products/${productId}?branchId=${branchId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
         },
-      },
     );
 
     if (!res.ok) return { error: "No se pudo eliminar el producto" };
 
-    // revalidatePath("/admin/products");
+    if (branchId) {
+      revalidatePath(`/usuario/${branchId}/productos`);
+    }
 
     return { success: "Producto eliminado" };
   } catch {
@@ -263,13 +273,13 @@ export async function confirmStrategicPricesAction() {
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/products/confirm-strategic`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${jwt}`,
+        `${process.env.NEXT_PUBLIC_API}/products/confirm-strategic`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
         },
-      },
     );
 
     if (!response.ok) {
@@ -278,6 +288,8 @@ export async function confirmStrategicPricesAction() {
         error: errorData?.message || "Error al confirmar precios estratégicos",
       };
     }
+
+    revalidatePath("/usuario", "layout");
 
     return { success: "Precios estratégicos aplicados" };
   } catch (error) {

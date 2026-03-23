@@ -1,22 +1,23 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { revalidatePath } from "next/cache";
+import { revalidatePath } from "next/cache"; // 🚀 Importado
 import { ProductStock } from "@/types/Product";
 
 export async function getStockByBranch(
-  branchId: number,
+    branchId: number,
 ): Promise<ProductStock[]> {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) return [];
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API}/stock/branch/${branchId}`,
-    {
-      cache: "no-store",
-      headers: { Authorization: `Bearer ${jwt}` },
-    },
+      `${process.env.NEXT_PUBLIC_API}/stock/branch/${branchId}`,
+      {
+        cache: "no-store",
+        next: { tags: [`stock-branch-${branchId}`] },
+        headers: { Authorization: `Bearer ${jwt}` },
+      },
   );
 
   if (!res.ok) return [];
@@ -24,8 +25,8 @@ export async function getStockByBranch(
 }
 
 export async function addStockAction(
-  prevState: { error?: string; success?: string } | null,
-  formData: FormData,
+    prevState: { error?: string; success?: string } | null,
+    formData: FormData,
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
@@ -57,7 +58,17 @@ export async function addStockAction(
         error: data.message || "Error al cargar stock",
       };
 
-    revalidatePath(`/usuario/${branchId}/inventario`);
+    // El cambio de stock afecta a tres pantallas críticas.
+    if (branchId) {
+      // 1. Refrescamos la vista de Inventario (donde se cargan estos ajustes)
+      revalidatePath(`/usuario/${branchId}/inventario`);
+
+      // 2. Refrescamos la tabla de Productos (donde se ve el stock total/por sucursal)
+      revalidatePath(`/usuario/${branchId}/productos`);
+
+      // 3. Refrescamos la pantalla de Venta (para que el carrito sepa la disponibilidad real)
+      revalidatePath(`/usuario/${branchId}/venta`);
+    }
     return { success: "¡Stock actualizado correctamente!" };
   } catch (error) {
     return {

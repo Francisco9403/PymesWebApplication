@@ -4,25 +4,34 @@ import { CustomerListResponse, CustomerSaleResponse } from "@/types/Customer";
 import { PageResponse } from "@/types/Page";
 import { GoogleGenAI } from "@google/genai";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 
-export async function updateCustomerTags(customerId: number, tags: string[]) {
+export async function updateCustomerTags(
+    customerId: number,
+    tags: string[],
+    branchId?: string // 🚀 Opcional para revalidar la ruta exacta
+) {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/customers/${customerId}/tags`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tags),
-        credentials: "include",
-      },
+        `${process.env.NEXT_PUBLIC_API}/customers/${customerId}/tags`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(tags),
+          credentials: "include",
+        },
     );
 
     if (!res.ok) {
       const data = await res.json().catch(() => null);
       return {
         error:
-          data?.message || "No se pudo actualizar las etiquetas del cliente",
+            data?.message || "No se pudo actualizar las etiquetas del cliente",
       };
+    }
+
+    if (branchId) {
+      revalidatePath(`/usuario/${branchId}/clientes`);
     }
 
     return tags;
@@ -34,16 +43,17 @@ export async function updateCustomerTags(customerId: number, tags: string[]) {
 }
 
 const client = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
+  apiKey: process.env.GEMINI_API_KEY as string, // Cast para evitar errores de tipo
 });
 
 export async function generateCustomerTag(
-  customerId: number,
-  salesHistory: CustomerSaleResponse[],
+    customerId: number,
+    salesHistory: CustomerSaleResponse[],
+    branchId?: string // 🚀 Lo pasamos para que updateCustomerTags lo use
 ) {
   const historyText = salesHistory
-    .map((s) => `Compra: $${s.totalAmount} el ${s.createdAt}`)
-    .join("\n");
+      .map((s) => `Compra: $${s.totalAmount} el ${s.createdAt}`)
+      .join("\n");
 
   const prompt = `
     Analiza el historial de compras y deuda del cliente y asigna etiquetas según:
@@ -69,13 +79,13 @@ export async function generateCustomerTag(
     if (!rawText) return { error: "No se pudo generar etiquetas del cliente" };
 
     const cleaned = rawText
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
 
     const tags: string[] = JSON.parse(cleaned);
 
-    const updated = await updateCustomerTags(customerId, tags);
+    const updated = await updateCustomerTags(customerId, tags, branchId);
     if ("error" in updated) return { error: updated.error };
 
     return tags;
@@ -86,20 +96,21 @@ export async function generateCustomerTag(
   }
 }
 
-export async function getCustomers(page = 0, size = 20) {
+export async function getCustomers(page = 0, size = 20, branchId?: string) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) throw new Error("No autorizado");
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API}/customers?page=${page}&size=${size}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${jwt}`,
+      `${process.env.NEXT_PUBLIC_API}/customers?page=${page}&size=${size}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+        cache: "no-store",
+        next: { tags: ["customers-list"] }
       },
-      cache: "no-store",
-    },
   );
 
   if (!res.ok) {
@@ -112,9 +123,9 @@ export async function getCustomers(page = 0, size = 20) {
 }
 
 export async function getCustomerSales(
-  customerId: number,
-  page = 0,
-  size = 10,
+    customerId: number,
+    page = 0,
+    size = 10,
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
@@ -125,14 +136,14 @@ export async function getCustomerSales(
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/customers/${customerId}/sales?page=${page}&size=${size}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${jwt}`,
+        `${process.env.NEXT_PUBLIC_API}/customers/${customerId}/sales?page=${page}&size=${size}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+          cache: "no-store",
         },
-        cache: "no-store",
-      },
     );
 
     if (!response.ok) {
@@ -148,12 +159,14 @@ export async function getCustomerSales(
 }
 
 export async function crearCliente(
-  prevState: { error?: string; success?: string } | null,
-  formData: FormData,
+    prevState: { error?: string; success?: string } | null,
+    formData: FormData,
 ) {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("token")?.value;
   if (!jwt) return { error: "No autorizado" };
+
+  const branchId = formData.get("branchId");
 
   const body = {
     name: formData.get("name"),
@@ -180,6 +193,10 @@ export async function crearCliente(
     }
 
     const id = await response.json();
+
+    if (branchId) {
+      revalidatePath(`/usuario/${branchId}/clientes`);
+    }
 
     return {
       success: "Cliente creado correctamente",
