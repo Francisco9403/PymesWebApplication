@@ -73,6 +73,8 @@ public class CompraMapper {
                 .add(safe(i.getInternalTaxes()))
                 .add(safe(i.getMunicipalTaxes()));
 
+        System.out.println("TEST: " + i.getVendorDocumentType());
+
         return new CompraCbteDTO(
                 i.getDate(),
                 mapReceiptType(i.getReceiptType()),

@@ -68,6 +68,19 @@ public class VentaMapper {
         BigDecimal noGravado = BigDecimal.ZERO; // mejorar si tenés lógica
         BigDecimal exento = BigDecimal.ZERO;
 
+        Integer docType = fr.getCustomerDocType();
+        String doc = normalizeDoc(fr.getCustomerCuit());
+        String name = truncate(fr.getCustomerName(), 30);
+
+        if (docType == null)
+            docType = 99;
+
+        if (doc == null || doc.isBlank())
+            doc = "0";
+
+        if (name == null || name.isBlank())
+            name = "CONSUMIDOR_FINAL";
+
         return new VentaCbteDTO(
                 fr.getIssueDate(),
                 type.getAfipCode(),
@@ -77,9 +90,12 @@ public class VentaMapper {
                         ? fr.getReceiptNumberTo()
                         : fr.getReceiptNumberFrom(),
 
-                fr.getCustomerDocType(),
+                /* fr.getCustomerDocType(),
                 normalizeDoc(fr.getCustomerCuit()),
-                truncate(fr.getCustomerName(), 30),
+                truncate(fr.getCustomerName(), 30), */
+                docType,
+                doc,
+                name,
 
                 importeTotal,
 
@@ -96,11 +112,11 @@ public class VentaMapper {
 
                 alicuotas.size(),
 
-                "", // codigoOperacion
+                "",
 
                 BigDecimal.ZERO,
 
-                null, // fechaVencimiento
+                fr.getIssueDate(),
 
                 alicuotas
         );

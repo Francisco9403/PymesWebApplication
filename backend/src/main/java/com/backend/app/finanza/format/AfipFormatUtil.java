@@ -10,14 +10,24 @@ public class AfipFormatUtil {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     public static String formatFecha(LocalDate fecha) {
+        System.out.println("FECHA ES: " + fecha);
         return fecha.format(DATE_FORMAT);
     }
 
-    public static String padLeftZeros(String value, int length) {
+    /* public static String padLeftZeros(String value, int length) {
         return String.format("%" + length + "s", value).replace(' ', '0');
+    } */
+    public static String padLeftZeros(String value, int length) {
+        value = value.trim();
+        if (value.length() > length) value = value.substring(value.length() - length);
+        return String.format("%-" + length + "s", value);
     }
 
+    /* public static String padRightSpaces(String value, int length) {
+        return String.format("%-" + length + "s", value);
+    } */
     public static String padRightSpaces(String value, int length) {
+        if (value.length() > length) value = value.substring(0, length);
         return String.format("%-" + length + "s", value);
     }
 

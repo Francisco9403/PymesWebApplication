@@ -1,24 +1,23 @@
 package com.backend.app.finanza.controller;
 
 import java.io.ByteArrayOutputStream;
-import java.time.format.DateTimeFormatter;
+import java.time.YearMonth;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.app.autentificacion.config.dto.IvaRequest;
 import com.backend.app.finanza.model.dto.LibroIvaArchivos;
 import com.backend.app.finanza.service.LibroIvaService;
 
 @RestController
-@RequestMapping("/iva")
+@RequestMapping("/api/iva")
 public class LibroIvaController {
 
     private final LibroIvaService service;
@@ -27,10 +26,8 @@ public class LibroIvaController {
         this.service = service;
     }
 
-    @PostMapping("/libro")
-    public ResponseEntity<byte[]> generar(@RequestBody IvaRequest request) throws Exception {
-    
-        String periodo = request.periodo().format(DateTimeFormatter.ofPattern("yyyyMM"));
+    @GetMapping("/libro")
+    public ResponseEntity<byte[]> generar(@RequestParam YearMonth periodo) throws Exception {
     
         LibroIvaArchivos result = service.generarArchivos();
     
@@ -62,13 +59,10 @@ public class LibroIvaController {
                 .body(baos.toByteArray());
     }
 
-    @PostMapping("/percepciones")
-    public ResponseEntity<byte[]> percepciones(@RequestBody IvaRequest request) throws Exception {
+    @GetMapping("/percepciones")
+    public ResponseEntity<byte[]> percepciones(@RequestParam YearMonth periodo) throws Exception {
     
-        String periodo = request.periodo()
-                .format(DateTimeFormatter.ofPattern("yyyyMM"));
-    
-        String txt = service.generarPercepciones(request.periodo());
+        String txt = service.generarPercepciones(periodo);
     
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,

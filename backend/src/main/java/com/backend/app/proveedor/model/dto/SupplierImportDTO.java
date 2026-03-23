@@ -20,7 +20,7 @@ public record SupplierImportDTO(
         @NotNull(message = "La condición IVA es obligatoria")
         IvaCondition ivaCondition,
         
-        @NotNull(message = "El origen fiscal es obligatorio")
+        /* @NotNull(message = "El origen fiscal es obligatorio") */
         FiscalOrigin fiscalOrigin,
 
         @NotEmpty(message = "La lista de productos no puede estar vacía")

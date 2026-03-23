@@ -42,6 +42,9 @@ public class FiscalReceipt {
     @OneToMany(mappedBy = "fiscalReceipt", cascade = CascadeType.ALL)
     private List<FiscalReceiptTax> taxes;
 
+    @OneToMany(mappedBy = "fiscalReceipt", cascade = CascadeType.ALL)
+    private List<FiscalReceiptTribute> tributes;
+
     private BigDecimal iibbPerception;
 
     private String customerCuit;
@@ -131,6 +134,14 @@ public class FiscalReceipt {
 
     public void setTaxes(List<FiscalReceiptTax> taxes) {
         this.taxes = taxes;
+    }
+
+    public List<FiscalReceiptTribute> getTributes() {
+        return tributes;
+    }
+
+    public void setTributes(List<FiscalReceiptTribute> tributes) {
+        this.tributes = tributes;
     }
 
     public BigDecimal getIibbPerception() {

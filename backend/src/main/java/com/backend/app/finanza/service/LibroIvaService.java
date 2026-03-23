@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.app.finanza.builder.ComprasAlicuotasBuilder;
 import com.backend.app.finanza.builder.ComprasCbteBuilder;
@@ -24,6 +25,7 @@ import com.backend.app.finanza.repository.PurchaseInvoiceRepository;
 import com.backend.app.venta.model.SaleStatus;
 
 @Service
+@Transactional(readOnly = true)
 public class LibroIvaService {
 
     private final FiscalReceiptRepository fiscalReceiptRepository;
@@ -53,6 +55,10 @@ public class LibroIvaService {
         // VENTAS
         // =====================
         List<FiscalReceipt> receipts = fiscalReceiptRepository.findByIssueDateBetween(desde, hasta);
+        for(FiscalReceipt receipt: receipts) {
+                System.out.println("DATES");
+                System.out.println(receipt.getIssueDate());
+        };
 
         List<VentaCbteDTO> ventas = receipts.stream()
                 .filter(r -> r.getSale().getStatus() == SaleStatus.COMPLETED)

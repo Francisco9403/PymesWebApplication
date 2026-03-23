@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.app.archivosParaRevisar.CommunicationChannel;
 import com.backend.app.cuentaCorriente.model.CurrentAccount;
 import com.backend.app.exception.ResourceNotFoundException;
+import com.backend.app.finanza.model.DocumentType;
 import com.backend.app.finanza.model.PurchaseInvoice;
 import com.backend.app.finanza.model.PurchaseVat;
 import com.backend.app.finanza.model.ReceiptType;
@@ -135,6 +136,19 @@ public class SupplierService {
             invoice.setPointOfSale(1); // ajustar según tu sucursal
             invoice.setReceiptNumber(generateReceiptNumber(supplier)); // implementar secuencial
             invoice.setTotalAmount(BigDecimal.ZERO);
+            invoice.setVendorDocumentType(resolveDocumentType(supplier.getCuit()));
+            invoice.setVendorDocumentNumber(supplier.getCuit());
+            invoice.setCurrency("PES");
+            invoice.setExchangeRate(BigDecimal.ONE);
+            invoice.setNonTaxedAmount(BigDecimal.ZERO);
+            invoice.setExemptAmount(BigDecimal.ZERO); 
+            invoice.setVatPerception(BigDecimal.ZERO);
+            invoice.setIibbPerception(BigDecimal.ZERO);
+            invoice.setMunicipalTaxes(BigDecimal.ZERO);
+            invoice.setInternalTaxes(BigDecimal.ZERO);
+            invoice.setOtherTaxes(BigDecimal.ZERO);
+            invoice.setOtherPerceptions(BigDecimal.ZERO);
+            invoice.setOperationCode("");
         
             BigDecimal totalInvoice = BigDecimal.ZERO;
             List<PurchaseVat> vatList = new ArrayList<>();
@@ -170,6 +184,19 @@ public class SupplierService {
         }
 
         log.info("Importación finalizada para '{}'", supplier.getBusinessName());
+    }
+
+    private DocumentType resolveDocumentType(String documentNumber) {
+        if (documentNumber == null || documentNumber.isBlank()) {
+            return DocumentType.DNI; // fallback
+        }
+    
+        String clean = documentNumber.replaceAll("[^0-9]", "");
+    
+        if (clean.length() == 11) return DocumentType.CUIT;
+        if (clean.length() >= 7 && clean.length() <= 8) return DocumentType.DNI;
+    
+        return DocumentType.DNI; // fallback seguro
     }
 
     private long generateReceiptNumber(Supplier supplier) {

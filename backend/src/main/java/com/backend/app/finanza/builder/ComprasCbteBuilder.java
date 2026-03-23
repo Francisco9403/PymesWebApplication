@@ -54,3 +54,42 @@ public class ComprasCbteBuilder {
         return sb.toString();
     }
 }
+
+
+
+/* String result = sb.toString();
+
+if (result.length() != 325) {
+
+    System.out.println("❌ ERROR LONGITUD COMPRAS_CBTE: " + result.length());
+
+    int pos = 0;
+
+    System.out.println("fecha: " + result.substring(pos, pos += 8));
+    System.out.println("tipoComprobante: " + result.substring(pos, pos += 3));
+    System.out.println("puntoVenta: " + result.substring(pos, pos += 5));
+    System.out.println("numeroComprobante: " + result.substring(pos, pos += 20));
+    System.out.println("despachoImportacion: " + result.substring(pos, pos += 16));
+    System.out.println("codigoDocumento: " + result.substring(pos, pos += 2));
+    System.out.println("numeroDocumento: " + result.substring(pos, pos += 20));
+    System.out.println("nombreVendedor: [" + result.substring(pos, pos += 30) + "]");
+    System.out.println("importeTotal: " + result.substring(pos, pos += 15));
+    System.out.println("noGravado: " + result.substring(pos, pos += 15));
+    System.out.println("exento: " + result.substring(pos, pos += 15));
+    System.out.println("ivaPercepcion: " + result.substring(pos, pos += 15));
+    System.out.println("otrasPercepciones: " + result.substring(pos, pos += 15));
+    System.out.println("iibb: " + result.substring(pos, pos += 15));
+    System.out.println("municipales: " + result.substring(pos, pos += 15));
+    System.out.println("internos: " + result.substring(pos, pos += 15));
+    System.out.println("moneda: [" + result.substring(pos, pos += 3) + "]");
+    System.out.println("tipoCambio: " + result.substring(pos, pos += 10));
+    System.out.println("cantidadAlicuotas: " + result.substring(pos, pos += 1));
+    System.out.println("codigoOperacion: [" + result.substring(pos, pos += 1) + "]");
+    System.out.println("creditoFiscal: " + result.substring(pos, pos += 15));
+    System.out.println("otrosTributos: " + result.substring(pos, pos += 15));
+    System.out.println("cuitCorredor: " + result.substring(pos, pos += 11));
+    System.out.println("denominacionCorredor: [" + result.substring(pos, pos += 30) + "]");
+    System.out.println("ivaComision: " + result.substring(pos, pos += 15));
+
+    throw new RuntimeException("Longitud inválida COMPRAS_CBTE: " + result.length());
+} */

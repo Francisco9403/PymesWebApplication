@@ -1,12 +1,15 @@
 package com.backend.app.venta.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; // 🚀 Importaciones de SLF4J
@@ -35,6 +38,7 @@ import com.backend.app.venta.model.dto.CreateSaleRequest;
 import com.backend.app.venta.repository.SaleRepository;
 
 @Service
+@Transactional
 public class SaleService {
 
     // 🚀 Definición del Logger
@@ -55,8 +59,7 @@ public class SaleService {
         this.customerRepository = customerRepository;
         this.productStockRepository = productStockRepository;
     }
-
-    @Transactional
+    
     public Sale createSale(CreateSaleRequest request) {
         log.info("🚀 Iniciando creación de venta. Sucursal ID: {}, Canal: {}", request.branchId(), request.channel());
     
@@ -128,7 +131,18 @@ public class SaleService {
             BigDecimal oldDebt = customer.getCurrentDebt() != null ? customer.getCurrentDebt() : BigDecimal.ZERO;
             customer.setCurrentDebt(oldDebt.add(totalAmount));
         }
+
+        FiscalReceipt receipt = buildFiscalReceipt(sale, items, customer);
+        sale.setFiscalReceipt(receipt);
+
     
+        Sale savedSale = repository.save(sale);
+        log.info("Venta ID: {} completada con factura fiscal generada. Total: ${}, Items: {}", savedSale.getId(), totalAmount, totalItems);
+    
+        return savedSale;
+    }
+
+    private FiscalReceipt buildFiscalReceipt(Sale sale, List<SaleItem> items, Customer customer) {
         // 🚀 Crear FiscalReceipt automáticamente
         FiscalReceipt receipt = new FiscalReceipt();
         receipt.setSale(sale);
@@ -137,6 +151,7 @@ public class SaleService {
         receipt.setReceiptNumberFrom(generateReceiptNumber()); // correlativo
         receipt.setReceiptNumberTo(receipt.getReceiptNumberFrom());
         receipt.setIssueDate(LocalDate.now());
+        receipt.setConcept(1);
     
         if (customer != null) {
             /* receipt.setCustomerCuit(customer.getCuit()); */
@@ -145,23 +160,41 @@ public class SaleService {
         }
     
         // Desglose de impuestos (IVA 21% como ejemplo)
-        List<FiscalReceiptTax> taxes = new ArrayList<>();
+        Map<Integer, BigDecimal> netByRate = new HashMap<>();
+
         for (SaleItem item : items) {
+            int rate = 21; // futuro: desde Product
+        
+            boolean discriminatesVat = receipt.getType().discriminatesVat();
+
+            BigDecimal divisor = BigDecimal.ONE.add(
+                BigDecimal.valueOf(rate).divide(BigDecimal.valueOf(100))
+            );
+            
+            BigDecimal net = discriminatesVat
+                ? item.getSubtotal()
+                : item.getSubtotal().divide(divisor, 2, RoundingMode.HALF_UP);
+
+            netByRate.merge(rate, net, BigDecimal::add);
+        }
+        
+        List<FiscalReceiptTax> taxes = new ArrayList<>();
+        
+        for (Map.Entry<Integer, BigDecimal> entry : netByRate.entrySet()) {
+            Integer rate = entry.getKey();
+            BigDecimal net = entry.getValue();
+        
             FiscalReceiptTax tax = new FiscalReceiptTax();
             tax.setFiscalReceipt(receipt);
-            tax.setNetAmount(item.getSubtotal());
-            tax.setAlicuota(21);
-            tax.setTaxAmount(item.getSubtotal().multiply(new BigDecimal("0.21")));
+            tax.setNetAmount(net);
+            tax.setAlicuota(rate);
+            tax.setTaxAmount(net.multiply(BigDecimal.valueOf(rate).divide(BigDecimal.valueOf(100))));
+        
             taxes.add(tax);
         }
         receipt.setTaxes(taxes);
     
-        sale.setFiscalReceipt(receipt);
-    
-        Sale savedSale = repository.save(sale);
-        log.info("Venta ID: {} completada con factura fiscal generada. Total: ${}, Items: {}", savedSale.getId(), totalAmount, totalItems);
-    
-        return savedSale;
+        return receipt;
     }
 
     private Long generateReceiptNumber() {
