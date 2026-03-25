@@ -57,7 +57,7 @@ const modules = [
 export default async function Page({
   params,
 }: {
-  params: Promise<{ branchId: string }>;
+  params: { branchId: string };
 }) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;

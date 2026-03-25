@@ -1,5 +1,4 @@
 import { getBranches } from "@/app/actions/branch";
-import Navbar from "@/layout/Navbar";
 import { redirect } from "next/navigation";
 
 export default async function BranchLayout({
@@ -7,7 +6,7 @@ export default async function BranchLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ branchId: string }>;
+  params: { branchId: string };
 }) {
   const { branchId } = await params;
   const branchIdNumber = Number(branchId);

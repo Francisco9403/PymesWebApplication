@@ -119,7 +119,7 @@ export default function SupplierDataReview({
                 dark:focus:border-[rgba(255,107,53,0.5)] dark:focus:bg-[rgba(255,255,255,0.06)]"
             >
               {Object.values(IvaCondition).map((iva) => (
-                <option key={iva} value={iva}>
+                <option key={iva} value={iva} className="text-black">
                   {iva}
                 </option>
               ))}
@@ -146,7 +146,7 @@ export default function SupplierDataReview({
                 dark:focus:border-[rgba(255,107,53,0.5)] dark:focus:bg-[rgba(255,255,255,0.06)]"
             >
               {Object.values(FiscalOrigin).map((origin) => (
-                <option key={origin} value={origin}>
+                <option key={origin} value={origin} className="text-black">
                   {origin}
                 </option>
               ))}
