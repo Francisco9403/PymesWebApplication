@@ -3,6 +3,7 @@ package com.backend.app.producto.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.EntityGraph; // 🚀 Importado
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,16 +14,16 @@ import com.backend.app.producto.model.ProductStock;
 @Repository
 public interface ProductStockRepository extends JpaRepository<ProductStock, Long> {
 
-    // Buscar todas las ubicaciones y cantidades de un producto específico
+    @EntityGraph(attributePaths = {"product", "branch.user"})
     List<ProductStock> findByProductId(Long productId);
 
-    // Buscar to do el inventario que tiene una sucursal/depósito particular
+    @EntityGraph(attributePaths = {"product", "branch.user"})
     List<ProductStock> findByBranchId(Long branchId);
 
-    // Buscar el registro exacto de un producto en una sucursal específica (ideal para descontar stock al vender)
+    @EntityGraph(attributePaths = {"product", "branch.user"})
     Optional<ProductStock> findByProductIdAndBranchId(Long productId, Long branchId);
-
     long countByProductId(Long productId);
 
+    @EntityGraph(attributePaths = {"product", "branch"})
     Optional<ProductStock> findByProductAndBranch(Product product, Branch branch);
 }

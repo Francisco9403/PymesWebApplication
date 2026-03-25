@@ -20,8 +20,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "sale", indexes = {
+        @Index(name = "idx_sale_created_at", columnList = "created_at"),
+        @Index(name = "idx_sale_branch", columnList = "branch_id"),
+        @Index(name = "idx_sale_customer", columnList = "customer_id")
+})
 public class Sale {
 
     @Id

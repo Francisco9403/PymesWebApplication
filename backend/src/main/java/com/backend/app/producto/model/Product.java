@@ -23,7 +23,16 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+
 @Entity
+@Table(name = "product", indexes = {
+        @Index(name = "idx_product_sku", columnList = "sku"),
+        @Index(name = "idx_product_ean13", columnList = "ean13"),
+        @Index(name = "idx_product_name", columnList = "name"),
+        @Index(name = "idx_product_user", columnList = "user_id")
+})
 public class Product extends SyncEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

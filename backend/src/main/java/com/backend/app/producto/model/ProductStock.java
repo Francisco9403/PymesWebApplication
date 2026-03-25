@@ -7,7 +7,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+
 @Entity
+@Table(name = "product_stock", indexes = {
+        @Index(name = "idx_stock_branch", columnList = "branch_id"),
+        @Index(name = "idx_stock_product", columnList = "product_id"),
+        @Index(name = "idx_stock_product_branch", columnList = "product_id, branch_id")
+})
 public class ProductStock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
